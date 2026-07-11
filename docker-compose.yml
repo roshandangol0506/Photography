@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis-server
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  chatbot:
+    build: .
+    container_name: chatbot-container
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - /home/ubuntu/your-project:/app
+      - /app/server/node_modules
+      - /app/frontend/node_modules
+
+volumes:
+  redis_data:

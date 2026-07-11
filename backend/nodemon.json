@@ -1,0 +1,13 @@
+{
+  "watch": ["**/*.ts", "**/*.js"],
+  "ignore": [
+    "node_modules",
+    "build",
+    "dist",
+    "livechat",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "exec": "ts-node server.ts",
+  "ext": "ts,js,json"
+}
