@@ -66,21 +66,19 @@ const middleware = (app: Application) => {
     ipv6Subnet: 56,
   });
 
-  // Configure CORS
-  const allowedOrigins = (DotenvConfig.SOCKET_ALLOWED_ORIGINS || "*")
-    .split(",")
-    .map((o) => o.trim())
-    .filter(Boolean);
-
   const io = new SocketIOServer(server, {
     maxHttpBufferSize: 1e8,
   });
 
   app.use(
     cors({
-      origin: allowedOrigins,
+      origin: DotenvConfig.CORS_ORIGIN,
+      credentials: true,
+      methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "apiKey"],
     }),
   );
+
   app.use(express.json());
 
   app.use(express.urlencoded({ extended: false }));

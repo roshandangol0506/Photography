@@ -7,7 +7,7 @@
     "emitDecoratorMetadata": true,
     "outDir": "./build",
     "moduleResolution": "node",
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "typeRoots": ["./node_modules/@types", "./types"],
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -16,5 +16,8 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true
+  },
+  "ts-node": {
+    "files": true
   }
 }

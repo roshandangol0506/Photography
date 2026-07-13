@@ -30,4 +30,12 @@ export class DotenvConfig {
 
   static API_RATE_LIMIT = Number(process.env.API_RATE_LIMIT) || 500;
   static API_WINDOW_MINUTE = Number(process.env.API_WINDOW_MINUTE) || 5;
+
+  static VERIFY_EMAIL_TOKEN_SECRET = process.env.VERIFY_EMAIL_TOKEN_SECRET!;
+  static JWT_SECRET = process.env.JWT_SECRET!;
+  static JWT_TOKEN_EXPIRE = Number(process.env.JWT_TOKEN_EXPIRE);
+  static VERIFY_EMAIL_TOKEN_EXPIRES_IN = Number(
+    process.env.VERIFY_EMAIL_TOKEN_EXPIRES_IN,
+  );
+  static CORS_ORIGIN = process.env.CORS_ORIGIN?.split(",") || [];
 }
