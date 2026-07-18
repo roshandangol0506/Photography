@@ -5,6 +5,7 @@ import { AuthGuard } from "@/components/admin/AuthGuard";
 import Login from "@/pages/admin/Login";
 import Dashboard from "@/pages/admin/Dashboard";
 import AddPhoto from "@/pages/admin/AddPhoto";
+import EditPhoto from "@/pages/admin/EditPhoto";
 import Photos from "@/pages/admin/Photos";
 import Collections from "@/pages/admin/Collections";
 import Categories from "@/pages/admin/Categories";
@@ -33,6 +34,7 @@ function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="photos/new" element={<AddPhoto />} />
+        <Route path="photos/:id/edit" element={<EditPhoto />} />
         <Route path="photos" element={<Photos />} />
         <Route path="collections" element={<Collections />} />
         <Route path="categories" element={<Categories />} />

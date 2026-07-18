@@ -11,6 +11,7 @@ import like from "./like.route";
 import message from "./message.route";
 import settings from "./settings.route";
 import analytics from "./analytics.route";
+import upload from "./upload.route";
 
 const app = express.Router();
 // Health check endpoint
@@ -30,5 +31,6 @@ app.use("/likes", like);
 app.use("/messages", message);
 app.use("/settings", settings);
 app.use("/analytics", analytics);
+app.use("/uploads", upload);
 
 export default app;

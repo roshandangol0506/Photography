@@ -1,5 +1,10 @@
-import { ComingSoonPage } from "@/components/admin/ComingSoonPage";
+import { PhotoForm } from "@/components/admin/PhotoForm";
 
 export default function AddPhoto() {
-  return <ComingSoonPage title="Add Photos" />;
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold text-foreground">Add Photo</h1>
+      <PhotoForm />
+    </div>
+  );
 }
