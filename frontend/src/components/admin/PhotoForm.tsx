@@ -26,7 +26,7 @@ const photoSchema = z.object({
   location: z.string().optional(),
   dateTaken: z.string().optional(),
   visibility: z.string().optional(),
-  order: z.coerce.number().optional(),
+  order: z.number().optional(),
 });
 
 type PhotoFieldsForm = z.infer<typeof photoSchema>;
@@ -262,7 +262,11 @@ export function PhotoForm({ photo }: PhotoFormProps) {
         </div>
         <div className="space-y-2">
           <Label htmlFor="order">Order</Label>
-          <Input id="order" type="number" {...form.register("order")} />
+          <Input
+            id="order"
+            type="number"
+            {...form.register("order", { valueAsNumber: true })}
+          />
         </div>
       </div>
 

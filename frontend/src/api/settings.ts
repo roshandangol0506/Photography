@@ -50,6 +50,17 @@ export function useSettings() {
   });
 }
 
+export function usePublicSettings() {
+  return useQuery({
+    queryKey: ["settings", "public"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<SiteSettings>>("/settings");
+      return data.data;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useUpdateSettings() {
   const queryClient = useQueryClient();
   return useMutation({

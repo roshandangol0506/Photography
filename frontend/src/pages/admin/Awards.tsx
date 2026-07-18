@@ -28,9 +28,9 @@ import { ImageUploader } from "@/components/admin/ImageUploader";
 const awardSchema = z.object({
   title: z.string().min(1, "Title is required"),
   organization: z.string().optional(),
-  year: z.coerce.number().min(1900, "Enter a valid year"),
+  year: z.number().min(1900, "Enter a valid year"),
   description: z.string().optional(),
-  order: z.coerce.number().optional(),
+  order: z.number().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -212,7 +212,11 @@ export default function Awards() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">Year</Label>
-            <Input id="year" type="number" {...form.register("year")} />
+            <Input
+              id="year"
+              type="number"
+              {...form.register("year", { valueAsNumber: true })}
+            />
             {form.formState.errors.year && (
               <p className="text-xs text-destructive">
                 {form.formState.errors.year.message}
@@ -225,7 +229,11 @@ export default function Awards() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="order">Order</Label>
-            <Input id="order" type="number" {...form.register("order")} />
+            <Input
+              id="order"
+              type="number"
+              {...form.register("order", { valueAsNumber: true })}
+            />
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="isActive">Active</Label>

@@ -18,7 +18,7 @@ const middleware = (app: Application) => {
   app.set("trust proxy", 1);
 
   // Serve static chatbot files
-  const botPath = path.join(__dirname, "./dist");
+  const botPath = path.join(__dirname, "../dist");
   const botDistExists = fs.existsSync(botPath);
 
   if (botDistExists) {
@@ -94,8 +94,8 @@ const middleware = (app: Application) => {
   app.use("/api", apiKeyAuth(), routeManager);
   app.use(express.static(botPath));
 
-  // Catch-all route for chatbot host
-  app.get("/", (_, res: Response) => {
+  // Catch-all route for SPA client-side routing (e.g. /admin/login)
+  app.get(/^(?!\/api|\/chatbot).*/, (_, res: Response) => {
     res.sendFile(path.join(botPath, "index.html"));
   });
 

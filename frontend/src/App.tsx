@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import App2 from "@/components/App2";
+import { PublicLayout } from "@/layouts/PublicLayout";
+import Home from "@/pages/public/Home";
+import Gallery from "@/pages/public/Gallery";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { AuthGuard } from "@/components/admin/AuthGuard";
 import Login from "@/pages/admin/Login";
@@ -22,7 +24,10 @@ import Appearance from "@/pages/admin/Appearance";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<App2 />} />
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/gallery" element={<Gallery />} />
+      </Route>
       <Route path="/admin/login" element={<Login />} />
       <Route
         path="/admin"

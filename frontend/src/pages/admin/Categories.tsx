@@ -29,7 +29,7 @@ const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
   description: z.string().optional(),
-  order: z.coerce.number().optional(),
+  order: z.number().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -222,7 +222,11 @@ export default function Categories() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="order">Order</Label>
-            <Input id="order" type="number" {...form.register("order")} />
+            <Input
+              id="order"
+              type="number"
+              {...form.register("order", { valueAsNumber: true })}
+            />
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="isActive">Active</Label>

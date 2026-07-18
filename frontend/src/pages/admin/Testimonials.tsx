@@ -29,8 +29,8 @@ const testimonialSchema = z.object({
   name: z.string().min(1, "Name is required"),
   role: z.string().optional(),
   message: z.string().min(1, "Message is required"),
-  rating: z.coerce.number().min(1).max(5).optional(),
-  order: z.coerce.number().optional(),
+  rating: z.number().min(1).max(5).optional(),
+  order: z.number().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -230,12 +230,16 @@ export default function Testimonials() {
               type="number"
               min={1}
               max={5}
-              {...form.register("rating")}
+              {...form.register("rating", { valueAsNumber: true })}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="order">Order</Label>
-            <Input id="order" type="number" {...form.register("order")} />
+            <Input
+              id="order"
+              type="number"
+              {...form.register("order", { valueAsNumber: true })}
+            />
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="isActive">Active</Label>
