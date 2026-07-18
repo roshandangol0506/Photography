@@ -1,3 +1,4 @@
+import { useSeo } from "@/hooks/useSeo";
 import { Hero } from "@/components/public/sections/Hero";
 import { FeaturedPhotos } from "@/components/public/sections/FeaturedPhotos";
 import { CategoriesShowcase } from "@/components/public/sections/CategoriesShowcase";
@@ -10,6 +11,8 @@ import { AboutSection } from "@/components/public/sections/AboutSection";
 import { ContactSection } from "@/components/public/sections/ContactSection";
 
 export default function Home() {
+  useSeo();
+
   return (
     <>
       <Hero />

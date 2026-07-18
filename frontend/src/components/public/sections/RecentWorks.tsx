@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { usePublicPhotos } from "@/api/photos";
 import { SectionReveal } from "@/components/public/SectionReveal";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
+import { photoSrcSet, RECENT_WORKS_SIZES } from "@/lib/image";
 
 export function RecentWorks() {
   const { data } = usePublicPhotos({ perpage: 6 });
@@ -29,6 +30,8 @@ export function RecentWorks() {
             >
               <ProgressiveImage
                 src={photo.images.medium}
+                srcSet={photoSrcSet(photo.images)}
+                sizes={RECENT_WORKS_SIZES}
                 blurDataURL={photo.images.blurDataURL}
                 alt={photo.title}
                 className="aspect-4/3"

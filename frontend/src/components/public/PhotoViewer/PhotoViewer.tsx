@@ -4,10 +4,13 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { usePhotoBySlug } from "@/api/photos";
+import { useSeo } from "@/hooks/useSeo";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { LikeButton } from "@/components/public/LikeButton";
 import { ShareButton } from "@/components/public/ShareButton";
 import { PhotoDrawer } from "./PhotoDrawer";
 import { cn } from "@/lib/utils";
+import { photoSrcSet } from "@/lib/image";
 
 interface PhotoViewerProps {
   slug: string;
@@ -23,9 +26,29 @@ export function PhotoViewer({
   onNavigate,
 }: PhotoViewerProps) {
   const { data, isLoading } = usePhotoBySlug(slug);
+  useSeo(
+    data
+      ? {
+          title: data.photo.title,
+          description: data.photo.description,
+          image: data.photo.images.large,
+        }
+      : undefined,
+  );
   const [zoomed, setZoomed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [visible, setVisible] = useState(true);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Must run before the focus-on-open effect below so it captures the
+  // trigger element (e.g. the photo card that opened this viewer) instead
+  // of the close button.
+  useFocusTrap(true, containerRef);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
 
   const currentIndex = slugList.indexOf(slug);
   const hasPrev = currentIndex > 0;
@@ -91,7 +114,11 @@ export function PhotoViewer({
 
   return createPortal(
     <motion.div
+      ref={containerRef}
       data-testid="photo-viewer"
+      role="dialog"
+      aria-modal="true"
+      aria-label={data ? `${data.photo.title} - photo viewer` : "Photo viewer"}
       initial={{ opacity: 0 }}
       animate={{ opacity: visible ? 1 : 0 }}
       onAnimationComplete={() => {
@@ -104,6 +131,7 @@ export function PhotoViewer({
       onWheel={handleWheel}
     >
       <button
+        ref={closeButtonRef}
         onClick={handleClose}
         aria-label="Close"
         className="absolute right-4 top-4 z-20 rounded-full bg-black/40 p-2 text-white hover:bg-black/60"
@@ -136,6 +164,8 @@ export function PhotoViewer({
         ) : (
           <img
             src={data.photo.images.large}
+            srcSet={photoSrcSet(data.photo.images)}
+            sizes="100vw"
             alt={data.photo.title}
             onClick={() => setZoomed((z) => !z)}
             className={cn(

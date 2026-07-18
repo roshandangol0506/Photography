@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { usePublicPhotos } from "@/api/photos";
 import { SectionReveal } from "@/components/public/SectionReveal";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
+import { photoSrcSet, GRID_SIZES } from "@/lib/image";
 
 export function FeaturedPhotos() {
   const { data } = usePublicPhotos({ featured: true, perpage: 8 });
@@ -29,6 +30,8 @@ export function FeaturedPhotos() {
             >
               <ProgressiveImage
                 src={photo.images.medium}
+                srcSet={photoSrcSet(photo.images)}
+                sizes={GRID_SIZES}
                 blurDataURL={photo.images.blurDataURL}
                 alt={photo.title}
                 className="aspect-square"

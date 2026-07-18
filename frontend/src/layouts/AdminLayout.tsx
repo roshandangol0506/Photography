@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { Topbar } from "@/components/admin/Topbar";
+import { PageLoader } from "@/components/PageLoader";
 
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,7 +13,9 @@ export function AdminLayout() {
       <div className="flex flex-1 flex-col">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

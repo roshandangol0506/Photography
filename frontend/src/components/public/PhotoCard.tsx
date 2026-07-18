@@ -1,5 +1,6 @@
 import { MessageCircle, Eye } from "lucide-react";
 import { LikeButton } from "@/components/public/LikeButton";
+import { photoSrcSet, GRID_SIZES } from "@/lib/image";
 import type { Photo } from "@/api/photos";
 
 interface PhotoCardProps {
@@ -19,6 +20,7 @@ export function PhotoCard({ photo, onClick }: PhotoCardProps) {
     <div
       role="button"
       tabIndex={0}
+      aria-label={`View ${photo.title}`}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className="group relative mb-4 block w-full cursor-pointer break-inside-avoid overflow-hidden rounded-xl bg-cover bg-center text-left"
@@ -26,6 +28,8 @@ export function PhotoCard({ photo, onClick }: PhotoCardProps) {
     >
       <img
         src={photo.images.medium}
+        srcSet={photoSrcSet(photo.images)}
+        sizes={GRID_SIZES}
         alt={photo.title}
         loading="lazy"
         className="w-full object-cover transition-transform duration-500 group-hover:scale-105"

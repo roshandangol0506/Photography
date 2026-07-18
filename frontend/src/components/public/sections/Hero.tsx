@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { useBackgroundPhotos } from "@/api/photos";
 import { useTheme } from "@/hooks/useTheme";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
+import { photoSrcSet } from "@/lib/image";
 import { cn } from "@/lib/utils";
 
 export function Hero() {
@@ -34,6 +35,8 @@ export function Hero() {
           >
             <ProgressiveImage
               src={photo.images.large}
+              srcSet={photoSrcSet(photo.images)}
+              sizes="100vw"
               blurDataURL={photo.images.blurDataURL}
               alt={photo.title}
               className="h-full w-full"

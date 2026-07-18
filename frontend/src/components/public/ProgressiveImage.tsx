@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 
 interface ProgressiveImageProps {
   src: string;
+  srcSet?: string;
+  sizes?: string;
   blurDataURL?: string;
   alt: string;
   className?: string;
@@ -12,6 +14,8 @@ interface ProgressiveImageProps {
 
 export function ProgressiveImage({
   src,
+  srcSet,
+  sizes,
   blurDataURL,
   alt,
   className,
@@ -35,6 +39,8 @@ export function ProgressiveImage({
       )}
       <img
         src={src}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         onLoad={() => setLoaded(true)}

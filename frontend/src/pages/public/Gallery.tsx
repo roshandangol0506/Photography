@@ -3,12 +3,18 @@ import { useSearchParams } from "react-router-dom";
 import { useInfinitePublicPhotos } from "@/api/photos";
 import { useActiveCategories } from "@/api/categories";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useSeo } from "@/hooks/useSeo";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 import { PhotoCard } from "@/components/public/PhotoCard";
 import { PhotoViewer } from "@/components/public/PhotoViewer/PhotoViewer";
 
 export default function Gallery() {
+  useSeo({
+    title: "Gallery",
+    description: "Browse the full photography collection.",
+  });
+
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("category") ?? "";
   const activeCollection = searchParams.get("collection") ?? "";
@@ -100,6 +106,7 @@ export default function Gallery() {
           <button
             type="button"
             onClick={() => setCategory("")}
+            aria-pressed={!activeCategory && !activeCollection}
             className={cn(
               "rounded-full border px-4 py-1.5 text-sm transition-colors",
               !activeCategory && !activeCollection
@@ -114,6 +121,7 @@ export default function Gallery() {
               type="button"
               key={category._id}
               onClick={() => setCategory(category.slug)}
+              aria-pressed={activeCategory === category.slug}
               className={cn(
                 "rounded-full border px-4 py-1.5 text-sm transition-colors",
                 activeCategory === category.slug

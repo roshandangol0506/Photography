@@ -17,17 +17,17 @@ RUN npm run build
 # -----------------------
 FROM node:20-alpine
 
-WORKDIR /app/server
+WORKDIR /app/backend
 
 # Install backend dependencies directly in final image
-COPY server/package*.json ./
+COPY backend/package*.json ./
 RUN npm install
 
 # Copy backend code
-COPY server/ ./
+COPY backend/ ./
 
-# frontend build generated here in server
-COPY --from=build-frontend /app/server/dist ./dist
+# vite.config.ts builds the frontend directly into ../backend/dist
+COPY --from=build-frontend /app/backend/dist ./dist
 
 EXPOSE 3001
 

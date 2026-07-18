@@ -1,5 +1,6 @@
 import { useSideScrollPhotos } from "@/api/photos";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
+import { photoSrcSet } from "@/lib/image";
 
 export function SideScrollStrip() {
   const { data: photos } = useSideScrollPhotos();
@@ -18,6 +19,8 @@ export function SideScrollStrip() {
           >
             <ProgressiveImage
               src={photo.images.medium}
+              srcSet={photoSrcSet(photo.images)}
+              sizes="288px"
               blurDataURL={photo.images.blurDataURL}
               alt={photo.title}
               className="h-full w-full"
