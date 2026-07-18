@@ -42,6 +42,16 @@ export function useAwards(params: AwardListParams) {
   });
 }
 
+export function useActiveAwards() {
+  return useQuery({
+    queryKey: ["awards", "active"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Award[]>>("/awards/active");
+      return data.data;
+    },
+  });
+}
+
 export function useCreateAward() {
   const queryClient = useQueryClient();
   return useMutation({

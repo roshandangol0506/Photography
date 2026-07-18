@@ -37,6 +37,10 @@ export class UpdateSettingsDTO {
   @IsOptional()
   heroSettings?: Record<string, any>;
 
+  @IsObject()
+  @IsOptional()
+  about?: Record<string, any>;
+
   @IsBoolean()
   @IsOptional()
   animationsEnabled?: boolean;

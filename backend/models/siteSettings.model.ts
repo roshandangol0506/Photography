@@ -31,6 +31,12 @@ export interface ISiteSettings extends mongoose.Document {
     autoplaySpeedMs: number;
     transitionStyle: string;
   };
+  about: {
+    title?: string;
+    description?: string;
+    image?: string;
+    experienceYears?: number;
+  };
   animationsEnabled: boolean;
   maintenanceMode: boolean;
   darkModeDefault: boolean;
@@ -67,6 +73,12 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     heroSettings: {
       autoplaySpeedMs: { type: Number, default: 5000 },
       transitionStyle: { type: String, default: "fade" },
+    },
+    about: {
+      title: { type: String, default: "" },
+      description: { type: String, default: "" },
+      image: { type: String, default: "" },
+      experienceYears: { type: Number, default: 0 },
     },
     animationsEnabled: { type: Boolean, default: true },
     maintenanceMode: { type: Boolean, default: false },

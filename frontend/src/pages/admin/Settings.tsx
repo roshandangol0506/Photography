@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSettings, useUpdateSettings, type SiteSettings } from "@/api/settings";
+import { useUploadAsset } from "@/api/uploads";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Switch } from "@/components/ui/Switch";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 interface SettingsFormValues {
   siteTitle: string;
@@ -22,10 +25,17 @@ interface SettingsFormValues {
   mapEmbedUrl: string;
   footerText: string;
   maintenanceMode: boolean;
+  aboutTitle: string;
+  aboutDescription: string;
+  aboutExperienceYears: number;
 }
 
 function SettingsForm({ settings }: { settings: SiteSettings }) {
   const updateMutation = useUpdateSettings();
+  const uploadMutation = useUploadAsset();
+  const [aboutImage, setAboutImage] = useState<string | undefined>(
+    settings.about?.image,
+  );
 
   const form = useForm<SettingsFormValues>({
     defaultValues: {
@@ -43,8 +53,21 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
       mapEmbedUrl: settings.contactDetails?.mapEmbedUrl ?? "",
       footerText: settings.footerText ?? "",
       maintenanceMode: settings.maintenanceMode,
+      aboutTitle: settings.about?.title ?? "",
+      aboutDescription: settings.about?.description ?? "",
+      aboutExperienceYears: settings.about?.experienceYears ?? 0,
     },
   });
+
+  const handleAboutImageChange = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadMutation.mutateAsync(file);
+      setAboutImage(result.url);
+    } catch {
+      toast.error("Image upload failed");
+    }
+  };
 
   const onSubmit = async (values: SettingsFormValues) => {
     try {
@@ -70,6 +93,12 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
         },
         footerText: values.footerText,
         maintenanceMode: values.maintenanceMode,
+        about: {
+          title: values.aboutTitle,
+          description: values.aboutDescription,
+          experienceYears: Number(values.aboutExperienceYears),
+          image: aboutImage,
+        },
       });
       toast.success("Settings saved");
     } catch {
@@ -154,6 +183,37 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
         <div className="space-y-2">
           <Label htmlFor="footerText">Footer text</Label>
           <Textarea id="footerText" {...form.register("footerText")} />
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-border p-4">
+        <h2 className="text-sm font-semibold text-foreground">
+          About section
+        </h2>
+        <ImageUploader
+          label="About photo"
+          value={aboutImage}
+          onChange={handleAboutImageChange}
+        />
+        <div className="space-y-2">
+          <Label htmlFor="aboutTitle">Title</Label>
+          <Input id="aboutTitle" {...form.register("aboutTitle")} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="aboutDescription">Description</Label>
+          <Textarea
+            id="aboutDescription"
+            rows={5}
+            {...form.register("aboutDescription")}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="aboutExperienceYears">Years of experience</Label>
+          <Input
+            id="aboutExperienceYears"
+            type="number"
+            {...form.register("aboutExperienceYears", { valueAsNumber: true })}
+          />
         </div>
       </section>
 

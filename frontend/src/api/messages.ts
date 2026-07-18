@@ -20,6 +20,26 @@ export interface MessageListParams {
   search?: string;
 }
 
+export interface ContactMessageInput {
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+}
+
+export function useCreateMessage() {
+  return useMutation({
+    mutationFn: async (body: ContactMessageInput) => {
+      const { data } = await api.post<ApiResponse<ContactMessage>>(
+        "/messages",
+        body,
+      );
+      return data.data;
+    },
+  });
+}
+
 export function useMessages(params: MessageListParams) {
   return useQuery({
     queryKey: ["messages", params],

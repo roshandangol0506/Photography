@@ -7,3 +7,4 @@ export const otpRegex = /^\d{6}$/;
 export const urlRegex =
   /^(https?:\/\/)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
 export const phoneNumberCSVRegex = /^\+[\d\s\-()]{6,20}$/;
+export const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

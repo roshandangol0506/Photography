@@ -1,4 +1,12 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+} from "class-validator";
+import { slugRegex } from "../constant/regex";
+import { Message } from "../constant/messages";
 
 export class CreatePhotoDTO {
   @IsString()
@@ -7,6 +15,7 @@ export class CreatePhotoDTO {
 
   @IsString()
   @IsNotEmpty()
+  @Matches(slugRegex, { message: Message.invalidSlug })
   slug: string;
 
   @IsString()
@@ -68,6 +77,7 @@ export class UpdatePhotoDTO {
 
   @IsString()
   @IsOptional()
+  @Matches(slugRegex, { message: Message.invalidSlug })
   slug?: string;
 
   @IsString()

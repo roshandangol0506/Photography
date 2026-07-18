@@ -34,4 +34,5 @@ export const Message = {
   commentSubmitted: 'Your comment has been submitted for review',
   messageSent: 'Your message has been sent successfully',
   loggedOut: 'Successfully logged out',
+  invalidSlug: 'Slug may only contain lowercase letters, numbers and hyphens (e.g. my-photo-title)',
 };

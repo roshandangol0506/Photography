@@ -34,6 +34,12 @@ export interface SiteSettings {
     autoplaySpeedMs: number;
     transitionStyle: string;
   };
+  about: {
+    title?: string;
+    description?: string;
+    image?: string;
+    experienceYears?: number;
+  };
   animationsEnabled: boolean;
   maintenanceMode: boolean;
   darkModeDefault: boolean;

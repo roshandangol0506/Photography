@@ -4,7 +4,10 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
 } from "class-validator";
+import { slugRegex } from "../constant/regex";
+import { Message } from "../constant/messages";
 
 export class CreateCollectionDTO {
   @IsString()
@@ -13,6 +16,7 @@ export class CreateCollectionDTO {
 
   @IsString()
   @IsNotEmpty()
+  @Matches(slugRegex, { message: Message.invalidSlug })
   slug: string;
 
   @IsString()
@@ -39,6 +43,7 @@ export class UpdateCollectionDTO {
 
   @IsString()
   @IsOptional()
+  @Matches(slugRegex, { message: Message.invalidSlug })
   slug?: string;
 
   @IsString()

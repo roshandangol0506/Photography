@@ -48,6 +48,55 @@ export interface PhotoListParams {
   tag?: string;
 }
 
+export interface PublicPhotoListParams {
+  page?: number;
+  perpage?: number;
+  search?: string;
+  category?: string;
+  collection?: string;
+  tag?: string;
+  featured?: boolean;
+  trending?: boolean;
+}
+
+export function usePublicPhotos(params: PublicPhotoListParams) {
+  return useQuery({
+    queryKey: ["photos", "public", params],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ photos: Photo[]; pagination: PaginationMeta }>
+      >("/photos", { params });
+      return data.data;
+    },
+  });
+}
+
+export function useBackgroundPhotos() {
+  return useQuery({
+    queryKey: ["photos", "background"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Photo[]>>(
+        "/photos/background",
+      );
+      return data.data;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useSideScrollPhotos() {
+  return useQuery({
+    queryKey: ["photos", "sidescroll"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Photo[]>>(
+        "/photos/sidescroll",
+      );
+      return data.data;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useAdminPhotos(params: PhotoListParams) {
   return useQuery({
     queryKey: ["photos", "admin", params],
