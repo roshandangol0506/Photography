@@ -4,6 +4,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
 import { MaintenancePage } from "@/components/public/MaintenancePage";
+import { VisitorTracker } from "@/components/public/VisitorTracker";
 
 function PublicLayoutContent() {
   const { settings } = useTheme();
@@ -14,6 +15,7 @@ function PublicLayoutContent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <VisitorTracker />
       <Navbar />
       <main className="flex-1 pt-24">
         <Outlet />

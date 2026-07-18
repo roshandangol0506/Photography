@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { ApiResponse, PaginationMeta } from "./types";
 
@@ -68,6 +73,45 @@ export function usePublicPhotos(params: PublicPhotoListParams) {
       >("/photos", { params });
       return data.data;
     },
+  });
+}
+
+export function useInfinitePublicPhotos(
+  params: Omit<PublicPhotoListParams, "page">,
+) {
+  return useInfiniteQuery({
+    queryKey: ["photos", "public", "infinite", params],
+    queryFn: async ({ pageParam }) => {
+      const { data } = await api.get<
+        ApiResponse<{ photos: Photo[]; pagination: PaginationMeta }>
+      >("/photos", { params: { ...params, page: pageParam, perpage: 12 } });
+      return data.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.currentPage < lastPage.pagination.totalPages
+        ? lastPage.pagination.currentPage + 1
+        : undefined,
+  });
+}
+
+export interface RelatedPhoto {
+  _id: string;
+  title: string;
+  slug: string;
+  images: Photo["images"];
+}
+
+export function usePhotoBySlug(slug: string | undefined) {
+  return useQuery({
+    queryKey: ["photos", "detail", slug],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ photo: Photo; related: RelatedPhoto[] }>
+      >(`/photos/${slug}`);
+      return data.data;
+    },
+    enabled: Boolean(slug),
   });
 }
 

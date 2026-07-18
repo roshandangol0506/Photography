@@ -1,5 +1,7 @@
 import crypto from "crypto";
 import Photo from "../models/photo.model";
+import Category from "../models/category.model";
+import Collection from "../models/collection.model";
 import StorageService from "./storage.service";
 import {
   generateImageVariants,
@@ -124,8 +126,28 @@ class photoService {
       };
 
       if (query.search) filter.title = { $regex: query.search, $options: "i" };
-      if (query.category) filter.category = query.category;
-      if (query.collection) filter.collections = query.collection;
+
+      // Category/collection are addressed by slug everywhere on the public
+      // site, but Photo stores them as ObjectId refs - resolve before filtering.
+      if (query.category) {
+        const category = await Category.findOne(
+          { slug: query.category },
+          "_id",
+        );
+        if (!category)
+          return { photos: [], pagination: getPaginationData(0, page, perpage) };
+        filter.category = category._id;
+      }
+      if (query.collection) {
+        const collection = await Collection.findOne(
+          { slug: query.collection },
+          "_id",
+        );
+        if (!collection)
+          return { photos: [], pagination: getPaginationData(0, page, perpage) };
+        filter.collections = collection._id;
+      }
+
       if (query.tag) filter.tags = query.tag;
       if (query.featured === "true") filter.isFeatured = true;
       if (query.trending === "true") filter.isTrending = true;

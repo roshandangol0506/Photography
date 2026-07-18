@@ -19,6 +19,49 @@ export interface CommentListParams {
   search?: string;
 }
 
+export interface PublicCommentParams {
+  page?: number;
+  perpage?: number;
+}
+
+export function usePublicComments(
+  photoId: string | undefined,
+  params: PublicCommentParams = {},
+) {
+  return useQuery({
+    queryKey: ["comments", "public", photoId, params],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ comments: Comment[]; pagination: PaginationMeta }>
+      >(`/comments/${photoId}`, { params });
+      return data.data;
+    },
+    enabled: Boolean(photoId),
+  });
+}
+
+export interface CreateCommentInput {
+  visitorId: string;
+  name: string;
+  content: string;
+}
+
+export function useCreateComment(photoId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: CreateCommentInput) => {
+      const { data } = await api.post<ApiResponse<Comment>>(
+        `/comments/${photoId}`,
+        body,
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", "public", photoId] });
+    },
+  });
+}
+
 export function useAdminComments(params: CommentListParams) {
   return useQuery({
     queryKey: ["comments", "admin", params],

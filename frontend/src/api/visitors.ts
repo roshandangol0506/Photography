@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { ApiResponse, PaginationMeta } from "./types";
 
@@ -21,6 +21,24 @@ export interface VisitorListParams {
   device?: string;
   browser?: string;
   platform?: string;
+}
+
+export function useIdentifyVisitor() {
+  return useMutation({
+    mutationFn: async ({
+      uniqueId,
+      path,
+    }: {
+      uniqueId: string;
+      path?: string;
+    }) => {
+      const { data } = await api.post<ApiResponse<Visitor>>(
+        "/visitors/identify",
+        { uniqueId, path },
+      );
+      return data.data;
+    },
+  });
 }
 
 export function useVisitors(params: VisitorListParams) {
