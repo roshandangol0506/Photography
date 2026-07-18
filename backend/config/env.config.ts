@@ -38,4 +38,18 @@ export class DotenvConfig {
     process.env.VERIFY_EMAIL_TOKEN_EXPIRES_IN,
   );
   static CORS_ORIGIN = process.env.CORS_ORIGIN?.split(",") || [];
+
+  static MAX_LOGIN_ATTEMPTS = Number(process.env.MAX_LOGIN_ATTEMPTS) || 5;
+  static OTP_EXPIRY_MINUTES = Number(process.env.OTP_EXPIRY_MINUTES) || 5;
+
+  static API_KEY = process.env.API_KEY;
+
+  static IMG_STORE = process.env.IMG_STORE || "LOCAL";
+  static LOCAL_UPLOAD_DIR = process.env.LOCAL_UPLOAD_DIR || "uploads";
+
+  static AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+  static AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+  static AWS_REGION = process.env.AWS_REGION;
+  static AWS_S3_BUCKET = process.env.AWS_S3_BUCKET;
+  static AWS_S3_BASE_URL = process.env.AWS_S3_BASE_URL;
 }

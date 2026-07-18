@@ -59,7 +59,7 @@ class WebTokenServices {
     DotenvConfig.VERIFY_EMAIL_TOKEN_SECRET,
     {
       expiresIn,
-    }
+    } as jwt.SignOptions,
   );
 }
 

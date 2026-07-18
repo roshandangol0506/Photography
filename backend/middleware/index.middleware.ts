@@ -8,6 +8,7 @@ import { createServer, Server as HTTPServer } from "http";
 import fs from "fs";
 import expressStaticGzip from "express-static-gzip";
 import { errorHandler } from "./errorHandler.middleware";
+import { apiKeyAuth } from "./apiKey.middleware";
 import { DotenvConfig } from "../config/env.config";
 import { rateLimit } from "express-rate-limit";
 
@@ -84,8 +85,13 @@ const middleware = (app: Application) => {
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
 
+  app.use(
+    `/${DotenvConfig.LOCAL_UPLOAD_DIR}`,
+    express.static(path.join(process.cwd(), DotenvConfig.LOCAL_UPLOAD_DIR)),
+  );
+
   app.use("/", rateLimiter);
-  app.use("/api", routeManager);
+  app.use("/api", apiKeyAuth(), routeManager);
   app.use(express.static(botPath));
 
   // Catch-all route for chatbot host

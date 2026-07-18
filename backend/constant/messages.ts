@@ -20,4 +20,18 @@ export const Message = {
   noRegionAccess: 'You do not have access to this region.',
   noBranchAccess: 'You do not have access to this location.',
   noAccess: 'You do not have access.',
+
+  otpSent: 'OTP has been sent to your registered email address',
+  otpVerified: 'OTP verified successfully',
+  invalidOtp: 'Invalid or expired OTP',
+  otpRequired: 'OTP verification is required to continue',
+  accountLocked: 'Your account has been locked due to multiple failed login attempts. Please contact support to unlock it',
+  accountUnlocked: 'Account unlocked successfully',
+  invalidApiKey: 'Invalid or missing API key',
+  maintenanceMode: 'Site is currently under maintenance. Please check back soon',
+  alreadyLiked: 'You have already liked this photo',
+  notLiked: 'You have not liked this photo',
+  commentSubmitted: 'Your comment has been submitted for review',
+  messageSent: 'Your message has been sent successfully',
+  loggedOut: 'Successfully logged out',
 };

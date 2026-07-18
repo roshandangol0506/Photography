@@ -31,7 +31,7 @@ export const cookie = {
     const now = new Date();
     if (expireTime) {
       Object.entries(expireTime).forEach(([unit, val]) => {
-        const value = parseFloat(val as any);
+        const value = Number(val);
         switch (unit) {
           case "month":
             now.setMonth(now.getMonth() + value);
