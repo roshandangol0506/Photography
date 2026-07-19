@@ -23,7 +23,7 @@ export function Hero() {
   }, [photos, settings.heroSettings]);
 
   return (
-    <section className="relative -mt-24 flex h-screen min-h-[600px] w-full items-center justify-center overflow-hidden bg-black">
+    <section className="relative flex h-full w-full items-center justify-center overflow-hidden bg-black">
       {photos && photos.length > 0 ? (
         photos.map((photo, i) => (
           <div

@@ -11,7 +11,7 @@ export function FeaturedPhotos() {
   if (photos.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <section className="max-w-6xl px-4 py-20 sm:px-6">
       <SectionReveal className="mb-10 text-center">
         <p className="text-sm font-medium uppercase tracking-widest text-primary">
           Featured
@@ -22,6 +22,7 @@ export function FeaturedPhotos() {
       </SectionReveal>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <p>Trusted by Hundreds</p>
         {photos.map((photo, i) => (
           <SectionReveal key={photo._id} delay={i * 0.05}>
             <Link

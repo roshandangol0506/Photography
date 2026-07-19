@@ -9,22 +9,29 @@ import { AwardsTimeline } from "@/components/public/sections/AwardsTimeline";
 import { TestimonialsCarousel } from "@/components/public/sections/TestimonialsCarousel";
 import { AboutSection } from "@/components/public/sections/AboutSection";
 import { ContactSection } from "@/components/public/sections/ContactSection";
+import { Footer } from "@/components/public/Footer";
 
 export default function Home() {
   useSeo();
 
   return (
-    <>
-      <Hero />
-      <FeaturedPhotos />
-      <CategoriesShowcase />
-      <CollectionsShowcase />
-      <RecentWorks />
-      <SideScrollStrip />
-      <AwardsTimeline />
-      <TestimonialsCarousel />
-      <AboutSection />
-      <ContactSection />
-    </>
+    <div className="-mt-24">
+      <div className="fixed inset-0 z-0">
+        <Hero />
+      </div>
+      <div className="h-screen" aria-hidden="true" />
+      <div className="relative z-10 bg-background">
+        <FeaturedPhotos />
+        <CategoriesShowcase />
+        <CollectionsShowcase />
+        <RecentWorks />
+        <SideScrollStrip />
+        <AwardsTimeline />
+        <TestimonialsCarousel />
+        <AboutSection />
+        <ContactSection />
+        <Footer />
+      </div>
+    </div>
   );
 }

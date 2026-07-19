@@ -9,6 +9,7 @@ interface TaxonomyItem {
 }
 
 interface TaxonomyGridProps {
+  id?: string;
   eyebrow: string;
   title: string;
   items: TaxonomyItem[];
@@ -16,6 +17,7 @@ interface TaxonomyGridProps {
 }
 
 export function TaxonomyGrid({
+  id,
   eyebrow,
   title,
   items,
@@ -24,7 +26,7 @@ export function TaxonomyGrid({
   if (items.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <section id={id} className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <SectionReveal className="mb-10 text-center">
         <p className="text-sm font-medium uppercase tracking-widest text-primary">
           {eyebrow}
