@@ -213,7 +213,8 @@ class photoService {
         isSideScroll: true,
         visibility: VISIBILITY.PUBLISHED,
       })
-        .select("title slug images")
+        .select("title slug images category camera lens dateTaken")
+        .populate("category", "name slug")
         .sort({ order: 1 });
     } catch (error) {
       throw error;

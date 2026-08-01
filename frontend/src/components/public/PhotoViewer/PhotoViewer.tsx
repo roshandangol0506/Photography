@@ -38,6 +38,8 @@ export function PhotoViewer({
   const [zoomed, setZoomed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [hoveringImage, setHoveringImage] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -158,7 +160,12 @@ export function PhotoViewer({
         </button>
       )}
 
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden p-4">
+      <div
+        className="relative flex flex-1 items-center justify-center overflow-hidden p-4"
+        onMouseMove={(e) => setCursorPos({ x: e.clientX, y: e.clientY })}
+        onMouseEnter={() => setHoveringImage(true)}
+        onMouseLeave={() => setHoveringImage(false)}
+      >
         {isLoading || !data ? (
           <p className="text-white/70">Loading...</p>
         ) : (
@@ -169,10 +176,24 @@ export function PhotoViewer({
             alt={data.photo.title}
             onClick={() => setZoomed((z) => !z)}
             className={cn(
-              "max-h-full max-w-full cursor-zoom-in object-contain transition-transform duration-300",
-              zoomed && "max-w-none max-h-none scale-150 cursor-zoom-out",
+              "max-h-full max-w-full object-contain transition-transform duration-300",
+              zoomed
+                ? "max-w-none max-h-none scale-150 cursor-zoom-out"
+                : "cursor-none",
             )}
           />
+        )}
+
+        {hoveringImage && !zoomed && !isLoading && data && (
+          <p
+            aria-hidden="true"
+            className="pointer-events-none fixed z-30 -translate-x-1/2 -translate-y-1/2 text-center text-xs font-semibold uppercase tracking-wide text-white"
+            style={{ left: cursorPos.x, top: cursorPos.y }}
+          >
+            Scroll
+            <br />
+            Down
+          </p>
         )}
       </div>
 

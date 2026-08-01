@@ -7,6 +7,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Home from "@/pages/public/Home";
 import Gallery from "@/pages/public/Gallery";
+import AboutMe from "@/pages/public/AboutMe";
 
 // Admin pages - split into their own chunks so public visitors never
 // download the dashboard (recharts, react-hook-form, etc.)
@@ -35,6 +36,7 @@ function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/about" element={<AboutMe />} />
           </Route>
           <Route path="/admin/login" element={<Login />} />
           <Route
