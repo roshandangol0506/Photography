@@ -24,6 +24,9 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
   const updateMutation = useUpdateSettings();
   const uploadMutation = useUploadAsset();
   const [logo, setLogo] = useState<string | undefined>(settings.logo);
+  const [logoDark, setLogoDark] = useState<string | undefined>(
+    settings.logoDark,
+  );
 
   const form = useForm<AppearanceFormValues>({
     defaultValues: {
@@ -47,10 +50,21 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
     }
   };
 
+  const handleLogoDarkChange = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadMutation.mutateAsync(file);
+      setLogoDark(result.url);
+    } catch {
+      toast.error("Logo upload failed");
+    }
+  };
+
   const onSubmit = async (values: AppearanceFormValues) => {
     try {
       await updateMutation.mutateAsync({
         logo,
+        logoDark,
         themeColors: {
           primary: values.primary,
           secondary: values.secondary,
@@ -59,6 +73,9 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
         heroSettings: {
           autoplaySpeedMs: Number(values.autoplaySpeedMs),
           transitionStyle: values.transitionStyle,
+          eyebrow: settings.heroSettings?.eyebrow ?? "",
+          headline: settings.heroSettings?.headline ?? "",
+          ctaLabel: settings.heroSettings?.ctaLabel ?? "",
         },
         animationsEnabled: values.animationsEnabled,
         darkModeDefault: values.darkModeDefault,
@@ -73,7 +90,24 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <section className="space-y-4 rounded-xl border border-border p-4">
         <h2 className="text-sm font-semibold text-foreground">Logo</h2>
-        <ImageUploader value={logo} onChange={handleLogoChange} label="Site logo" />
+        <ImageUploader
+          value={logo}
+          onChange={handleLogoChange}
+          label="Light logo"
+        />
+        <p className="text-xs text-muted-foreground">
+          Used over the hero photograph, on the dark footer, and in the navbar
+          while dark mode is on.
+        </p>
+        <ImageUploader
+          value={logoDark}
+          onChange={handleLogoDarkChange}
+          label="Dark logo"
+        />
+        <p className="text-xs text-muted-foreground">
+          Swapped in when the navbar turns light on scroll. Falls back to the
+          light logo if left empty.
+        </p>
       </section>
 
       <section className="space-y-4 rounded-xl border border-border p-4">

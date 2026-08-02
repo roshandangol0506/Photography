@@ -593,15 +593,6 @@ body {
   outline-offset: 2px;
 }
 
-@keyframes md-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 /* Hero slide indicator: the active bar fills left-to-right over one
    autoplay interval, reading as a progress bar. Two identical keyframes so
    clicking the bar that is already active can restart the fill by flipping
@@ -651,14 +642,18 @@ body {
   transform: translateY(0);
 }
 
-/* Side-scroll strip. The track holds the frame list twice, so translating it
-   half its width loops seamlessly. */
-.md-marquee-track {
-  animation: md-marquee 46s linear infinite;
+/* Side-scroll strip. Scroll-driven rather than a CSS animation, so a drag can
+   take over the same scrollLeft the autoplay advances. The native scrollbar is
+   hidden; the strip is its own affordance. */
+.md-strip {
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  /* Let vertical page scrolling through while horizontal drags are captured. */
+  touch-action: pan-y;
 }
 
-.md-marquee:hover .md-marquee-track {
-  animation-play-state: paused;
+.md-strip::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

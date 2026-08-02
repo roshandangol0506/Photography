@@ -4,6 +4,9 @@ export interface ISiteSettings extends mongoose.Document {
   siteTitle: string;
   tagline?: string;
   logo?: string;
+  // Ink-coloured mark for light backgrounds; `logo` is the light one used
+  // over photography and on dark bands.
+  logoDark?: string;
   themeColors: {
     primary: string;
     secondary: string;
@@ -51,6 +54,7 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     siteTitle: { type: String, default: "Photography Portfolio" },
     tagline: { type: String, default: "" },
     logo: { type: String, default: "" },
+    logoDark: { type: String, default: "" },
     themeColors: {
       primary: { type: String, default: "#c5161d" },
       secondary: { type: String, default: "#044189" },

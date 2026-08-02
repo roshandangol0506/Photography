@@ -7,6 +7,7 @@ export interface SiteSettings {
   siteTitle: string;
   tagline?: string;
   logo?: string;
+  logoDark?: string;
   themeColors: {
     primary: string;
     secondary: string;

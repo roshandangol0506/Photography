@@ -26,6 +26,12 @@ export function HomeNavbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scrolled past the hero in light mode is the only state where the bar goes
+  // light. Everywhere else - over the hero, or scrolled in dark mode - the
+  // background stays dark, so the light mark is the right one.
+  const onLightBar = solid && !isDark;
+  const logo = onLightBar ? settings.logoDark || settings.logo : settings.logo;
+
   return (
     <header
       className={cn(
@@ -36,10 +42,14 @@ export function HomeNavbar() {
           : "border-transparent bg-transparent py-5 text-md-light",
       )}
     >
-      <a href="#top" className="flex items-baseline gap-3 text-inherit">
-        <span className="text-[14px] font-bold tracking-[0.26em] uppercase">
-          {settings.siteTitle || "Ajay Maharjan"}
-        </span>
+      <a href="#top" className="flex items-center gap-3 text-inherit">
+        {logo ? (
+          <img src={logo} alt={settings.siteTitle} className="h-16 w-auto" />
+        ) : (
+          <span className="text-[14px] font-bold tracking-[0.26em] uppercase">
+            {settings.siteTitle || "Ajay Maharjan"}
+          </span>
+        )}
       </a>
 
       <nav className="flex items-center gap-[34px] text-inherit max-[900px]:gap-[18px]">

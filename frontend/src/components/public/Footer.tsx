@@ -34,9 +34,17 @@ export function Footer() {
         style={{ borderBottomColor: "rgba(248,244,244,.2)" }}
       >
         <div>
-          <p className="m-0 text-[15px] font-bold tracking-[0.26em] uppercase">
-            {settings.siteTitle}
-          </p>
+          {settings.logo ? (
+            <img
+              src={settings.logo}
+              alt={settings.siteTitle}
+              className="h-20 w-auto"
+            />
+          ) : (
+            <p className="m-0 text-[15px] font-bold tracking-[0.26em] uppercase">
+              {settings.siteTitle}
+            </p>
+          )}
           {settings.footerText && (
             <p
               className="mt-[14px] mb-0 max-w-[320px] text-[13px] leading-[1.7]"

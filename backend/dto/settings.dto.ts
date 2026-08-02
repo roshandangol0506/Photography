@@ -13,6 +13,10 @@ export class UpdateSettingsDTO {
   @IsOptional()
   logo?: string;
 
+  @IsString()
+  @IsOptional()
+  logoDark?: string;
+
   @IsObject()
   @IsOptional()
   themeColors?: Record<string, string>;
