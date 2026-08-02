@@ -155,7 +155,7 @@ export function Hero() {
           <div className="pointer-events-auto flex items-end gap-9">
             <a
               href="#archive"
-              className="inline-flex items-center gap-[18px] bg-md-light px-[22px] py-[17px] text-[12px] font-semibold tracking-[0.18em] text-md-ink uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light"
+              className="inline-flex items-center gap-[18px] bg-md-light px-[22px] py-[17px] text-[12px] font-semibold tracking-[0.18em] text-md-ink! uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light!"
             >
               {heroSettings?.ctaLabel || DEFAULT_CTA} <span>&rarr;</span>
             </a>

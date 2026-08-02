@@ -17,15 +17,33 @@ type ContactForm = z.infer<typeof contactSchema>;
 const FIELD_CLASS =
   "border-0 border-b-2 bg-transparent px-0 py-2.5 font-[inherit] text-[15px] text-md-poster outline-none";
 const FIELD_BORDER = { borderBottomColor: "rgba(255,242,239,.5)" };
-const LABEL_CLASS =
-  "text-[10px] tracking-[0.2em] uppercase opacity-85";
+const LABEL_CLASS = "text-[10px] tracking-[0.2em] uppercase opacity-85";
 
-// Settings store a full profile URL; the poster shows the handle.
-function instagramHandle(url?: string) {
+// Settings store a full profile URL; the poster shows the handle. Parsing the
+// pathname rather than splitting the raw string keeps query strings and
+// fragments (which Facebook share links carry) out of the label.
+function socialHandle(url: string | undefined, prefix: boolean) {
   if (!url) return "";
-  const segment = url.replace(/\/+$/, "").split("/").pop() ?? "";
-  if (!segment) return "";
-  return segment.startsWith("@") ? segment : `@${segment}`;
+  try {
+    const segment = new URL(url).pathname.split("/").filter(Boolean).pop();
+    if (!segment) return "";
+    return prefix ? `@${segment.replace(/^@/, "")}` : segment;
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * The map field accepts either a bare embed URL or the whole <iframe> snippet
+ * Google hands you. Pull the src out of the markup rather than injecting the
+ * HTML, and only trust an http(s) target.
+ */
+function mapSrc(value?: string) {
+  const trimmed = value?.trim();
+  if (!trimmed) return "";
+  const embedded = trimmed.match(/src=["']([^"']+)["']/i);
+  const src = embedded ? embedded[1] : trimmed;
+  return /^https?:\/\//i.test(src) ? src : "";
 }
 
 export function ContactSection() {
@@ -43,15 +61,45 @@ export function ContactSection() {
     }
   };
 
+  const { contactDetails, socialLinks } = settings;
+  const email = contactDetails?.email;
+  const phone = contactDetails?.phone;
+
   const details = [
-    { label: "Email", value: settings.contactDetails?.email },
-    { label: "Studio", value: settings.contactDetails?.location },
+    {
+      label: "Email",
+      value: email,
+      href: email ? `mailto:${email}` : undefined,
+      external: false,
+    },
+    {
+      label: "Phone",
+      value: phone,
+      // Strip spaces and separators so the dialler gets a clean number.
+      href: phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : undefined,
+      external: false,
+    },
+    {
+      label: "Studio",
+      value: contactDetails?.location,
+      href: undefined,
+      external: false,
+    },
     {
       label: "Instagram",
-      value: instagramHandle(settings.socialLinks?.instagram),
+      value: socialHandle(socialLinks?.instagram, true),
+      href: socialLinks?.instagram,
+      external: true,
+    },
+    {
+      label: "Facebook",
+      value: socialHandle(socialLinks?.facebook, false),
+      href: socialLinks?.facebook,
+      external: true,
     },
   ].filter((detail) => Boolean(detail.value));
 
+  const map = mapSrc(contactDetails?.mapEmbedUrl);
   const errors = form.formState.errors;
 
   return (
@@ -59,34 +107,31 @@ export function ContactSection() {
       id="contact"
       className="mt-[100px] bg-md-red px-9 py-24 text-md-poster"
     >
-      <div className="grid grid-cols-[1.1fr_0.9fr] items-start gap-[72px] max-[900px]:grid-cols-1">
+      <div className="grid grid-cols-[1.1fr_0.9fr] items-center gap-[72px] max-[900px]:grid-cols-1">
         <div>
           <span className="text-[11px] tracking-[0.2em] uppercase opacity-85">
             08 &mdash; Contact
           </span>
           <MdReveal>
             <h2 className="mt-[18px] font-extrabold tracking-[-0.03em] text-[clamp(34px,5.4vw,84px)] leading-[0.94]">
-              <span className="block">Let's make</span>
-              <span className="block">something</span>
+              <span className="block">Let's make something</span>
               <span className="block">worth keeping.</span>
             </h2>
           </MdReveal>
 
-          {details.length > 0 && (
+          {map && (
             <div
-              className="mt-[52px] flex flex-wrap gap-11 border-t-2 pt-[22px]"
-              style={{ borderTopColor: "rgba(255,242,239,.45)" }}
+              className="mt-10 border-2 w-225"
+              style={{ borderColor: "rgba(255,242,239,.45)" }}
             >
-              {details.map((detail) => (
-                <div key={detail.label}>
-                  <p className="m-0 text-[10px] tracking-[0.2em] uppercase opacity-80">
-                    {detail.label}
-                  </p>
-                  <p className="mt-1.5 mb-0 text-[15px] font-semibold">
-                    {detail.value}
-                  </p>
-                </div>
-              ))}
+              <iframe
+                src={map}
+                title="Studio location"
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="block h-[400px] w-full border-0"
+              />
             </div>
           )}
         </div>
@@ -94,7 +139,7 @@ export function ContactSection() {
         <MdReveal>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-[22px]"
+            className="flex flex-col justify-end gap-[22px]"
           >
             <label className="flex flex-col gap-2">
               <span className={LABEL_CLASS}>Name</span>
@@ -151,6 +196,35 @@ export function ContactSection() {
           </form>
         </MdReveal>
       </div>
+      {details.length > 0 && (
+        <div
+          className="mt-10 flex flex-wrap justify-around gap-11 border-t-2 pt-[22px]"
+          style={{ borderTopColor: "rgba(255,242,239,.45)" }}
+        >
+          {details.map((detail) => (
+            <div key={detail.label}>
+              <p className="m-0 text-[10px] tracking-[0.2em] uppercase opacity-80">
+                {detail.label}
+              </p>
+              {detail.href ? (
+                <a
+                  href={detail.href}
+                  {...(detail.external
+                    ? { target: "_blank", rel: "noreferrer" }
+                    : {})}
+                  className="mt-1.5 inline-block text-[15px] font-semibold text-md-poster underline-offset-4 transition-opacity duration-200 hover:underline hover:opacity-80"
+                >
+                  {detail.value}
+                </a>
+              ) : (
+                <p className="mt-1.5 mb-0 text-[15px] font-semibold">
+                  {detail.value}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -85,7 +85,7 @@ export function TestimonialsCarousel() {
           )}
           <div className="relative mt-11 grid grid-cols-2 items-end gap-16 max-[900px]:grid-cols-1 px-20">
             <MdReveal className="md-photo overflow-hidden">
-              <div className="aspect-square">
+              <div className="aspect-5/4.5">
                 {active.image ? (
                   <ProgressiveImage
                     src={active.image}

@@ -18,7 +18,7 @@ export function AboutSection() {
   return (
     <section
       id="about"
-      className="mt-[70px] border-t-2 border-md-divider px-9 pt-[110px] pb-10"
+      className="mt-[70px] border-t-2 border-md-divider px-9 pt-[80px] pb-10"
     >
       <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
         02 &mdash; About
@@ -26,7 +26,7 @@ export function AboutSection() {
 
       <div className="mt-12 grid grid-cols-2 items-end gap-[72px] max-[900px]:grid-cols-1">
         <MdReveal className="md-photo overflow-hidden">
-          <div className="aspect-[4/5]">
+          <div className="aspect-6/5">
             {about.image ? (
               <ProgressiveImage
                 src={about.image}
@@ -42,7 +42,7 @@ export function AboutSection() {
 
         <div className="grid grid-cols-[0.75fr_1fr] items-end gap-10 max-[900px]:grid-cols-1">
           <MdReveal>
-            <div className="aspect-[3/4] overflow-hidden">
+            <div className="aspect-[5/6] overflow-hidden">
               {about.portraitImage ? (
                 <ProgressiveImage
                   src={about.portraitImage}
@@ -77,7 +77,7 @@ export function AboutSection() {
             </p>
             <Link
               to="/about"
-              className="mt-7 inline-flex items-center gap-4 bg-md-ink px-5 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-light uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light"
+              className="mt-7 inline-flex items-center gap-4 bg-md-ink px-5 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-light! uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light!"
             >
               Learn more <span>&rarr;</span>
             </Link>
