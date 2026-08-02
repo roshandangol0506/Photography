@@ -1,37 +1,110 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import type { CSSProperties } from "react";
+import { useReducedMotion } from "framer-motion";
 import { useBackgroundPhotos } from "@/api/photos";
 import { useTheme } from "@/hooks/useTheme";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { photoSrcSet } from "@/lib/image";
-import { cn } from "@/lib/utils";
+
+// Copy falls back to the handoff mock so an unconfigured CMS still renders
+// the design exactly; every string below is admin-editable.
+const DEFAULT_EYEBROW = "Kathmandu, Nepal — documentary & travel";
+const DEFAULT_HEADLINE = "Ten years\non the street.";
+const DEFAULT_TAGLINE =
+  "Festivals, faces and the quiet minutes in between — photographed across Nepal, India and Myanmar.";
+const DEFAULT_CTA = "Enter the archive";
+const DEFAULT_SPEED_MS = 5200;
+
+const SCRIM =
+  "linear-gradient(180deg,rgba(20,19,18,.62) 0%,rgba(20,19,18,.18) 38%,rgba(20,19,18,.72) 100%)";
+
+function pad(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+function fillStyle(
+  bar: number,
+  active: number,
+  animate: boolean,
+  speed: number,
+  restart: number,
+): CSSProperties {
+  if (bar < active) {
+    return {
+      inset: "0 0 0 0",
+      background: "rgba(248,244,244,.55)",
+      transition: "inset .5s ease",
+    };
+  }
+  if (bar > active) {
+    return {
+      inset: "0 100% 0 0",
+      background: "#f8f4f4",
+      transition: "inset .5s ease",
+    };
+  }
+  if (!animate) return { inset: "0 0 0 0", background: "#ec3013" };
+  const keyframes = restart % 2 === 0 ? "md-hero-fill-a" : "md-hero-fill-b";
+  return {
+    background: "#ec3013",
+    animation: `${keyframes} ${speed}ms linear forwards`,
+  };
+}
 
 export function Hero() {
   const { settings } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const { data: photos } = useBackgroundPhotos();
+
   const [index, setIndex] = useState(0);
+  // Bumped on a manual jump so the autoplay timer and the progress fill both
+  // restart from that slide.
+  const [restart, setRestart] = useState(0);
+
+  const animate = settings.animationsEnabled && !prefersReducedMotion;
+  const speed = settings.heroSettings?.autoplaySpeedMs || DEFAULT_SPEED_MS;
+  const count = photos?.length ?? 0;
 
   useEffect(() => {
-    if (!photos || photos.length < 2) return;
-    const speed = settings.heroSettings?.autoplaySpeedMs || 5000;
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % photos.length);
-    }, speed);
+    if (!animate || count < 2) return;
+    const timer = setInterval(
+      () => setIndex((prev) => (prev + 1) % count),
+      speed,
+    );
     return () => clearInterval(timer);
-  }, [photos, settings.heroSettings]);
+  }, [animate, count, speed, restart]);
+
+  // Clamp rather than reset in an effect: the photo list can shrink under a
+  // stale index when the admin unflags a hero image.
+  const active = count > 0 ? index % count : 0;
+
+  const heroSettings = settings.heroSettings;
+  const headline = (heroSettings?.headline || DEFAULT_HEADLINE).split("\n");
+  const tagline = settings.tagline || DEFAULT_TAGLINE;
+
+  const goTo = (next: number) => {
+    setIndex(next);
+    setRestart((prev) => prev + 1);
+  };
 
   return (
-    <section className="relative flex h-full w-full items-center justify-center overflow-hidden bg-black">
-      {photos && photos.length > 0 ? (
-        photos.map((photo, i) => (
+    <section
+      id="top"
+      className="relative h-screen min-h-[620px] overflow-hidden bg-md-ink"
+    >
+      <div
+        className="absolute inset-0"
+        style={{ filter: "grayscale(1) contrast(1.04)" }}
+      >
+        {photos?.map((photo, i) => (
           <div
             key={photo._id}
-            className={cn(
-              "absolute inset-0 transition-opacity duration-1000",
-              i === index ? "opacity-100" : "opacity-0",
-            )}
+            className="absolute inset-0"
+            style={{
+              opacity: i === active ? 1 : 0,
+              transform: i === active && animate ? "scale(1.05)" : "scale(1)",
+              transition: "opacity 1.8s ease, transform 9s linear",
+            }}
           >
             <ProgressiveImage
               src={photo.images.large}
@@ -43,47 +116,93 @@ export function Hero() {
               priority={i === 0}
             />
           </div>
-        ))
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-black to-neutral-900" />
-      )}
-
-      <div className="absolute inset-0 bg-black/40" />
-
-      <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-sm font-medium uppercase tracking-[0.3em] text-white/80"
-        >
-          {settings.tagline || "Photography Portfolio"}
-        </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-          className="mt-4 text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl"
-        >
-          {settings.siteTitle}
-        </motion.h1>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-8 flex justify-center"
-        >
-          <Link
-            to="/gallery"
-            className="rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105"
-          >
-            Explore the Gallery
-          </Link>
-        </motion.div>
+        ))}
       </div>
 
-      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-bounce text-white/70">
-        <ChevronDown className="h-6 w-6" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ background: SCRIM }}
+      />
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 px-9 pb-[82px] text-md-light">
+        <div className="mb-[22px] flex items-center gap-[14px]">
+          <span className="h-[2px] w-[52px] bg-md-red" />
+          <span className="text-[11px] tracking-[0.2em] uppercase">
+            {heroSettings?.eyebrow || DEFAULT_EYEBROW}
+          </span>
+        </div>
+
+        <h1
+          className="m-0 font-extrabold"
+          style={{
+            fontSize: "clamp(44px,8.4vw,132px)",
+            lineHeight: 0.88,
+            letterSpacing: "-.035em",
+            maxWidth: "min(14em,calc(100% - 150px))",
+          }}
+        >
+          {headline.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </h1>
+
+        <div className="mt-[38px] flex flex-wrap items-end justify-between gap-10">
+          <p
+            className="m-0 max-w-[440px] text-[14px]"
+            style={{ lineHeight: 1.7, color: "rgba(248,244,244,.8)" }}
+          >
+            {tagline}
+          </p>
+          <div className="pointer-events-auto flex items-end gap-9">
+            <a
+              href="#archive"
+              className="inline-flex items-center gap-[18px] bg-md-light px-[22px] py-[17px] text-[12px] font-semibold tracking-[0.18em] text-md-ink uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light"
+            >
+              {heroSettings?.ctaLabel || DEFAULT_CTA} <span>&rarr;</span>
+            </a>
+            {count > 0 && (
+              <div className="flex items-center gap-[14px] max-[900px]:hidden">
+                <span className="text-[12px] font-semibold tracking-[0.16em]">
+                  {pad(active + 1)} / {pad(count)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {count > 1 && (
+        <div className="absolute bottom-3 left-1/2 z-[3] flex -translate-x-1/2 items-center gap-[10px] px-3 py-2">
+          {photos?.map((photo, i) => (
+            <button
+              key={photo._id}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-current={i === active}
+              aria-label={`Show hero image ${i + 1}`}
+              className="w-[clamp(28px,7vw,64px)] flex-none cursor-pointer appearance-none border-0 bg-transparent py-2"
+            >
+              <span
+                className="relative block h-[3px] overflow-hidden"
+                style={{ background: "rgba(248,244,244,.32)" }}
+              >
+                <span
+                  className="absolute"
+                  style={fillStyle(i, active, animate, speed, restart)}
+                />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div
+        className="absolute top-1/2 right-9 origin-center -translate-y-1/2 rotate-90 text-[10px] tracking-[0.3em] uppercase max-[900px]:hidden"
+        style={{ color: "rgba(248,244,244,.6)" }}
+      >
+        Scroll
       </div>
     </section>
   );

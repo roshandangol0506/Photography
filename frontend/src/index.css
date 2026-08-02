@@ -509,3 +509,119 @@ body {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* ─── Modernist home redesign ──────────────────────────────────────────
+   Tokens ported from the design handoff. Scoped to `.modernist` so the
+   admin dashboard keeps its own palette and type. */
+
+@theme {
+  --color-md-ground: #f3f2f2;
+  --color-md-ink: #201e1d;
+  --color-md-red: #ec3013;
+  --color-md-poster: #fff2ef;
+  --color-md-light: #f8f4f4;
+  --color-md-divider: rgba(32, 30, 29, 0.4);
+
+  /* Neutral ramp, ported verbatim from the handoff's design tokens. */
+  --color-md-100: #f8f4f4;
+  --color-md-200: #eae7e7;
+  --color-md-300: #d7d3d3;
+  --color-md-400: #bab6b6;
+  --color-md-500: #9b9797;
+  --color-md-600: #7d7979;
+  --color-md-700: #605d5d;
+  --color-md-800: #444141;
+  --color-md-900: #2d2b2b;
+}
+
+.modernist {
+  font-family: "Archivo", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.modernist a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.modernist :focus-visible {
+  outline: 2px solid #ec3013;
+  outline-offset: 2px;
+}
+
+@keyframes md-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hero slide indicator: the active bar fills left-to-right over one
+   autoplay interval, reading as a progress bar. Two identical keyframes so
+   clicking the bar that is already active can restart the fill by flipping
+   the animation-name - the bars keep their identity across slides, which is
+   what lets skipped bars transition to "already shown" over .5s. */
+@keyframes md-hero-fill-a {
+  from {
+    inset: 0 100% 0 0;
+  }
+  to {
+    inset: 0 0 0 0;
+  }
+}
+
+@keyframes md-hero-fill-b {
+  from {
+    inset: 0 100% 0 0;
+  }
+  to {
+    inset: 0 0 0 0;
+  }
+}
+
+/* Photo frames: hover zoom plus a caption chip fading up from the frame's
+   bottom-left. Mirrors the mock's [data-photo] rules. The :not() keeps the
+   blur-up placeholder underneath out of the zoom. */
+.md-photo img:not([aria-hidden="true"]) {
+  transition:
+    opacity 0.7s ease,
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.md-photo:hover img:not([aria-hidden="true"]) {
+  transform: scale(1.04);
+}
+
+.md-cap {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+.md-photo:hover .md-cap {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Side-scroll strip. The track holds the frame list twice, so translating it
+   half its width loops seamlessly. */
+.md-marquee-track {
+  animation: md-marquee 46s linear infinite;
+}
+
+.md-marquee:hover .md-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modernist *,
+  .modernist *::before,
+  .modernist *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

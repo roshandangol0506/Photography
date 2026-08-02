@@ -46,6 +46,9 @@ export class DotenvConfig {
 
   static IMG_STORE = process.env.IMG_STORE || "LOCAL";
   static LOCAL_UPLOAD_DIR = process.env.LOCAL_UPLOAD_DIR || "uploads";
+  // Originals come straight off the camera, so the ceiling is generous -
+  // only the derived webp variants are ever stored or served.
+  static MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB) || 60;
 
   static AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
   static AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;

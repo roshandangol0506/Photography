@@ -1,115 +1,114 @@
 import { Link } from "react-router-dom";
-import { MapPin, Mail, Phone } from "lucide-react";
+import { useActiveCategories } from "@/api/categories";
 import { useTheme } from "@/hooks/useTheme";
-import {
-  InstagramIcon,
-  FacebookIcon,
-  YoutubeIcon,
-  BehanceIcon,
-} from "@/components/icons/SocialIcons";
 
-const QUICK_LINKS = [
+const PAGES = [
   { to: "/", label: "Home" },
-  { to: "/gallery", label: "Gallery" },
-  { to: "/#about", label: "About" },
-  { to: "/#contact", label: "Contact" },
+  { to: "/gallery", label: "Archive" },
+  { to: "/about", label: "About" },
 ];
+
+const SERIES_COLUMN_LIMIT = 3;
+
+const HEADING_CLASS = "mb-[14px] text-[10px] tracking-[0.2em] uppercase";
+const MUTED = "rgba(248,244,244,.55)";
 
 export function Footer() {
   const { settings } = useTheme();
-  const { socialLinks, contactDetails } = settings;
+  const { data: categories } = useActiveCategories();
   const year = new Date().getFullYear();
 
+  const series = (categories ?? []).slice(0, SERIES_COLUMN_LIMIT);
+
   const socials = [
-    { href: socialLinks.instagram, label: "Instagram", Icon: InstagramIcon },
-    { href: socialLinks.facebook, label: "Facebook", Icon: FacebookIcon },
-    { href: socialLinks.youtube, label: "YouTube", Icon: YoutubeIcon },
-  ].filter((s) => s.href);
+    { href: settings.socialLinks?.instagram, label: "Instagram" },
+    { href: settings.socialLinks?.facebook, label: "Facebook" },
+    { href: settings.socialLinks?.youtube, label: "YouTube" },
+    { href: settings.socialLinks?.behance, label: "Behance" },
+  ].filter((social) => Boolean(social.href));
 
   return (
-    <footer className="border-t border-border bg-background">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-3">
+    <footer className="bg-md-ink px-9 pt-16 pb-[34px] text-md-light">
+      <div
+        className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-11 border-b-2 pb-11 max-[900px]:grid-cols-1"
+        style={{ borderBottomColor: "rgba(248,244,244,.2)" }}
+      >
         <div>
-          <p className="text-lg font-semibold text-foreground">
+          <p className="m-0 text-[15px] font-bold tracking-[0.26em] uppercase">
             {settings.siteTitle}
           </p>
-          {settings.tagline && (
-            <p className="mt-2 text-sm text-muted-foreground">
-              {settings.tagline}
+          {settings.footerText && (
+            <p
+              className="mt-[14px] mb-0 max-w-[320px] text-[13px] leading-[1.7]"
+              style={{ color: "rgba(248,244,244,.65)" }}
+            >
+              {settings.footerText}
             </p>
           )}
-          {(socials.length > 0 || socialLinks.behance) && (
-            <div className="mt-4 flex items-center gap-3">
-              {socials.map(({ href, label, Icon }) => (
+        </div>
+
+        <div>
+          <p className={HEADING_CLASS} style={{ color: MUTED }}>
+            Pages
+          </p>
+          <div className="flex flex-col gap-[9px] text-[13px]">
+            {PAGES.map((page) => (
+              <Link key={page.label} to={page.to} className="hover:text-md-red">
+                {page.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {series.length > 0 && (
+          <div>
+            <p className={HEADING_CLASS} style={{ color: MUTED }}>
+              Series
+            </p>
+            <div className="flex flex-col gap-[9px] text-[13px]">
+              {series.map((category) => (
+                <Link
+                  key={category._id}
+                  to={`/gallery?category=${category.slug}`}
+                  className="hover:text-md-red"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {socials.length > 0 && (
+          <div>
+            <p className={HEADING_CLASS} style={{ color: MUTED }}>
+              Elsewhere
+            </p>
+            <div className="flex flex-col gap-[9px] text-[13px]">
+              {socials.map((social) => (
                 <a
-                  key={label}
-                  href={href}
+                  key={social.label}
+                  href={social.href}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="hover:text-md-red"
                 >
-                  <Icon className="h-4 w-4" />
+                  {social.label}
                 </a>
               ))}
-              {socialLinks.behance && (
-                <a
-                  href={socialLinks.behance}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Behance"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                >
-                  <BehanceIcon className="h-4 w-4" />
-                </a>
-              )}
             </div>
-          )}
-        </div>
-
-        <div>
-          <p className="text-sm font-semibold text-foreground">Quick Links</p>
-          <ul className="mt-4 space-y-2">
-            {QUICK_LINKS.map((link) => (
-              <li key={link.label}>
-                <Link
-                  to={link.to}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="text-sm font-semibold text-foreground">Contact</p>
-          <ul className="mt-4 space-y-3">
-            {contactDetails.email && (
-              <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4" /> {contactDetails.email}
-              </li>
-            )}
-            {contactDetails.phone && (
-              <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4" /> {contactDetails.phone}
-              </li>
-            )}
-            {contactDetails.location && (
-              <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" /> {contactDetails.location}
-              </li>
-            )}
-          </ul>
-        </div>
+          </div>
+        )}
       </div>
 
-      <div className="border-t border-border py-6">
-        <p className="text-center text-xs text-muted-foreground">
-          {settings.footerText ||
-            `© ${year} ${settings.siteTitle}. All rights reserved.`}
-        </p>
+      <div
+        className="flex flex-wrap justify-between gap-6 pt-[22px] text-[11px] tracking-[0.14em] uppercase"
+        style={{ color: MUTED }}
+      >
+        <span>
+          &copy; {year} {settings.siteTitle}
+        </span>
+        {settings.tagline && <span>{settings.tagline}</span>}
       </div>
     </footer>
   );

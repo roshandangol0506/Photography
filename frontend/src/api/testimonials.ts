@@ -7,6 +7,7 @@ export interface Testimonial {
   name: string;
   role?: string;
   avatar?: string;
+  image?: string;
   message: string;
   rating: number;
   order: number;
@@ -24,6 +25,7 @@ export interface TestimonialInput {
   name: string;
   role?: string;
   avatar?: string;
+  image?: string;
   message: string;
   rating?: number;
   order?: number;

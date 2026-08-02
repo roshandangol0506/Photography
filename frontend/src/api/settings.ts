@@ -33,11 +33,15 @@ export interface SiteSettings {
   heroSettings: {
     autoplaySpeedMs: number;
     transitionStyle: string;
+    eyebrow?: string;
+    headline?: string;
+    ctaLabel?: string;
   };
   about: {
     title?: string;
     description?: string;
     image?: string;
+    portraitImage?: string;
     experienceYears?: number;
   };
   animationsEnabled: boolean;

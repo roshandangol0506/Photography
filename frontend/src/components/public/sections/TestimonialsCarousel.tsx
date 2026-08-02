@@ -1,73 +1,109 @@
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
-import { Star } from "lucide-react";
+import { useState } from "react";
 import { useActiveTestimonials } from "@/api/testimonials";
-import { SectionReveal } from "@/components/public/SectionReveal";
+import { MdReveal } from "@/components/public/MdReveal";
+import { ProgressiveImage } from "@/components/public/ProgressiveImage";
+import { cn } from "@/lib/utils";
 
 export function TestimonialsCarousel() {
-  const { data: testimonials } = useActiveTestimonials();
-  const [emblaRef] = useEmblaCarousel({ loop: true, align: "center" }, [
-    Autoplay({ delay: 4500, stopOnMouseEnter: true, stopOnInteraction: false }),
-  ]);
+  const { data, isLoading } = useActiveTestimonials();
+  const testimonials = data ?? [];
+  const [index, setIndex] = useState(0);
 
-  if (!testimonials || testimonials.length === 0) return null;
+  if (!isLoading && testimonials.length === 0) return null;
+
+  const active = testimonials[index % testimonials.length];
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
-      <SectionReveal className="mb-10 text-center">
-        <p className="text-sm font-medium uppercase tracking-widest text-primary">
-          Testimonials
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          What Clients Say
-        </h2>
-      </SectionReveal>
+    <section id="tours" className="px-9 pt-[110px] pb-10">
+      <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
+        07 &mdash; Testimonials
+      </span>
 
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial._id}
-              className="flex-[0_0_100%] px-2 sm:flex-[0_0_50%]"
-            >
-              <div className="flex h-full flex-col items-center rounded-2xl border border-border bg-card p-8 text-center">
-                {testimonial.avatar ? (
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    loading="lazy"
-                    className="h-16 w-16 rounded-full object-cover"
+      {isLoading ? (
+        <div
+          className="mt-11 grid grid-cols-2 items-end gap-16 max-[900px]:grid-cols-1"
+          aria-hidden="true"
+        >
+          <div className="aspect-square bg-md-300" />
+          <div>
+            <div className="h-[34px] w-full bg-md-300" />
+            <div className="mt-2 h-[34px] w-4/5 bg-md-300" />
+            <div className="mt-8 flex items-center gap-4 border-t-2 border-md-divider pt-[18px]">
+              <div className="h-[52px] w-[52px] flex-none bg-md-300" />
+              <div className="flex-1">
+                <div className="h-[12px] w-1/2 bg-md-300" />
+                <div className="mt-1 h-[11px] w-1/3 bg-md-300" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-11 grid grid-cols-2 items-end gap-16 max-[900px]:grid-cols-1">
+          <MdReveal className="md-photo overflow-hidden grayscale">
+            <div className="aspect-square">
+              {active.image ? (
+                <ProgressiveImage
+                  src={active.image}
+                  sizes="(max-width: 900px) 100vw, 50vw"
+                  alt={active.name}
+                  className="h-full w-full"
+                />
+              ) : (
+                <div className="h-full w-full bg-md-300" aria-hidden="true" />
+              )}
+            </div>
+          </MdReveal>
+
+          <MdReveal>
+            <blockquote className="m-0 font-semibold tracking-[-0.02em] text-[clamp(20px,2.3vw,34px)] leading-[1.22] text-pretty">
+              &ldquo;{active.message}&rdquo;
+            </blockquote>
+
+            <div className="mt-8 flex items-center gap-4 border-t-2 border-md-divider pt-[18px]">
+              <div className="h-[52px] w-[52px] flex-none grayscale">
+                {active.avatar ? (
+                  <ProgressiveImage
+                    src={active.avatar}
+                    sizes="52px"
+                    alt={active.name}
+                    className="h-full w-full"
                   />
                 ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-lg font-semibold text-muted-foreground">
-                    {testimonial.name.charAt(0)}
-                  </div>
+                  <div className="h-full w-full bg-md-300" aria-hidden="true" />
                 )}
-                <div className="mt-3 flex gap-0.5 text-primary">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4"
-                      fill={i < testimonial.rating ? "currentColor" : "none"}
-                    />
-                  ))}
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  &ldquo;{testimonial.message}&rdquo;
+              </div>
+              <div>
+                <p className="m-0 text-[12px] font-bold tracking-[0.14em] uppercase">
+                  {active.name}
                 </p>
-                <p className="mt-4 text-sm font-semibold text-foreground">
-                  {testimonial.name}
-                </p>
-                {testimonial.role && (
-                  <p className="text-xs text-muted-foreground">
-                    {testimonial.role}
+                {active.role && (
+                  <p className="mt-1 mb-0 text-[11px] tracking-[0.12em] text-md-600 uppercase">
+                    {active.role}
                   </p>
                 )}
               </div>
             </div>
-          ))}
+
+            {/* The dashes double as the only control the design offers, so they
+              are buttons rather than the mock's inert spans. */}
+            <div className="mt-[26px] flex gap-[10px]">
+              {testimonials.map((testimonial, i) => (
+                <button
+                  key={testimonial._id}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-current={i === index}
+                  aria-label={`Show testimonial ${i + 1}`}
+                  className={cn(
+                    "h-[2px] w-[34px] cursor-pointer appearance-none border-0 p-0",
+                    i === index ? "bg-md-red" : "bg-md-400",
+                  )}
+                />
+              ))}
+            </div>
+          </MdReveal>
         </div>
-      </div>
+      )}
     </section>
   );
 }

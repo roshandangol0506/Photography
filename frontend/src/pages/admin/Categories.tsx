@@ -35,6 +35,7 @@ const categorySchema = z.object({
       "Lowercase letters, numbers and hyphens only (e.g. my-category)",
     ),
   description: z.string().optional(),
+  country: z.string().optional(),
   order: z.number().optional(),
   isActive: z.boolean().optional(),
 });
@@ -69,6 +70,7 @@ export default function Categories() {
       name: "",
       slug: "",
       description: "",
+      country: "",
       order: 0,
       isActive: true,
     });
@@ -82,6 +84,7 @@ export default function Categories() {
       name: category.name,
       slug: category.slug,
       description: category.description,
+      country: category.country,
       order: category.order,
       isActive: category.isActive,
     });
@@ -128,6 +131,7 @@ export default function Categories() {
   const columns: Column<Category>[] = [
     { header: "Name", accessor: (row) => row.name },
     { header: "Slug", accessor: (row) => row.slug },
+    { header: "Country", accessor: (row) => row.country || "\u2014" },
     { header: "Order", accessor: (row) => row.order },
     {
       header: "Status",
@@ -225,6 +229,17 @@ export default function Categories() {
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea id="description" {...form.register("description")} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="country">Country</Label>
+            <Input
+              id="country"
+              placeholder="e.g. Nepal"
+              {...form.register("country")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Groups this series into a country band on the home page.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="order">Order</Label>

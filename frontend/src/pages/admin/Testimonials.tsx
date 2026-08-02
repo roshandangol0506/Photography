@@ -43,6 +43,7 @@ export default function Testimonials() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
+  const [image, setImage] = useState<string | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<Testimonial | null>(null);
 
   const { data, isLoading } = useTestimonials({
@@ -62,6 +63,7 @@ export default function Testimonials() {
   const openCreate = () => {
     setEditing(null);
     setAvatar(undefined);
+    setImage(undefined);
     form.reset({
       name: "",
       role: "",
@@ -76,6 +78,7 @@ export default function Testimonials() {
   const openEdit = (testimonial: Testimonial) => {
     setEditing(testimonial);
     setAvatar(testimonial.avatar);
+    setImage(testimonial.image);
     form.reset({
       name: testimonial.name,
       role: testimonial.role,
@@ -89,7 +92,7 @@ export default function Testimonials() {
 
   const onSubmit = async (values: TestimonialForm) => {
     try {
-      const body = { ...values, avatar };
+      const body = { ...values, avatar, image };
       if (editing) {
         await updateMutation.mutateAsync({ id: editing._id, body });
         toast.success("Testimonial updated");
@@ -103,11 +106,21 @@ export default function Testimonials() {
     }
   };
 
-  const handleImageChange = async (file: File | null) => {
+  const handleAvatarChange = async (file: File | null) => {
     if (!file) return;
     try {
       const result = await uploadMutation.mutateAsync(file);
       setAvatar(result.url);
+    } catch {
+      toast.error("Image upload failed");
+    }
+  };
+
+  const handleImageChange = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadMutation.mutateAsync(file);
+      setImage(result.url);
     } catch {
       toast.error("Image upload failed");
     }
@@ -200,7 +213,16 @@ export default function Testimonials() {
         title={editing ? "Edit Testimonial" : "Add Testimonial"}
       >
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <ImageUploader label="Avatar" value={avatar} onChange={handleImageChange} />
+          <ImageUploader
+            label="Avatar"
+            value={avatar}
+            onChange={handleAvatarChange}
+          />
+          <ImageUploader
+            label="Tour photograph"
+            value={image}
+            onChange={handleImageChange}
+          />
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input id="name" {...form.register("name")} />

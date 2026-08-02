@@ -8,9 +8,15 @@ export interface Category {
   slug: string;
   description?: string;
   coverImage?: string;
+  country?: string;
   order: number;
   isActive: boolean;
   createdAt: string;
+}
+
+// Only the public "active" listing carries the tally.
+export interface ActiveCategory extends Category {
+  photoCount: number;
 }
 
 export interface CategoryListParams {
@@ -45,7 +51,7 @@ export function useActiveCategories() {
     queryKey: ["categories", "active"],
     queryFn: async () => {
       const { data } =
-        await api.get<ApiResponse<Category[]>>("/categories/active");
+        await api.get<ApiResponse<ActiveCategory[]>>("/categories/active");
       return data.data;
     },
   });

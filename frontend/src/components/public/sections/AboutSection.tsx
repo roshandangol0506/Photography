@@ -1,117 +1,88 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Mouse } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
-import { SectionReveal } from "@/components/public/SectionReveal";
+import { MdReveal } from "@/components/public/MdReveal";
+import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 
-// Image and the detail blurbs beneath it share this width so their edges line up.
-const IMAGE_WIDTH_CLASS = "mx-auto w-[70%]";
+const DEFAULT_HEADING = "Hey, I'm\nAjay Maharjan.";
+const DEFAULT_DESCRIPTION =
+  "The camera became a bridge — to people, to festivals, to traditions I would never otherwise have met. Every frame is a chance to learn.";
 
 export function AboutSection() {
   const { settings } = useTheme();
-  const { about } = settings;
+  const about = settings.about;
 
-  if (!about?.title && !about?.description && !about?.image) return null;
+  if (!about?.image && !about?.description) return null;
 
-  const location = settings.contactDetails?.location;
+  const heading = (about.title || DEFAULT_HEADING).split("\n");
 
   return (
     <section
       id="about"
-      className="relative flex min-h-screen flex-col px-4 sm:px-6 lg:px-44"
+      className="mt-[70px] border-t-2 border-md-divider px-9 pt-[110px] pb-10"
     >
-      <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-        About &mdash; 01
-      </p>
+      <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
+        02 &mdash; About
+      </span>
 
-      <div className="grid flex-1 grid-cols-1 gap-10 lg:mt-0 lg:grid-cols-2">
-        {/* Text column — lead paragraph starts at the top, display headline anchors the bottom */}
-        <SectionReveal className="order-2 flex flex-col justify-end lg:order-1 lg:justify-between lg:pb-16">
-          <div className="ml-auto w-full max-w-lg">
-            <p className="text-right text-sm font-semibold text-foreground sm:text-base">
-              Get to know the person behind the lens
-            </p>
-            {about.description && (
-              <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted-foreground sm:text-base">
-                {about.description}
-              </p>
+      <div className="mt-12 grid grid-cols-2 items-end gap-[72px] max-[900px]:grid-cols-1">
+        <MdReveal className="md-photo overflow-hidden grayscale">
+          <div className="aspect-[4/5]">
+            {about.image ? (
+              <ProgressiveImage
+                src={about.image}
+                sizes="(max-width: 900px) 100vw, 50vw"
+                alt={settings.siteTitle}
+                className="h-full w-full"
+              />
+            ) : (
+              <div className="h-full w-full bg-md-300" aria-hidden="true" />
             )}
           </div>
+        </MdReveal>
 
-          <div className="mt-12 lg:mt-0">
-            <h2 className="text-2xl font-bold leading-[0.95] tracking-tight text-foreground sm:text-6xl lg:text-7xl xl:text-6xl">
-              {about.title || "Behind the Camera"}
-              {settings.tagline && (
-                <span className="block text-muted-foreground">
-                  {settings.tagline}
-                </span>
+        <div className="grid grid-cols-[0.75fr_1fr] items-end gap-10 max-[900px]:grid-cols-1">
+          <MdReveal>
+            <div className="aspect-[3/4] overflow-hidden grayscale">
+              {about.portraitImage ? (
+                <ProgressiveImage
+                  src={about.portraitImage}
+                  sizes="(max-width: 900px) 100vw, 25vw"
+                  alt={settings.siteTitle}
+                  className="h-full w-full"
+                />
+              ) : (
+                <div className="h-full w-full bg-md-300" aria-hidden="true" />
               )}
+            </div>
+            <div className="mt-[14px] border-t-2 border-md-divider pt-3">
+              <p className="m-0 text-[12px] font-bold tracking-[0.16em] uppercase">
+                {settings.siteTitle}
+              </p>
+              <p className="mt-[5px] mb-0 text-[11px] tracking-[0.12em] text-md-600 uppercase">
+                Photographer &mdash; {about.experienceYears ?? 0} yrs
+              </p>
+            </div>
+          </MdReveal>
+
+          <MdReveal>
+            <h2 className="m-0 font-bold tracking-[-0.025em] text-[clamp(28px,3.6vw,54px)] leading-none">
+              {heading.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
             </h2>
-
-            <div className="mt-8 flex items-end justify-between gap-6">
-              <Link
-                to="/about"
-                className="inline-flex items-center gap-3 rounded-md bg-foreground px-6 py-4 text-sm font-medium uppercase tracking-widest text-background transition-opacity hover:opacity-90"
-              >
-                Book a Tour
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-
-              <div
-                className="hidden flex-col items-center gap-1 text-muted-foreground sm:flex"
-                aria-hidden="true"
-              >
-                <span className="text-xs uppercase tracking-[0.2em]">
-                  Scroll
-                </span>
-                <Mouse className="h-5 w-5" />
-              </div>
-            </div>
-          </div>
-        </SectionReveal>
-
-        {/* Image column — single portrait with the two detail blurbs beneath it */}
-        <SectionReveal
-          delay={0.1}
-          className="order-1 flex flex-col justify-start gap-6 lg:order-2 lg:pb-16"
-        >
-          {about.image ? (
-            <img
-              src={about.image}
-              alt={about.title || "About"}
-              loading="lazy"
-              className={`aspect-7/9 rounded-sm object-cover ${IMAGE_WIDTH_CLASS}`}
-            />
-          ) : (
-            <div
-              className={`aspect-7/9 rounded-sm bg-muted ${IMAGE_WIDTH_CLASS}`}
-            />
-          )}
-
-          {(Boolean(about.experienceYears) || location) && (
-            <div className={`grid grid-cols-2 gap-6 ${IMAGE_WIDTH_CLASS}`}>
-              {Boolean(about.experienceYears) && (
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {about.experienceYears}+ Years of Experience
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Shooting weddings, portraits and stories worth keeping
-                  </p>
-                </div>
-              )}
-              {location && (
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-foreground">
-                    Based in {location}
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Available worldwide for commissioned work
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </SectionReveal>
+            <p className="mt-6 mb-0 max-w-[360px] text-[12px] leading-[1.85] tracking-[0.09em] text-md-700 uppercase">
+              {about.description || DEFAULT_DESCRIPTION}
+            </p>
+            <Link
+              to="/about"
+              className="mt-7 inline-flex items-center gap-4 bg-md-ink px-5 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-ground uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light"
+            >
+              Learn more <span>&rarr;</span>
+            </Link>
+          </MdReveal>
+        </div>
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ export interface ICategory extends mongoose.Document {
   slug: string;
   description?: string;
   coverImage?: string;
+  country?: string;
   order: number;
   isActive: boolean;
 }
@@ -15,6 +16,8 @@ const categorySchema = new Schema<ICategory>(
     slug: { type: String, required: true, unique: true, index: true },
     description: { type: String },
     coverImage: { type: String },
+    // Groups the public "Photo series" section into country bands.
+    country: { type: String, default: "" },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
   },

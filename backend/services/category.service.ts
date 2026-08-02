@@ -1,7 +1,9 @@
 import Category from "../models/category.model";
+import Photo from "../models/photo.model";
 import { paginationValidator, getPaginationData } from "../utils/pagination";
 import HttpException from "../utils/HttpException.utils";
 import { Message } from "../constant/messages";
+import { VISIBILITY } from "../constant/enum";
 
 class categoryService {
   async createCategory(body: any) {
@@ -36,9 +38,33 @@ class categoryService {
     }
   }
 
+  // Carries a published-photo tally per category: the public "Photo series"
+  // section groups these by country and prints an "N frames" count for each
+  // band, which would otherwise cost one request per series.
   async getActiveCategories() {
     try {
-      return await Category.find({ isActive: true }).sort({ order: 1 });
+      const categories = await Category.find({ isActive: true })
+        .sort({ order: 1 })
+        .lean();
+
+      const counts = await Photo.aggregate<{ _id: unknown; count: number }>([
+        {
+          $match: {
+            visibility: VISIBILITY.PUBLISHED,
+            category: { $ne: null },
+          },
+        },
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+      ]);
+
+      const countByCategory = new Map(
+        counts.map((entry) => [String(entry._id), entry.count]),
+      );
+
+      return categories.map((category) => ({
+        ...category,
+        photoCount: countByCategory.get(String(category._id)) ?? 0,
+      }));
     } catch (error) {
       throw error;
     }

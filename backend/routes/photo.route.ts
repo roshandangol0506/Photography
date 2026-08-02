@@ -6,7 +6,7 @@ import { catchAsync } from "../utils/catchAsync";
 import { authentication } from "../middleware/authentication.middleware";
 import { authorization } from "../middleware/authorization.middleware";
 import { ROLE } from "../constant/enum";
-import { upload } from "../middleware/upload.middleware";
+import { upload, handleUploadError } from "../middleware/upload.middleware";
 
 const router = express.Router();
 
@@ -23,6 +23,7 @@ router.get("/admin", catchAsync(PhotoController.getAdminPhotos));
 router.post(
   "/admin",
   upload.single("image"),
+  handleUploadError,
   RequestValidator.validate(CreatePhotoDTO),
   catchAsync(PhotoController.createPhoto),
 );
@@ -30,6 +31,7 @@ router.get("/admin/:id", catchAsync(PhotoController.getAdminPhotoById));
 router.put(
   "/admin/:id",
   upload.single("image"),
+  handleUploadError,
   RequestValidator.validate(UpdatePhotoDTO),
   catchAsync(PhotoController.updatePhoto),
 );

@@ -4,6 +4,8 @@ export interface ITestimonial extends mongoose.Document {
   name: string;
   role?: string;
   avatar?: string;
+  // Full-bleed tour photograph beside the quote on the home page.
+  image?: string;
   message: string;
   rating: number;
   order: number;
@@ -15,6 +17,7 @@ const testimonialSchema = new Schema<ITestimonial>(
     name: { type: String, required: true },
     role: { type: String },
     avatar: { type: String },
+    image: { type: String },
     message: { type: String, required: true },
     rating: { type: Number, default: 5, min: 1, max: 5 },
     order: { type: Number, default: 0 },

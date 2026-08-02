@@ -22,6 +22,10 @@ export class CreateTestimonialDTO {
   avatar?: string;
 
   @IsString()
+  @IsOptional()
+  image?: string;
+
+  @IsString()
   @IsNotEmpty()
   message: string;
 
@@ -52,6 +56,10 @@ export class UpdateTestimonialDTO {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @IsString()
+  @IsOptional()
+  image?: string;
 
   @IsString()
   @IsOptional()

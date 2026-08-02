@@ -28,6 +28,10 @@ interface SettingsFormValues {
   aboutTitle: string;
   aboutDescription: string;
   aboutExperienceYears: number;
+  heroEyebrow: string;
+  heroHeadline: string;
+  heroCtaLabel: string;
+  heroAutoplaySpeedMs: number;
 }
 
 function SettingsForm({ settings }: { settings: SiteSettings }) {
@@ -35,6 +39,9 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
   const uploadMutation = useUploadAsset();
   const [aboutImage, setAboutImage] = useState<string | undefined>(
     settings.about?.image,
+  );
+  const [aboutPortrait, setAboutPortrait] = useState<string | undefined>(
+    settings.about?.portraitImage,
   );
 
   const form = useForm<SettingsFormValues>({
@@ -56,6 +63,10 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
       aboutTitle: settings.about?.title ?? "",
       aboutDescription: settings.about?.description ?? "",
       aboutExperienceYears: settings.about?.experienceYears ?? 0,
+      heroEyebrow: settings.heroSettings?.eyebrow ?? "",
+      heroHeadline: settings.heroSettings?.headline ?? "",
+      heroCtaLabel: settings.heroSettings?.ctaLabel ?? "",
+      heroAutoplaySpeedMs: settings.heroSettings?.autoplaySpeedMs ?? 5200,
     },
   });
 
@@ -64,6 +75,16 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
     try {
       const result = await uploadMutation.mutateAsync(file);
       setAboutImage(result.url);
+    } catch {
+      toast.error("Image upload failed");
+    }
+  };
+
+  const handleAboutPortraitChange = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadMutation.mutateAsync(file);
+      setAboutPortrait(result.url);
     } catch {
       toast.error("Image upload failed");
     }
@@ -98,6 +119,14 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
           description: values.aboutDescription,
           experienceYears: Number(values.aboutExperienceYears),
           image: aboutImage,
+          portraitImage: aboutPortrait,
+        },
+        heroSettings: {
+          autoplaySpeedMs: Number(values.heroAutoplaySpeedMs),
+          transitionStyle: settings.heroSettings?.transitionStyle ?? "fade",
+          eyebrow: values.heroEyebrow,
+          headline: values.heroHeadline,
+          ctaLabel: values.heroCtaLabel,
         },
       });
       toast.success("Settings saved");
@@ -187,13 +216,45 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
       </section>
 
       <section className="space-y-4 rounded-xl border border-border p-4">
+        <h2 className="text-sm font-semibold text-foreground">Hero</h2>
+        <div className="space-y-2">
+          <Label htmlFor="heroEyebrow">Eyebrow</Label>
+          <Input id="heroEyebrow" {...form.register("heroEyebrow")} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="heroHeadline">Headline</Label>
+          <Textarea id="heroHeadline" rows={2} {...form.register("heroHeadline")} />
+          <p className="text-xs text-muted-foreground">
+            Each line breaks separately in the hero.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="heroCtaLabel">Button label</Label>
+          <Input id="heroCtaLabel" {...form.register("heroCtaLabel")} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="heroAutoplaySpeedMs">Autoplay interval (ms)</Label>
+          <Input
+            id="heroAutoplaySpeedMs"
+            type="number"
+            {...form.register("heroAutoplaySpeedMs", { valueAsNumber: true })}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-border p-4">
         <h2 className="text-sm font-semibold text-foreground">
           About section
         </h2>
         <ImageUploader
-          label="About photo"
+          label="About photo (on assignment)"
           value={aboutImage}
           onChange={handleAboutImageChange}
+        />
+        <ImageUploader
+          label="Portrait photo"
+          value={aboutPortrait}
+          onChange={handleAboutPortraitChange}
         />
         <div className="space-y-2">
           <Label htmlFor="aboutTitle">Title</Label>

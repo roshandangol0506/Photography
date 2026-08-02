@@ -30,11 +30,15 @@ export interface ISiteSettings extends mongoose.Document {
   heroSettings: {
     autoplaySpeedMs: number;
     transitionStyle: string;
+    eyebrow?: string;
+    headline?: string;
+    ctaLabel?: string;
   };
   about: {
     title?: string;
     description?: string;
     image?: string;
+    portraitImage?: string;
     experienceYears?: number;
   };
   animationsEnabled: boolean;
@@ -71,13 +75,17 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     },
     footerText: { type: String, default: "" },
     heroSettings: {
-      autoplaySpeedMs: { type: Number, default: 5000 },
+      autoplaySpeedMs: { type: Number, default: 5200 },
       transitionStyle: { type: String, default: "fade" },
+      eyebrow: { type: String, default: "" },
+      headline: { type: String, default: "" },
+      ctaLabel: { type: String, default: "" },
     },
     about: {
       title: { type: String, default: "" },
       description: { type: String, default: "" },
       image: { type: String, default: "" },
+      portraitImage: { type: String, default: "" },
       experienceYears: { type: Number, default: 0 },
     },
     animationsEnabled: { type: Boolean, default: true },

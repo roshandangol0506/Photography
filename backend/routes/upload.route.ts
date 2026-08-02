@@ -4,7 +4,7 @@ import { catchAsync } from "../utils/catchAsync";
 import { authentication } from "../middleware/authentication.middleware";
 import { authorization } from "../middleware/authorization.middleware";
 import { ROLE } from "../constant/enum";
-import { upload } from "../middleware/upload.middleware";
+import { upload, handleUploadError } from "../middleware/upload.middleware";
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.use(authentication(), authorization([ROLE.ADMIN]));
 router.post(
   "/",
   upload.single("file"),
+  handleUploadError,
   catchAsync(UploadController.uploadAsset),
 );
 

@@ -27,6 +27,10 @@ export class CreateCategoryDTO {
   @IsOptional()
   coverImage?: string;
 
+  @IsString()
+  @IsOptional()
+  country?: string;
+
   @IsNumber()
   @IsOptional()
   order?: number;
@@ -53,6 +57,10 @@ export class UpdateCategoryDTO {
   @IsString()
   @IsOptional()
   coverImage?: string;
+
+  @IsString()
+  @IsOptional()
+  country?: string;
 
   @IsNumber()
   @IsOptional()

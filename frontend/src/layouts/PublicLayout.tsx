@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import { useTheme } from "@/hooks/useTheme";
 import { Navbar } from "@/components/public/Navbar";
@@ -7,16 +7,21 @@ import { VisitorTracker } from "@/components/public/VisitorTracker";
 
 function PublicLayoutContent() {
   const { settings } = useTheme();
+  const { pathname } = useLocation();
 
   if (settings.maintenanceMode) {
     return <MaintenancePage />;
   }
 
+  // Home ships its own fixed nav (transparent over the full-bleed hero) and
+  // owns the viewport from the very top, so the shared chrome steps aside.
+  const isHome = pathname === "/";
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <VisitorTracker />
-      <Navbar />
-      <main className="flex-1 pt-24">
+      {!isHome && <Navbar />}
+      <main className={isHome ? "flex-1" : "flex-1 pt-24"}>
         <Outlet />
       </main>
     </div>
