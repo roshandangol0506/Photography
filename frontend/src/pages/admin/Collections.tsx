@@ -36,6 +36,7 @@ const collectionSchema = z.object({
     ),
   description: z.string().optional(),
   order: z.number().optional(),
+  isBackgroundList: z.boolean().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -72,6 +73,7 @@ export default function Collections() {
       slug: "",
       description: "",
       order: 0,
+      isBackgroundList: false,
       isActive: true,
     });
     setDialogOpen(true);
@@ -85,6 +87,7 @@ export default function Collections() {
       slug: collection.slug,
       description: collection.description,
       order: collection.order,
+      isBackgroundList: collection.isBackgroundList ?? false,
       isActive: collection.isActive,
     });
     setDialogOpen(true);
@@ -162,9 +165,7 @@ export default function Collections() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-foreground">
-          Collections
-        </h1>
+        <h1 className="text-2xl font-semibold text-foreground">Collections</h1>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" /> Add Collection
         </Button>
@@ -237,6 +238,29 @@ export default function Collections() {
               type="number"
               {...form.register("order", { valueAsNumber: true })}
             />
+          </div>
+          <div className="space-y-2 rounded-lg border border-border p-3">
+            <p className="text-xs font-semibold text-foreground">Placement</p>
+            <div className="flex items-center justify-between gap-4">
+              <Label htmlFor="isBackgroundList" className="font-normal">
+                Home background list
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Shows the cover, name and description in the hover showcase
+                  band on the home page.
+                </span>
+              </Label>
+              <Controller
+                control={form.control}
+                name="isBackgroundList"
+                render={({ field }) => (
+                  <Switch
+                    id="isBackgroundList"
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="isActive">Active</Label>

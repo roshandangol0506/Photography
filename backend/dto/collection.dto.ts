@@ -27,6 +27,10 @@ export class CreateCollectionDTO {
   @IsOptional()
   coverImage?: string;
 
+  @IsBoolean()
+  @IsOptional()
+  isBackgroundList?: boolean;
+
   @IsNumber()
   @IsOptional()
   order?: number;
@@ -53,6 +57,10 @@ export class UpdateCollectionDTO {
   @IsString()
   @IsOptional()
   coverImage?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isBackgroundList?: boolean;
 
   @IsNumber()
   @IsOptional()

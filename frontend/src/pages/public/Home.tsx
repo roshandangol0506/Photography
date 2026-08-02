@@ -3,6 +3,7 @@ import { HomeNavbar } from "@/components/public/HomeNavbar";
 import { Hero } from "@/components/public/sections/Hero";
 import { FeaturedPhotos } from "@/components/public/sections/FeaturedPhotos";
 import { PhotoSeries } from "@/components/public/sections/PhotoSeries";
+import { CollectionShowcase } from "@/components/public/sections/CollectionShowcase";
 import { RecentWorks } from "@/components/public/sections/RecentWorks";
 import { SideScrollStrip } from "@/components/public/sections/SideScrollStrip";
 import { AwardsTimeline } from "@/components/public/sections/AwardsTimeline";
@@ -22,6 +23,7 @@ export default function Home() {
       <AboutSection />
       <PhotoSeries />
       <RecentWorks />
+      <CollectionShowcase />
       <AwardsTimeline />
       <SideScrollStrip />
       <TestimonialsCarousel />

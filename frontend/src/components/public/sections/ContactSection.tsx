@@ -121,7 +121,7 @@ export function ContactSection() {
 
           {map && (
             <div
-              className="mt-10 border-2 w-225"
+              className="mt-10 w-full max-w-[900px] border-2"
               style={{ borderColor: "rgba(255,242,239,.45)" }}
             >
               <iframe
@@ -130,7 +130,7 @@ export function ContactSection() {
                 loading="lazy"
                 allowFullScreen
                 referrerPolicy="strict-origin-when-cross-origin"
-                className="block h-[400px] w-full border-0"
+                className="block h-[clamp(220px,45vw,400px)] w-full border-0"
               />
             </div>
           )}

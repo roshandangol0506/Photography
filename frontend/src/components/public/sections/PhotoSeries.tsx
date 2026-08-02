@@ -33,16 +33,14 @@ function groupByCountry(categories: ActiveCategory[]): CountryGroup[] {
 
 function Preview({ src, alt }: { src?: string; alt: string }) {
   return (
-    <div className="h-[84px] flex-1 overflow-hidden">
-      {src ? (
+    <div className="h-92 flex-1 overflow-hidden">
+      {src && (
         <ProgressiveImage
           src={src}
           sizes="(max-width: 900px) 50vw, 200px"
           alt={alt}
           className="h-full w-full"
         />
-      ) : (
-        <div className="h-full w-full bg-md-300" aria-hidden="true" />
       )}
     </div>
   );
@@ -60,7 +58,7 @@ function SeriesBand({ group, last }: { group: CountryGroup; last: boolean }) {
   return (
     <div
       className={cn(
-        "grid grid-cols-[96px_1fr] items-start gap-4 border-t-2 border-md-divider pt-3 max-[900px]:grid-cols-1",
+        "grid grid-cols-[200px_1fr] items-start gap-4 border-t-2 border-md-divider pt-3 max-[900px]:grid-cols-1",
         last && "border-b-2 pb-3",
       )}
     >
@@ -74,8 +72,12 @@ function SeriesBand({ group, last }: { group: CountryGroup; last: boolean }) {
       </div>
 
       <div className="flex gap-[10px]">
-        <Preview src={lead?.coverImage} alt={lead?.name ?? group.country} />
-        <Preview src={trail?.coverImage} alt={trail?.name ?? group.country} />
+        {lead?.coverImage && (
+          <Preview src={lead?.coverImage} alt={lead?.name ?? group.country} />
+        )}
+        {trail?.coverImage && (
+          <Preview src={trail?.coverImage} alt={trail?.name ?? group.country} />
+        )}
 
         <div className="flex-1 text-[10px] leading-[1.7] text-md-700">
           {group.series.map((series) => (

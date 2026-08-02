@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 
@@ -14,9 +14,17 @@ const LINKS = [
 // hero has scrolled past; 90px of lead-in so the swap lands before the seam.
 const SOLID_OFFSET = 90;
 
+// Below this the four section links collapse into the hamburger panel; it is
+// the same breakpoint the section grids collapse at.
+const MOBILE_QUERY = "(max-width: 900px)";
+
+const LINK_CLASS =
+  "text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red";
+
 export function HomeNavbar() {
   const { settings, isDark, toggleDark } = useTheme();
   const [solid, setSolid] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () =>
@@ -24,6 +32,17 @@ export function HomeNavbar() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Growing past the breakpoint reveals the links inline, so an open panel
+  // would be a stray duplicate menu.
+  useEffect(() => {
+    const query = window.matchMedia(MOBILE_QUERY);
+    const onChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) setMenuOpen(false);
+    };
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
   }, []);
 
   // Scrolled past the hero in light mode is the only state where the bar goes
@@ -35,7 +54,7 @@ export function HomeNavbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-[90] flex flex-wrap items-center justify-between gap-8 border-b-2 px-9",
+        "fixed inset-x-0 top-0 z-[90] flex items-center justify-between gap-8 border-b-2 px-9 max-[900px]:gap-4 max-[900px]:px-5",
         "transition-[background-color,border-color,padding,color] duration-[450ms] ease-[ease]",
         solid
           ? "border-md-divider bg-md-ground py-[14px] text-md-fg"
@@ -44,24 +63,41 @@ export function HomeNavbar() {
     >
       <a href="#top" className="flex items-center gap-3 text-inherit">
         {logo ? (
-          <img src={logo} alt={settings.siteTitle} className="h-16 w-auto" />
+          <img
+            src={logo}
+            alt={settings.siteTitle}
+            className="h-16 w-auto max-[900px]:h-9"
+          />
         ) : (
-          <span className="text-[14px] font-bold tracking-[0.26em] uppercase">
+          <span className="text-[14px] font-bold tracking-[0.26em] uppercase max-[900px]:text-[12px]">
             {settings.siteTitle || "Ajay Maharjan"}
           </span>
         )}
       </a>
 
-      <nav className="flex items-center gap-[34px] text-inherit max-[900px]:gap-[18px]">
-        {LINKS.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className="text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red"
-          >
-            {link.label}
-          </a>
-        ))}
+      <nav className="flex items-center gap-[34px] text-inherit max-[900px]:gap-4">
+        <div className="flex items-center gap-[34px] max-[900px]:hidden">
+          {LINKS.map((link) => (
+            <a key={link.href} href={link.href} className={LINK_CLASS}>
+              {link.label}
+            </a>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          className="hidden cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors duration-200 hover:text-md-red max-[900px]:block"
+        >
+          {menuOpen ? (
+            <X className="h-[22px] w-[22px]" />
+          ) : (
+            <Menu className="h-[22px] w-[22px]" />
+          )}
+        </button>
+
         <button
           type="button"
           onClick={toggleDark}
@@ -70,18 +106,36 @@ export function HomeNavbar() {
           className="cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors duration-200 hover:text-md-red"
         >
           {isDark ? (
-            <Sun className="h-[15px] w-[15px]" />
+            <Sun className="h-[15px] w-[15px] max-[900px]:h-[18px] max-[900px]:w-[18px]" />
           ) : (
-            <Moon className="h-[15px] w-[15px]" />
+            <Moon className="h-[15px] w-[15px] max-[900px]:h-[18px] max-[900px]:w-[18px]" />
           )}
         </button>
+
         <a
           href="#contact"
-          className="border border-current px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red"
+          className="border border-current px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red max-[900px]:px-3 max-[900px]:py-2 max-[900px]:text-[10px]"
         >
           Get in touch
         </a>
       </nav>
+
+      {/* The bar is transparent over the hero, so the panel carries its own
+          ground rather than inheriting one. */}
+      {menuOpen && (
+        <div className="absolute inset-x-0 top-full hidden flex-col border-b-2 border-md-divider bg-md-ground text-md-fg max-[900px]:flex">
+          {LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              className="border-t-2 border-md-divider px-5 py-4 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
   );
 }

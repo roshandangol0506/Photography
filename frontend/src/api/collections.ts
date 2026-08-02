@@ -8,6 +8,7 @@ export interface Collection {
   slug: string;
   description?: string;
   coverImage?: string;
+  isBackgroundList?: boolean;
   order: number;
   isActive: boolean;
   createdAt: string;
@@ -24,6 +25,7 @@ export interface CollectionInput {
   slug: string;
   description?: string;
   coverImage?: string;
+  isBackgroundList?: boolean;
   order?: number;
   isActive?: boolean;
 }
