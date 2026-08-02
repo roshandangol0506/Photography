@@ -90,7 +90,7 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     },
     animationsEnabled: { type: Boolean, default: true },
     maintenanceMode: { type: Boolean, default: false },
-    darkModeDefault: { type: Boolean, default: true },
+    darkModeDefault: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

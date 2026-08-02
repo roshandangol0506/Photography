@@ -39,7 +39,7 @@ export function TestimonialsCarousel() {
         </div>
       ) : (
         <div className="mt-11 grid grid-cols-2 items-end gap-16 max-[900px]:grid-cols-1">
-          <MdReveal className="md-photo overflow-hidden grayscale">
+          <MdReveal className="md-photo overflow-hidden">
             <div className="aspect-square">
               {active.image ? (
                 <ProgressiveImage
@@ -60,7 +60,7 @@ export function TestimonialsCarousel() {
             </blockquote>
 
             <div className="mt-8 flex items-center gap-4 border-t-2 border-md-divider pt-[18px]">
-              <div className="h-[52px] w-[52px] flex-none grayscale">
+              <div className="h-[52px] w-[52px] flex-none">
                 {active.avatar ? (
                   <ProgressiveImage
                     src={active.avatar}

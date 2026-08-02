@@ -15,7 +15,7 @@ export default function Home() {
   useSeo();
 
   return (
-    <div className="modernist bg-md-ground text-md-ink">
+    <div className="modernist bg-md-ground text-md-fg">
       <HomeNavbar />
       <Hero />
       <FeaturedPhotos />

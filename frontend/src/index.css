@@ -514,24 +514,68 @@ body {
    Tokens ported from the design handoff. Scoped to `.modernist` so the
    admin dashboard keeps its own palette and type. */
 
+/* Light values are the handoff's tokens verbatim - the default look is
+   unchanged. Dark mode re-points the same variables. */
+:root {
+  --md-ground: #f3f2f2;
+  --md-fg: #201e1d;
+  --md-divider: rgba(32, 30, 29, 0.4);
+
+  --md-100: #f8f4f4;
+  --md-200: #eae7e7;
+  --md-300: #d7d3d3;
+  --md-400: #bab6b6;
+  --md-500: #9b9797;
+  --md-600: #7d7979;
+  --md-700: #605d5d;
+  --md-800: #444141;
+  --md-900: #2d2b2b;
+}
+
+.dark {
+  /* Ground sits below the ink bands so the footer and marquee still read as
+     bands rather than merging into the page. */
+  --md-ground: #161514;
+  --md-fg: #f3f2f2;
+  --md-divider: rgba(248, 244, 244, 0.28);
+
+  /* The ramp inverts: low steps stay the surfaces, high steps stay the text. */
+  --md-100: #201e1d;
+  --md-200: #2d2b2b;
+  --md-300: #383535;
+  --md-400: #4a4747;
+  --md-500: #7d7979;
+  --md-600: #9b9797;
+  --md-700: #bab6b6;
+  --md-800: #d7d3d3;
+  --md-900: #f3f2f2;
+}
+
+/* `inline` keeps the utilities pointing at the variables, so they resolve per
+   scope instead of being frozen at build time. */
+@theme inline {
+  --color-md-ground: var(--md-ground);
+  --color-md-fg: var(--md-fg);
+  --color-md-divider: var(--md-divider);
+
+  --color-md-100: var(--md-100);
+  --color-md-200: var(--md-200);
+  --color-md-300: var(--md-300);
+  --color-md-400: var(--md-400);
+  --color-md-500: var(--md-500);
+  --color-md-600: var(--md-600);
+  --color-md-700: var(--md-700);
+  --color-md-800: var(--md-800);
+  --color-md-900: var(--md-900);
+}
+
+/* Fixed in both themes: the ink bands, the text that sits on them and over
+   photography, and the red accent. */
 @theme {
-  --color-md-ground: #f3f2f2;
   --color-md-ink: #201e1d;
+  --color-md-light: #f8f4f4;
   --color-md-red: #ec3013;
   --color-md-poster: #fff2ef;
-  --color-md-light: #f8f4f4;
-  --color-md-divider: rgba(32, 30, 29, 0.4);
-
-  /* Neutral ramp, ported verbatim from the handoff's design tokens. */
-  --color-md-100: #f8f4f4;
-  --color-md-200: #eae7e7;
-  --color-md-300: #d7d3d3;
-  --color-md-400: #bab6b6;
-  --color-md-500: #9b9797;
-  --color-md-600: #7d7979;
-  --color-md-700: #605d5d;
-  --color-md-800: #444141;
-  --color-md-900: #2d2b2b;
 }
 
 .modernist {

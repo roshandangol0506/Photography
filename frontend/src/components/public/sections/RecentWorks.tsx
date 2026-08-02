@@ -77,7 +77,7 @@ export function RecentWorks() {
               <MdReveal key={photo._id} className={cellClass(i)}>
                 <Link
                   to={`/gallery?photo=${photo.slug}`}
-                  className="md-photo relative block overflow-hidden grayscale"
+                  className="md-photo relative block overflow-hidden"
                   style={{ aspectRatio: cell(i).aspect }}
                 >
                   <ProgressiveImage

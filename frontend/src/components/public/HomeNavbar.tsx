@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +15,7 @@ const LINKS = [
 const SOLID_OFFSET = 90;
 
 export function HomeNavbar() {
-  const { settings } = useTheme();
+  const { settings, isDark, toggleDark } = useTheme();
   const [solid, setSolid] = useState(false);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function HomeNavbar() {
         "fixed inset-x-0 top-0 z-[90] flex flex-wrap items-center justify-between gap-8 border-b-2 px-9",
         "transition-[background-color,border-color,padding,color] duration-[450ms] ease-[ease]",
         solid
-          ? "border-md-divider bg-md-ground py-[14px] text-md-ink"
+          ? "border-md-divider bg-md-ground py-[14px] text-md-fg"
           : "border-transparent bg-transparent py-5 text-md-light",
       )}
     >
@@ -51,6 +52,19 @@ export function HomeNavbar() {
             {link.label}
           </a>
         ))}
+        <button
+          type="button"
+          onClick={toggleDark}
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          aria-pressed={isDark}
+          className="cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors duration-200 hover:text-md-red"
+        >
+          {isDark ? (
+            <Sun className="h-[15px] w-[15px]" />
+          ) : (
+            <Moon className="h-[15px] w-[15px]" />
+          )}
+        </button>
         <a
           href="#contact"
           className="border border-current px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red"

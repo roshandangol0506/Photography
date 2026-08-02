@@ -73,7 +73,7 @@ export function FeaturedPhotos() {
                       </div>
 
                       <div
-                        className="relative overflow-hidden grayscale"
+                        className="relative overflow-hidden"
                         style={{ aspectRatio: col.aspect }}
                       >
                         <ProgressiveImage

@@ -4,7 +4,6 @@ import { useActiveCategories, type ActiveCategory } from "@/api/categories";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { cn } from "@/lib/utils";
 
-const LIST_COLOR = "rgba(32,30,29,.7)";
 const PREVIEW_SLOTS = 2;
 
 interface CountryGroup {
@@ -34,7 +33,7 @@ function groupByCountry(categories: ActiveCategory[]): CountryGroup[] {
 
 function Preview({ src, alt }: { src?: string; alt: string }) {
   return (
-    <div className="h-[84px] flex-1 overflow-hidden grayscale">
+    <div className="h-[84px] flex-1 overflow-hidden">
       {src ? (
         <ProgressiveImage
           src={src}
@@ -78,10 +77,7 @@ function SeriesBand({ group, last }: { group: CountryGroup; last: boolean }) {
         <Preview src={lead?.coverImage} alt={lead?.name ?? group.country} />
         <Preview src={trail?.coverImage} alt={trail?.name ?? group.country} />
 
-        <div
-          className="flex-1 text-[10px] leading-[1.7]"
-          style={{ color: LIST_COLOR }}
-        >
+        <div className="flex-1 text-[10px] leading-[1.7] text-md-700">
           {group.series.map((series) => (
             <Link
               key={series._id}

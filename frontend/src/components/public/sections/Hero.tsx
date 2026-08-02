@@ -92,10 +92,7 @@ export function Hero() {
       id="top"
       className="relative h-screen min-h-[620px] overflow-hidden bg-md-ink"
     >
-      <div
-        className="absolute inset-0"
-        style={{ filter: "grayscale(1) contrast(1.04)" }}
-      >
+      <div className="absolute inset-0" style={{ filter: "contrast(1.04)" }}>
         {photos?.map((photo, i) => (
           <div
             key={photo._id}

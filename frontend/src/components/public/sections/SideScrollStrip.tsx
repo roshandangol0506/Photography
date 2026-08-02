@@ -40,7 +40,7 @@ export function SideScrollStrip() {
 
       <div
         className={cn(
-          "flex w-max gap-[26px] px-[26px] pb-[30px] grayscale",
+          "flex w-max gap-[26px] px-[26px] pb-[30px]",
           animate && !isLoading && "md-marquee-track",
         )}
       >
@@ -49,10 +49,14 @@ export function SideScrollStrip() {
               <div
                 key={i}
                 className={cn(
-                  "flex-none bg-md-800",
+                  "flex-none",
                   frame.bottom && "self-end",
                 )}
-                style={{ width: frame.width, height: frame.height }}
+                style={{
+                  width: frame.width,
+                  height: frame.height,
+                  background: "rgba(248,244,244,.12)",
+                }}
                 aria-hidden="true"
               />
             ))
