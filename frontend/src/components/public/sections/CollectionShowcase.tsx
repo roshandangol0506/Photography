@@ -77,7 +77,7 @@ function CollectionCopy({
                 : undefined,
             }}
           >
-            View portfolio <span>&rarr;</span>
+            View More <span>&rarr;</span>
           </Link>
         </div>
       </div>

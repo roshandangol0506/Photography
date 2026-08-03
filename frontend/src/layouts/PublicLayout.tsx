@@ -4,6 +4,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Navbar } from "@/components/public/Navbar";
 import { MaintenancePage } from "@/components/public/MaintenancePage";
 import { VisitorTracker } from "@/components/public/VisitorTracker";
+import { WhatsAppWidget } from "@/components/public/WhatsAppWidget";
 
 function PublicLayoutContent() {
   const { settings } = useTheme();
@@ -24,6 +25,7 @@ function PublicLayoutContent() {
       <main className={isHome ? "flex-1" : "flex-1 pt-24"}>
         <Outlet />
       </main>
+      <WhatsAppWidget />
     </div>
   );
 }

@@ -26,6 +26,7 @@ export interface ISiteSettings extends mongoose.Document {
   contactDetails: {
     email?: string;
     phone?: string;
+    whatsapp?: string;
     location?: string;
     mapEmbedUrl?: string;
   };
@@ -74,6 +75,9 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     contactDetails: {
       email: { type: String, default: "" },
       phone: { type: String, default: "" },
+      // Digits with country code; drives the floating WhatsApp widget. Empty
+      // hides the widget entirely.
+      whatsapp: { type: String, default: "" },
       location: { type: String, default: "" },
       mapEmbedUrl: { type: String, default: "" },
     },

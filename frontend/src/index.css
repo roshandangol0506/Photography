@@ -656,6 +656,39 @@ body {
   display: none;
 }
 
+/* Floating WhatsApp widget. The pulse is a ring behind the button rather than
+   the button itself, so the icon never moves under the cursor. */
+@keyframes wa-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  60%,
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes wa-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wa-pulse {
+  animation: wa-pulse 3s ease-out infinite;
+}
+
+.wa-bubble {
+  animation: wa-bubble-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .modernist *,
   .modernist *::before,

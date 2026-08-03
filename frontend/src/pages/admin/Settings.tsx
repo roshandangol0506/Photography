@@ -21,6 +21,7 @@ interface SettingsFormValues {
   behance: string;
   contactEmail: string;
   contactPhone: string;
+  contactWhatsapp: string;
   contactLocation: string;
   mapEmbedUrl: string;
   footerText: string;
@@ -56,6 +57,7 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
       behance: settings.socialLinks?.behance ?? "",
       contactEmail: settings.contactDetails?.email ?? "",
       contactPhone: settings.contactDetails?.phone ?? "",
+      contactWhatsapp: settings.contactDetails?.whatsapp ?? "",
       contactLocation: settings.contactDetails?.location ?? "",
       mapEmbedUrl: settings.contactDetails?.mapEmbedUrl ?? "",
       footerText: settings.footerText ?? "",
@@ -109,6 +111,7 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
         contactDetails: {
           email: values.contactEmail,
           phone: values.contactPhone,
+          whatsapp: values.contactWhatsapp,
           location: values.contactLocation,
           mapEmbedUrl: values.mapEmbedUrl,
         },
@@ -195,6 +198,18 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
           <div className="space-y-2">
             <Label htmlFor="contactPhone">Phone</Label>
             <Input id="contactPhone" {...form.register("contactPhone")} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="contactWhatsapp">WhatsApp number</Label>
+            <Input
+              id="contactWhatsapp"
+              placeholder="9779864260404"
+              {...form.register("contactWhatsapp")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Country code and number, digits only. Leave empty to hide the
+              floating WhatsApp button.
+            </p>
           </div>
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="contactLocation">Location</Label>
