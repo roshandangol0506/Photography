@@ -25,6 +25,7 @@ const Visitors = lazy(() => import("@/pages/admin/Visitors"));
 const Comments = lazy(() => import("@/pages/admin/Comments"));
 const Testimonials = lazy(() => import("@/pages/admin/Testimonials"));
 const Messages = lazy(() => import("@/pages/admin/Messages"));
+const Leads = lazy(() => import("@/pages/admin/Leads"));
 const Profile = lazy(() => import("@/pages/admin/Profile"));
 const Settings = lazy(() => import("@/pages/admin/Settings"));
 const Analytics = lazy(() => import("@/pages/admin/Analytics"));
@@ -62,6 +63,7 @@ function App() {
             <Route path="comments" element={<Comments />} />
             <Route path="testimonials" element={<Testimonials />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="leads" element={<Leads />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
             <Route path="analytics" element={<Analytics />} />

@@ -62,6 +62,8 @@ export interface PublicPhotoListParams {
   tag?: string;
   featured?: boolean;
   trending?: boolean;
+  /** Photos belonging to no series. */
+  uncategorized?: boolean;
 }
 
 export function usePublicPhotos(params: PublicPhotoListParams) {

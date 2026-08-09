@@ -16,6 +16,7 @@ import {
   Palette,
   LogOut,
   X,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +32,7 @@ const navItems = [
   { to: "/admin/comments", label: "Comments", icon: MessageSquare },
   { to: "/admin/testimonials", label: "Testimonials", icon: Quote },
   { to: "/admin/messages", label: "Messages", icon: Mail },
+  { to: "/admin/leads", label: "Leads", icon: ClipboardList },
   { to: "/admin/profile", label: "Profile", icon: UserCircle },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },

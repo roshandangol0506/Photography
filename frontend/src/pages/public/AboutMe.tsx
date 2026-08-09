@@ -1,228 +1,137 @@
 import { Link } from "react-router-dom";
-import { useActiveCategories } from "@/api/categories";
-import { usePublicPhotos } from "@/api/photos";
 import { useSeo } from "@/hooks/useSeo";
 import { useTheme } from "@/hooks/useTheme";
 import { MdReveal } from "@/components/public/MdReveal";
-import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { AwardsTimeline } from "@/components/public/sections/AwardsTimeline";
 import { TestimonialsCarousel } from "@/components/public/sections/TestimonialsCarousel";
 
-const DEFAULT_HEADLINE = "Ten years\nbehind the camera.";
-const DEFAULT_LEAD =
-  "I photograph the moments that sit between the big ones — the quiet minute before a festival begins, the glance across a crowded street, the light that only lasts a second.";
-const DEFAULT_DESCRIPTION =
-  "The camera became a bridge — to people, to festivals, to traditions I would never otherwise have met. Every frame is a chance to learn.";
+const SECTION_CLASS = "px-9 max-[900px]:px-5";
+
+// Two-column rhythm from the reference: heading in a fixed left rail, body and
+// photograph sharing the right column.
+const RAIL_CLASS =
+  "grid grid-cols-[220px_1fr] gap-x-14 gap-y-12 max-[900px]:grid-cols-1 max-[900px]:gap-y-6";
+const RAIL_TITLE_CLASS =
+  "m-0 text-[clamp(22px,2.4vw,30px)] font-normal tracking-[-0.01em] leading-tight";
+const BODY_CLASS =
+  "m-0 max-w-[640px] text-[14px] leading-[1.75] text-md-700";
+
+const HERO_LEAD =
+  "I'm Ajay Maharjan, a Kathmandu-based photographer with over a decade of experience capturing the human spirit through portraiture, travel, and documentary photography.";
 
 // Editorial copy for the page; not CMS-backed yet.
-const APPROACH = [
+const BLOCKS = [
   {
-    title: "Watch first",
-    body: "I rarely raise the camera in the first hour. Understanding how a place moves — where people gather, where the light falls — is what makes the frame that follows worth keeping.",
+    title: "My Mission",
+    image: "/about1.jpg",
+    paragraphs: [
+      "My journey as a photographer has allowed me to explore various genres, from intimate portraits to breathtaking landscapes and everything in between. I thrive on the diversity that photography offers.",
+      "Though naturally introverted, photography has become my language — one that lets me form genuine connections and tell human-centered stories with honesty and empathy.",
+    ],
   },
   {
-    title: "Stay close",
-    body: "Documentary work is built on trust, not on long lenses. I introduce myself, I come back the next day, and I send the photographs to the people in them.",
+    title: "My Story",
+    image: "/about2.jpg",
+    paragraphs: [
+      "My work blends emotion, light, and storytelling, rooted in a deep respect for the people and cultures I photograph. I've had the privilege of working as a consultant photographer for the World Health Organization (WHO) Nepal since 2020, and have collaborated with leading organizations including UNFPA, UNHCR, KOICA, UNOPS, UNODC, AUR, USP, ICIMOD, and The Asia Foundation.",
+      "My photographs have supported powerful campaigns and documentation efforts across Nepal.",
+    ],
   },
   {
-    title: "Print it",
-    body: "A photograph is finished when it exists on paper. Everything in the archive is graded with a print in mind, not a screen.",
+    title: "Teaching & Tours",
+    image: "/about3.jpg",
+    paragraphs: [
+      "As a mentor at Nikon Nepal and founder of Photo Venture Nepal, I also conduct photography workshops and lead immersive photo tours through Kathmandu's vibrant streets, guiding others to see beyond the surface and connect deeply with their subjects.",
+    ],
   },
 ];
 
-const SECTION_CLASS = "px-9 max-[900px]:px-5";
-const KICKER_CLASS = "text-[11px] tracking-[0.2em] text-md-red uppercase";
-const H2_CLASS =
-  "mt-[14px] mb-0 font-bold tracking-[-0.025em] text-[clamp(28px,3.6vw,54px)] leading-none";
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <p className="m-0 font-bold tracking-[-0.02em] text-[clamp(30px,3.4vw,48px)] leading-none">
-        {value}
-      </p>
-      <p className="mt-2 mb-0 text-[11px] tracking-[0.16em] text-md-600 uppercase">
-        {label}
-      </p>
-    </div>
-  );
-}
-
 export default function AboutMe() {
   const { settings } = useTheme();
-  const about = settings.about;
-  const { data: photoData } = usePublicPhotos({ perpage: 1 });
-  const { data: categories } = useActiveCategories();
 
   useSeo({
     title: "About",
-    description: about?.description || "Learn more about the photographer.",
-    image: about?.image,
+    description: settings.about?.description || HERO_LEAD,
+    image: settings.about?.image,
   });
-
-  const headline = (about?.title || DEFAULT_HEADLINE).split("\n");
-  const totalPhotos = photoData?.pagination.total ?? 0;
-  const series = categories ?? [];
-  const countries = new Set(
-    series.map((item) => item.country?.trim()).filter(Boolean),
-  );
 
   return (
     <div className="modernist bg-md-ground text-md-fg">
-      <section className={`${SECTION_CLASS} pt-[70px] pb-10`}>
-        <span className={KICKER_CLASS}>About</span>
-        <h1 className="mt-[18px] mb-0 font-extrabold tracking-[-0.03em] text-[clamp(34px,5.4vw,84px)] leading-[0.94]">
-          {headline.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
-        </h1>
-        <p className="mt-8 mb-0 max-w-[620px] text-[15px] leading-[1.75] text-md-700">
-          {settings.tagline || DEFAULT_LEAD}
-        </p>
+      <section className="relative h-screen min-h-[620px] overflow-hidden bg-md-ink">
+        <img
+          src="/about.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "rgba(20,19,18,.42)" }}
+        />
+
+        <div className="relative flex h-full items-center justify-center px-9 text-md-light max-[900px]:flex-col max-[900px]:gap-8 max-[900px]:px-5">
+          <h1 className="m-0 text-center font-normal tracking-[-0.02em] text-[clamp(52px,9vw,132px)] leading-none">
+            About
+          </h1>
+          {/* Sits to the right of the wordmark on desktop, beneath it below. */}
+          <p className="absolute right-9 m-0 max-w-[290px] text-[13px] leading-[1.65] max-[900px]:static max-[900px]:max-w-[420px] max-[900px]:text-center">
+            {HERO_LEAD}
+          </p>
+        </div>
       </section>
 
-      <section className={`${SECTION_CLASS} pb-[70px]`}>
-        <div className="grid grid-cols-[1.15fr_0.85fr] items-end gap-[72px] max-[900px]:grid-cols-1 max-[900px]:gap-10">
-          <MdReveal className="md-photo overflow-hidden">
-            <div className="aspect-[4/3]">
-              {about?.image ? (
-                <ProgressiveImage
-                  src={about.image}
-                  sizes="(max-width: 900px) 100vw, 60vw"
-                  alt={settings.siteTitle}
-                  className="h-full w-full"
-                />
-              ) : (
-                <div className="h-full w-full bg-md-300" aria-hidden="true" />
-              )}
+      {BLOCKS.map((block) => (
+        <section
+          key={block.title}
+          className={`${SECTION_CLASS} pt-[90px] max-[900px]:pt-[60px]`}
+        >
+          <div className={RAIL_CLASS}>
+            <h2 className={RAIL_TITLE_CLASS}>{block.title}</h2>
+
+            <div className="flex flex-col gap-5">
+              {block.paragraphs.map((paragraph) => (
+                <p key={paragraph.slice(0, 40)} className={BODY_CLASS}>
+                  {paragraph}
+                </p>
+              ))}
             </div>
-          </MdReveal>
 
-          <MdReveal>
-            <p className="m-0 text-[15px] leading-[1.8] whitespace-pre-line text-md-700">
-              {about?.description || DEFAULT_DESCRIPTION}
-            </p>
-            <div className="mt-8 border-t-2 border-md-divider pt-5">
-              <p className="m-0 text-[12px] font-bold tracking-[0.16em] uppercase">
-                {settings.siteTitle}
-              </p>
-              <p className="mt-[5px] mb-0 text-[11px] tracking-[0.12em] text-md-600 uppercase">
-                {settings.contactDetails?.location || "Documentary & travel"}
-              </p>
-            </div>
-          </MdReveal>
-        </div>
-      </section>
+            {/* Empty rail cell so the photograph lines up under the body. */}
+            <div className="max-[900px]:hidden" aria-hidden="true" />
 
-      <section
-        className={`${SECTION_CLASS} border-t-2 border-md-divider py-[60px]`}
-      >
-        <div className="grid grid-cols-4 gap-10 max-[900px]:grid-cols-2">
-          <Stat
-            value={`${about?.experienceYears ?? 0}+`}
-            label="Years shooting"
-          />
-          <Stat value={String(totalPhotos)} label="Photographs published" />
-          <Stat value={String(series.length)} label="Photo series" />
-          <Stat value={String(countries.size)} label="Countries" />
-        </div>
-      </section>
-
-      <section
-        className={`${SECTION_CLASS} border-t-2 border-md-divider pt-[70px] pb-[70px]`}
-      >
-        <span className={KICKER_CLASS}>How I work</span>
-        <h2 className={H2_CLASS}>Three rules I keep.</h2>
-
-        <div className="mt-12 grid grid-cols-3 gap-[52px] max-[900px]:grid-cols-1 max-[900px]:gap-10">
-          {APPROACH.map((item, i) => (
-            <MdReveal key={item.title}>
-              <span className="text-[11px] tracking-[0.16em] text-md-500 uppercase">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-3 mb-0 text-[20px] font-bold tracking-[-0.02em]">
-                {item.title}
-              </h3>
-              <p className="mt-3 mb-0 text-[14px] leading-[1.75] text-md-700">
-                {item.body}
-              </p>
-            </MdReveal>
-          ))}
-        </div>
-      </section>
-
-      {about?.portraitImage && (
-        <section className={`${SECTION_CLASS} pb-[70px]`}>
-          <div className="grid grid-cols-[0.8fr_1.2fr] items-center gap-[72px] max-[900px]:grid-cols-1 max-[900px]:gap-10">
             <MdReveal className="md-photo overflow-hidden">
-              <div className="aspect-[3/4]">
-                <ProgressiveImage
-                  src={about.portraitImage}
-                  sizes="(max-width: 900px) 100vw, 40vw"
-                  alt={settings.siteTitle}
-                  className="h-full w-full"
-                />
-              </div>
-            </MdReveal>
-
-            <MdReveal>
-              <span className={KICKER_CLASS}>In the field</span>
-              <h2 className={H2_CLASS}>
-                <span className="block">Most of the archive</span>
-                <span className="block">was made on foot.</span>
-              </h2>
-              <p className="mt-7 mb-0 max-w-[520px] text-[15px] leading-[1.8] text-md-700">
-                Festivals in Kathmandu, colour in Mathura, fishermen on Inle
-                Lake — the work is slow, and it is walked. If you would like a
-                print, a commission, or a place on one of the street photography
-                walks, the door is open.
-              </p>
-              <Link
-                to="/contact"
-                className="mt-8 inline-flex items-center gap-4 bg-md-ink px-5 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-light uppercase transition-colors duration-200 hover:bg-md-red"
-              >
-                Get in touch <span>&rarr;</span>
-              </Link>
+              <img
+                src={block.image}
+                alt={block.title}
+                loading="lazy"
+                className="h-auto w-full"
+              />
             </MdReveal>
           </div>
         </section>
-      )}
+      ))}
 
-      {series.length > 0 && (
-        <section
-          className={`${SECTION_CLASS} border-t-2 border-md-divider pt-[70px] pb-[70px]`}
+      <div className="mt-[70px]">
+        <AwardsTimeline />
+        <TestimonialsCarousel />
+      </div>
+
+      <section
+        className={`${SECTION_CLASS} border-t-2 border-md-divider pt-[90px] pb-[110px] text-center`}
+      >
+        <h2 className="m-0 font-normal tracking-[-0.02em] text-[clamp(30px,4.4vw,58px)] leading-none">
+          Let's work together
+        </h2>
+        <p className="mx-auto mt-6 mb-0 max-w-[520px] text-[14px] leading-[1.75] text-md-700">
+          Commissions, prints, workshops and photo tours — tell me what you have
+          in mind and I will come back to you personally.
+        </p>
+        <Link
+          to="/contact"
+          className="mt-9 inline-flex items-center gap-4 border-2 border-md-divider px-6 py-4 text-[12px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red"
         >
-          <span className={KICKER_CLASS}>The work</span>
-          <h2 className={H2_CLASS}>Series in the archive.</h2>
-          <ul className="mt-10 m-0 list-none p-0">
-            {series.map((item) => (
-              <li key={item._id} className="border-t-2 border-md-divider">
-                <Link
-                  to={`/gallery?category=${item.slug}`}
-                  className="flex items-baseline gap-7 py-5 transition-colors duration-200 hover:text-md-red max-[900px]:flex-wrap max-[900px]:gap-3"
-                >
-                  <span className="text-[clamp(18px,2.2vw,28px)] font-bold tracking-[-0.02em]">
-                    {item.name}
-                  </span>
-                  {item.country && (
-                    <span className="text-[11px] tracking-[0.14em] text-md-600 uppercase">
-                      {item.country}
-                    </span>
-                  )}
-                  <span className="ml-auto text-[11px] tracking-[0.14em] text-md-500 uppercase">
-                    {item.photoCount} frames
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <AwardsTimeline />
-      <TestimonialsCarousel />
+          Get in touch <span aria-hidden="true">&rarr;</span>
+        </Link>
+      </section>
     </div>
   );
 }

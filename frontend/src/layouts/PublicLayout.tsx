@@ -15,15 +15,17 @@ function PublicLayoutContent() {
     return <MaintenancePage />;
   }
 
-  // The bar is fixed, so only home - whose hero sits underneath it - skips
-  // the top padding that keeps content clear of it.
   const isHome = pathname === "/";
+  const isContact = pathname === "/contact";
+  const isAbout = pathname === "/about";
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <VisitorTracker />
-      <HomeNavbar overHero={isHome} />
-      <main className={isHome ? "flex-1" : "flex-1 pt-24"}>
+      <HomeNavbar overHero={isHome || isContact || isAbout} />
+      <main
+        className={isHome || isContact || isAbout ? "flex-1" : "flex-1 pt-24"}
+      >
         <Outlet />
       </main>
       <WhatsAppWidget />

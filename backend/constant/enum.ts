@@ -51,3 +51,14 @@ export enum STORAGE_PROVIDER {
   LOCAL = "LOCAL",
   S3 = "S3",
 }
+
+export enum LEAD_TYPE {
+  BOOK_A_DEMO = "book_a_demo",
+  CONTACT = "contact",
+}
+
+export enum LEAD_STATUS {
+  PENDING = "pending",
+  COMPLETED = "completed",
+  REJECTED = "rejected",
+}

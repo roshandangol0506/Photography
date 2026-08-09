@@ -125,7 +125,30 @@ class photoService {
         visibility: VISIBILITY.PUBLISHED,
       };
 
-      if (query.search) filter.title = { $regex: query.search, $options: "i" };
+      // Public search spans the photo's own fields plus the names of the
+      // taxonomies it belongs to, which live in other collections - so those
+      // are resolved to ids first and folded into the same $or.
+      if (query.search) {
+        const term = { $regex: query.search, $options: "i" };
+        const [matchedCategories, matchedCollections] = await Promise.all([
+          Category.find({ name: term }, "_id"),
+          Collection.find({ name: term }, "_id"),
+        ]);
+
+        filter.$or = [
+          { title: term },
+          { slug: term },
+          { location: term },
+          { tags: term },
+          { description: term },
+          ...(matchedCategories.length
+            ? [{ category: { $in: matchedCategories.map((doc) => doc._id) } }]
+            : []),
+          ...(matchedCollections.length
+            ? [{ collections: { $in: matchedCollections.map((doc) => doc._id) } }]
+            : []),
+        ];
+      }
 
       // Category/collection are addressed by slug everywhere on the public
       // site, but Photo stores them as ObjectId refs - resolve before filtering.
@@ -149,6 +172,9 @@ class photoService {
       }
 
       if (query.tag) filter.tags = query.tag;
+      // Lets the gallery show photos that belong to no series, so grouping by
+      // category never hides anything.
+      if (query.uncategorized === "true") filter.category = null;
       if (query.featured === "true") filter.isFeatured = true;
       if (query.trending === "true") filter.isTrending = true;
 

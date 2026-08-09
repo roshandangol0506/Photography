@@ -1,13 +1,29 @@
 import ContactMessage from "../models/message.model";
+import leadService from "./lead.service";
 import { paginationValidator, getPaginationData } from "../utils/pagination";
 import HttpException from "../utils/HttpException.utils";
 import { Message } from "../constant/messages";
-import { MESSAGE_STATUS } from "../constant/enum";
+import { LEAD_TYPE, MESSAGE_STATUS } from "../constant/enum";
+
+const LeadService = new leadService();
 
 class messageService {
   async createMessage(body: any) {
     try {
       const message = await ContactMessage.create(body);
+
+      // Mirror the enquiry into Leads so the dashboard has one place to work
+      // from, whichever form the visitor used.
+      await LeadService.createLead(
+        {
+          fullName: body.name,
+          email: body.email,
+          phone: body.phone,
+          description: body.message,
+        },
+        LEAD_TYPE.CONTACT,
+      );
+
       return message;
     } catch (error) {
       throw error;
