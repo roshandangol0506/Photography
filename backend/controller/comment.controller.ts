@@ -30,6 +30,30 @@ class commentController {
     });
   }
 
+  async likeComment(req: Request, res: Response) {
+    const response = await CommentService.toggleLike(
+      req.params.id,
+      req.body.visitorId,
+    );
+    res.status(StatusCodes.SUCCESS).json({
+      success: true,
+      message: Message.updated,
+      data: response,
+    });
+  }
+
+  async replyAsAdmin(req: Request, res: Response) {
+    const response = await CommentService.replyAsAdmin(
+      req.params.id,
+      req.body.content,
+    );
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: Message.commentSubmitted,
+      data: response,
+    });
+  }
+
   async getAdminComments(req: Request, res: Response) {
     const response = await CommentService.getAdminComments(req.query);
     res.status(StatusCodes.SUCCESS).json({

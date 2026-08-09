@@ -89,7 +89,7 @@ export function WhatsAppWidget() {
   };
 
   return (
-    <div className="modernist fixed right-6 bottom-6 z-[100] flex flex-col items-end gap-3 max-[640px]:right-[18px] max-[640px]:bottom-[18px]">
+    <div className="modernist fixed right-6 bottom-6 z-100 flex flex-col items-end gap-3 max-[640px]:right-4.5 max-[640px]:bottom-4.5">
       {panelOpen && (
         <div
           role="dialog"
@@ -145,7 +145,7 @@ export function WhatsAppWidget() {
               {INCOMING.map((line, i) => (
                 <p
                   key={line}
-                  className={`m-0 max-w-[80%] bg-white px-3.5 py-2.5 text-[14px] leading-[1.45] text-[#201e1d] shadow-[0_1px_1px_rgba(32,30,29,.12)] ${
+                  className={`m-0 max-w-[80%] bg-white px-3.5 py-2.5 text-[14px] leading-[1.45] text-md-ink shadow-[0_1px_1px_rgba(32,30,29,.12)] ${
                     i === 0
                       ? "rounded-t-lg rounded-br-lg rounded-bl-sm"
                       : "rounded-b-lg rounded-tr-lg rounded-tl-sm"
@@ -159,7 +159,7 @@ export function WhatsAppWidget() {
             {/* Preview of the message the button will send. */}
             <div className="mt-3 flex justify-end">
               <p
-                className="m-0 max-w-[85%] rounded-t-lg rounded-br-sm rounded-bl-lg px-3.5 py-2.5 text-[14px] leading-[1.45] text-[#201e1d] shadow-[0_1px_1px_rgba(32,30,29,.12)]"
+                className="m-0 max-w-[85%] rounded-t-lg rounded-br-sm rounded-bl-lg px-3.5 py-2.5 text-[14px] leading-[1.45] text-md-ink shadow-[0_1px_1px_rgba(32,30,29,.12)]"
                 style={{ backgroundColor: OUTGOING }}
               >
                 {PREFILL}
@@ -182,18 +182,18 @@ export function WhatsAppWidget() {
       )}
 
       {greetingOpen && !panelOpen && (
-        <div className="wa-bubble relative w-60 rounded-2xl bg-white px-4 py-3.5 shadow-[0_12px_32px_rgba(32,30,29,.18)]">
+        <div className="wa-bubble relative w-60 rounded-2xl bg-white px-4 py-2.5 shadow-[0_12px_32px_rgba(32,30,29,.18)]">
           {/* Sits above the overlay button so closing never opens the panel. */}
           <button
             type="button"
             onClick={dismissGreeting}
             aria-label="Close greeting"
-            className="absolute top-2 right-2 z-10 cursor-pointer rounded-full border-0 bg-transparent p-1 text-[#9b9797] transition-colors duration-200 hover:text-[#201e1d]"
+            className="absolute top-2 right-2 z-10 cursor-pointer rounded-full border-0 bg-transparent p-1 text-[#9b9797] transition-colors duration-200 hover:text-md-ink"
           >
             <X className="h-3.5 w-3.5" />
           </button>
 
-          <p className="m-0 pr-5 text-[14px] leading-[1.5] text-[#201e1d]">
+          <p className="m-0 pr-5 text-[14px] leading-normal text-md-ink">
             Namaste, How can I help you?
           </p>
 

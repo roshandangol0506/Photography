@@ -31,7 +31,7 @@ export const Message = {
   maintenanceMode: 'Site is currently under maintenance. Please check back soon',
   alreadyLiked: 'You have already liked this photo',
   notLiked: 'You have not liked this photo',
-  commentSubmitted: 'Your comment has been submitted for review',
+  commentSubmitted: 'Your comment has been posted',
   messageSent: 'Your message has been sent successfully',
   loggedOut: 'Successfully logged out',
   invalidSlug: 'Slug may only contain lowercase letters, numbers and hyphens (e.g. my-photo-title)',

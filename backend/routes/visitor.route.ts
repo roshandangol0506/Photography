@@ -17,6 +17,8 @@ router.post(
   catchAsync(VisitorController.identify),
 );
 
+router.get("/profile/:uniqueId", catchAsync(VisitorController.getProfile));
+
 router.use(authentication(), authorization([ROLE.ADMIN]));
 router.get("/", catchAsync(VisitorController.getVisitors));
 

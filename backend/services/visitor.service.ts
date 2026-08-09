@@ -35,6 +35,17 @@ class visitorService {
     }
   }
 
+  // Public, side-effect free: lets a returning visitor recover the name they
+  // already gave so they are not asked for it again.
+  async getProfile(uniqueId: string) {
+    try {
+      const visitor = await Visitor.findOne({ uniqueId }, "uniqueId name");
+      return { uniqueId, name: visitor?.name ?? null };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getVisitors(query: any) {
     try {
       const [page, perpage] = paginationValidator(query.page, query.perpage);

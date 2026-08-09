@@ -1,6 +1,10 @@
 import express from "express";
 import commentController from "../controller/comment.controller";
-import { CreateCommentDTO } from "../dto/comment.dto";
+import {
+  CreateCommentDTO,
+  LikeCommentDTO,
+  ReplyCommentDTO,
+} from "../dto/comment.dto";
 import { UpdateCommentStatusDTO } from "../dto/updateCommentStatus.dto";
 import RequestValidator from "../middleware/Request.Validator";
 import { catchAsync } from "../utils/catchAsync";
@@ -20,6 +24,11 @@ router.patch(
   RequestValidator.validate(UpdateCommentStatusDTO),
   catchAsync(CommentController.updateStatus),
 );
+router.post(
+  "/admin/:id/reply",
+  RequestValidator.validate(ReplyCommentDTO),
+  catchAsync(CommentController.replyAsAdmin),
+);
 router.delete("/admin/:id", catchAsync(CommentController.deleteComment));
 
 // Public - must stay last, ":photoId" is a catch-all single segment
@@ -29,5 +38,12 @@ router.post(
   catchAsync(CommentController.createComment),
 );
 router.get("/:photoId", catchAsync(CommentController.getPublicComments));
+
+// Two segments, so it never collides with the single-segment routes above.
+router.post(
+  "/:id/like",
+  RequestValidator.validate(LikeCommentDTO),
+  catchAsync(CommentController.likeComment),
+);
 
 export default router;

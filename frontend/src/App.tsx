@@ -8,6 +8,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Home from "@/pages/public/Home";
 import Gallery from "@/pages/public/Gallery";
 import AboutMe from "@/pages/public/AboutMe";
+import PhotoDetail from "@/pages/public/PhotoDetail";
+import Contact from "@/pages/public/Contact";
 
 // Admin pages - split into their own chunks so public visitors never
 // download the dashboard (recharts, react-hook-form, etc.)
@@ -37,6 +39,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/about" element={<AboutMe />} />
+            <Route path="/photo/:slug" element={<PhotoDetail />} />
+            <Route path="/contact" element={<Contact />} />
           </Route>
           <Route path="/admin/login" element={<Login />} />
           <Route

@@ -5,11 +5,17 @@ import type { ApiResponse, PaginationMeta } from "./types";
 export interface Comment {
   _id: string;
   photo: { _id: string; title: string; slug: string } | string;
+  parent?: string | null;
   visitorId: string;
   name: string;
   content: string;
+  isAdminReply?: boolean;
+  likeCount: number;
+  // Server-computed for the requesting visitor; `likedBy` never leaves the API.
+  likedByMe?: boolean;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
+  replies?: Comment[];
 }
 
 export interface CommentListParams {
@@ -22,6 +28,8 @@ export interface CommentListParams {
 export interface PublicCommentParams {
   page?: number;
   perpage?: number;
+  visitorId?: string | null;
+  sort?: "recent" | "oldest";
 }
 
 export function usePublicComments(
@@ -44,6 +52,7 @@ export interface CreateCommentInput {
   visitorId: string;
   name: string;
   content: string;
+  parent?: string;
 }
 
 export function useCreateComment(photoId: string | undefined) {
@@ -57,7 +66,52 @@ export function useCreateComment(photoId: string | undefined) {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", "public", photoId] });
+      queryClient.invalidateQueries({
+        queryKey: ["comments", "public", photoId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["photos"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}
+
+export function useLikeComment(photoId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      commentId,
+      visitorId,
+    }: {
+      commentId: string;
+      visitorId: string;
+    }) => {
+      const { data } = await api.post<
+        ApiResponse<{ liked: boolean; likeCount: number }>
+      >(`/comments/${commentId}/like`, { visitorId });
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", "public", photoId],
+      });
+    },
+  });
+}
+
+export function useReplyToComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, content }: { id: string; content: string }) => {
+      const { data } = await api.post<ApiResponse<Comment>>(
+        `/comments/admin/${id}/reply`,
+        { content },
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["photos"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     },
   });
 }

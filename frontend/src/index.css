@@ -588,10 +588,6 @@ body {
   text-decoration: none;
 }
 
-.modernist :focus-visible {
-  outline: 2px solid #ec3013;
-  outline-offset: 2px;
-}
 
 /* Hero slide indicator: the active bar fills left-to-right over one
    autoplay interval, reading as a progress bar. Two identical keyframes so
@@ -640,6 +636,33 @@ body {
 .md-photo:hover .md-cap {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Like control. Separate from .md-cap because this one has to become
+   clickable, not just visible. */
+.md-like {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+.md-photo:hover .md-like,
+.md-photo:focus-within .md-like {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Touch has no hover, so the heart would be unreachable. */
+@media (hover: none) {
+  .md-like {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
 }
 
 /* Side-scroll strip. Scroll-driven rather than a CSS animation, so a drag can

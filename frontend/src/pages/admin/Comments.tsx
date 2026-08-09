@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Check, X, Trash2 } from "lucide-react";
+import { Check, X, Trash2, Reply } from "lucide-react";
 import {
   useAdminComments,
   useUpdateCommentStatus,
   useDeleteComment,
+  useReplyToComment,
   type Comment,
 } from "@/api/comments";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -15,6 +16,8 @@ import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { Pagination } from "@/components/admin/Pagination";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Dialog } from "@/components/ui/Dialog";
+import { Textarea } from "@/components/ui/Textarea";
 
 const statusVariant: Record<
   Comment["status"],
@@ -31,6 +34,8 @@ export default function Comments() {
   const [status, setStatus] = useState("");
   const debouncedSearch = useDebounce(search);
   const [deleteTarget, setDeleteTarget] = useState<Comment | null>(null);
+  const [replyTarget, setReplyTarget] = useState<Comment | null>(null);
+  const [replyText, setReplyText] = useState("");
 
   const { data, isLoading } = useAdminComments({
     page,
@@ -40,6 +45,7 @@ export default function Comments() {
   });
   const statusMutation = useUpdateCommentStatus();
   const deleteMutation = useDeleteComment();
+  const replyMutation = useReplyToComment();
 
   const updateStatus = async (id: string, next: string) => {
     try {
@@ -47,6 +53,21 @@ export default function Comments() {
       toast.success(`Comment ${next}`);
     } catch {
       toast.error("Failed to update comment");
+    }
+  };
+
+  const submitReply = async () => {
+    if (!replyTarget || !replyText.trim()) return;
+    try {
+      await replyMutation.mutateAsync({
+        id: replyTarget._id,
+        content: replyText.trim(),
+      });
+      toast.success("Reply posted");
+      setReplyTarget(null);
+      setReplyText("");
+    } catch {
+      toast.error("Failed to post reply");
     }
   };
 
@@ -82,6 +103,19 @@ export default function Comments() {
       header: "Actions",
       accessor: (row) => (
         <div className="flex gap-1">
+          {!row.isAdminReply && (
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Reply"
+              onClick={() => {
+                setReplyTarget(row);
+                setReplyText("");
+              }}
+            >
+              <Reply className="h-4 w-4 text-foreground" />
+            </Button>
+          )}
           {row.status !== "approved" && (
             <Button
               variant="ghost"
@@ -109,7 +143,7 @@ export default function Comments() {
           </Button>
         </div>
       ),
-      className: "w-32",
+      className: "w-40",
     },
   ];
 
@@ -158,6 +192,44 @@ export default function Comments() {
           onPageChange={setPage}
         />
       )}
+
+      <Dialog
+        open={Boolean(replyTarget)}
+        onClose={() => setReplyTarget(null)}
+        title="Reply to comment"
+      >
+        <div className="space-y-4">
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs font-semibold text-foreground">
+              {replyTarget?.name}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {replyTarget?.content}
+            </p>
+          </div>
+          <Textarea
+            rows={4}
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Write your reply..."
+          />
+          <p className="text-xs text-muted-foreground">
+            Replies are published immediately and shown on the photo page as the
+            photographer.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setReplyTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={submitReply}
+              disabled={replyMutation.isPending || !replyText.trim()}
+            >
+              {replyMutation.isPending ? "Posting..." : "Post reply"}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}

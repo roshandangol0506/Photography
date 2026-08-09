@@ -41,6 +41,21 @@ export function useIdentifyVisitor() {
   });
 }
 
+// Side-effect free lookup so a returning visitor keeps the name they gave.
+export function useVisitorProfile(uniqueId: string | null) {
+  return useQuery({
+    queryKey: ["visitors", "profile", uniqueId],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ uniqueId: string; name: string | null }>
+      >(`/visitors/profile/${uniqueId}`);
+      return data.data;
+    },
+    enabled: Boolean(uniqueId),
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useVisitors(params: VisitorListParams) {
   return useQuery({
     queryKey: ["visitors", params],

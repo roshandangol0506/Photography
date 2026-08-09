@@ -18,6 +18,15 @@ class visitorController {
     });
   }
 
+  async getProfile(req: Request, res: Response) {
+    const response = await VisitorService.getProfile(req.params.uniqueId);
+    res.status(StatusCodes.SUCCESS).json({
+      success: true,
+      message: Message.fetched,
+      data: response,
+    });
+  }
+
   async getVisitors(req: Request, res: Response) {
     const response = await VisitorService.getVisitors(req.query);
     res.status(StatusCodes.SUCCESS).json({

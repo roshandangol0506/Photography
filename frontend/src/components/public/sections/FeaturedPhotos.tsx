@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { usePublicPhotos } from "@/api/photos";
+import { LikeButton } from "@/components/public/LikeButton";
+import { CommentCount } from "@/components/public/CommentCount";
 import { MdReveal } from "@/components/public/MdReveal";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { photoSrcSet } from "@/lib/image";
@@ -61,42 +63,62 @@ export function FeaturedPhotos() {
               const col = column(i);
               return (
                 <MdReveal key={photo._id}>
-                  <Link
-                    to={`/gallery?photo=${photo.slug}`}
-                    className="md-photo block max-[900px]:pt-0"
+                  <figure
+                    className="md-photo m-0 flex flex-col gap-[14px] max-[900px]:pt-0"
                     style={{ paddingTop: col.paddingTop }}
                   >
-                    <figure className="m-0 flex flex-col gap-[14px]">
-                      <div className="flex justify-between text-[10px] tracking-[0.16em] text-md-600 uppercase">
-                        <span>{photo.location}</span>
-                        <span>{photo.category?.name}</span>
-                      </div>
+                    <div className="flex justify-between text-[10px] tracking-[0.16em] text-md-600 uppercase">
+                      <span>{photo.location}</span>
+                      <span>{photo.category?.name}</span>
+                    </div>
 
-                      <div
-                        className="relative overflow-hidden"
-                        style={{ aspectRatio: col.aspect }}
-                      >
-                        <ProgressiveImage
-                          src={photo.images.medium}
-                          srcSet={photoSrcSet(photo.images)}
-                          sizes={SIZES}
-                          blurDataURL={photo.images.blurDataURL}
-                          alt={photo.title}
-                          className="h-full w-full"
+                    <div
+                      className="relative overflow-hidden"
+                      style={{ aspectRatio: col.aspect }}
+                    >
+                      <ProgressiveImage
+                        src={photo.images.medium}
+                        srcSet={photoSrcSet(photo.images)}
+                        sizes={SIZES}
+                        blurDataURL={photo.images.blurDataURL}
+                        alt={photo.title}
+                        className="h-full w-full"
+                      />
+
+                      {/* The link covers the frame so the whole photo opens
+                          the detail page, while the heart sits above it. */}
+                      <Link
+                        to={`/photo/${photo.slug}`}
+                        aria-label={`View ${photo.title}`}
+                        className="absolute inset-0"
+                      />
+
+                      <span className="md-cap pointer-events-none absolute bottom-3 left-3 bg-md-red px-[10px] py-[7px] text-[10px] font-semibold tracking-[0.18em] text-md-light uppercase">
+                        View
+                      </span>
+
+                      <div className="md-like absolute right-3 bottom-3 z-10 flex items-center gap-3">
+                        <LikeButton
+                          photoId={photo._id}
+                          likeCount={photo.likeCount}
+                          size="sm"
+                          className="cursor-pointer text-[10px] font-semibold tracking-[0.18em] text-md-light uppercase"
                         />
-                        <span className="md-cap pointer-events-none absolute bottom-3 left-3 bg-md-red px-[10px] py-[7px] text-[10px] font-semibold tracking-[0.18em] text-md-light uppercase">
-                          View
-                        </span>
+                        <CommentCount
+                          slug={photo.slug}
+                          count={photo.commentCount}
+                          className="text-[10px] font-semibold tracking-[0.18em] text-md-light! uppercase"
+                        />
                       </div>
+                    </div>
 
-                      <figcaption className="flex justify-between gap-4 text-[11px] leading-[1.5] tracking-[0.08em] uppercase">
-                        <span>{photo.title}</span>
-                        <span className="text-md-500">
-                          {String(i + 1).padStart(3, "0")}
-                        </span>
-                      </figcaption>
-                    </figure>
-                  </Link>
+                    <figcaption className="flex justify-between gap-4 text-[11px] leading-[1.5] tracking-[0.08em] uppercase">
+                      <span>{photo.title}</span>
+                      <span className="text-md-500">
+                        {String(i + 1).padStart(3, "0")}
+                      </span>
+                    </figcaption>
+                  </figure>
                 </MdReveal>
               );
             })}

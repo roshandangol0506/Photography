@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 
-const LINKS = [
-  { href: "#series", label: "Photo series" },
-  { href: "#about", label: "About" },
-  { href: "#archive", label: "Archive" },
-  { href: "#tours", label: "Tours" },
+// `route` entries are real pages; `href` entries jump to a section of the
+// home page and are plain anchors so they work from any route.
+const LINKS: { label: string; route?: string; href?: string }[] = [
+  { label: "Home", route: "/" },
+  { label: "Photo series", href: "/#series" },
+  { label: "About", route: "/about" },
+  { label: "Archive", href: "/#archive" },
+  { label: "Tours", href: "/#tours" },
 ];
 
 // The nav sits transparent over the hero and turns to solid ground once the
@@ -21,18 +25,30 @@ const MOBILE_QUERY = "(max-width: 900px)";
 const LINK_CLASS =
   "text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red";
 
-export function HomeNavbar() {
+interface HomeNavbarProps {
+  /**
+   * True only on the home page, where the bar floats transparently over the
+   * full-bleed hero before turning solid. Every other page has content at the
+   * top of the viewport, so the bar starts solid.
+   */
+  overHero?: boolean;
+}
+
+export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
   const { settings, isDark, toggleDark } = useTheme();
-  const [solid, setSolid] = useState(false);
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+    if (!overHero) return;
     const onScroll = () =>
-      setSolid(window.scrollY > window.innerHeight - SOLID_OFFSET);
+      setScrolledPastHero(window.scrollY > window.innerHeight - SOLID_OFFSET);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [overHero]);
+
+  const solid = !overHero || scrolledPastHero;
 
   // Growing past the breakpoint reveals the links inline, so an open panel
   // would be a stray duplicate menu.
@@ -54,7 +70,7 @@ export function HomeNavbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-[90] flex items-center justify-between gap-8 border-b-2 px-9 max-[900px]:gap-4 max-[900px]:px-5",
+        "modernist fixed inset-x-0 top-0 z-[90] flex items-center justify-between gap-8 border-b-2 px-9 max-[900px]:gap-4 max-[900px]:px-5",
         "transition-[background-color,border-color,padding,color] duration-[450ms] ease-[ease]",
         solid
           ? "border-md-divider bg-md-ground py-[14px] text-md-fg"
@@ -77,11 +93,17 @@ export function HomeNavbar() {
 
       <nav className="flex items-center gap-[34px] text-inherit max-[900px]:gap-4">
         <div className="flex items-center gap-[34px] max-[900px]:hidden">
-          {LINKS.map((link) => (
-            <a key={link.href} href={link.href} className={LINK_CLASS}>
-              {link.label}
-            </a>
-          ))}
+          {LINKS.map((link) =>
+            link.route ? (
+              <Link key={link.label} to={link.route} className={LINK_CLASS}>
+                {link.label}
+              </Link>
+            ) : (
+              <a key={link.label} href={link.href} className={LINK_CLASS}>
+                {link.label}
+              </a>
+            ),
+          )}
         </div>
 
         <button
@@ -112,28 +134,41 @@ export function HomeNavbar() {
           )}
         </button>
 
-        <a
-          href="#contact"
+        <Link
+          to="/contact"
           className="border border-current px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red max-[900px]:px-3 max-[900px]:py-2 max-[900px]:text-[10px]"
         >
           Get in touch
-        </a>
+        </Link>
       </nav>
 
       {/* The bar is transparent over the hero, so the panel carries its own
           ground rather than inheriting one. */}
       {menuOpen && (
         <div className="absolute inset-x-0 top-full hidden flex-col border-b-2 border-md-divider bg-md-ground text-md-fg max-[900px]:flex">
-          {LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="border-t-2 border-md-divider px-5 py-4 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red"
-            >
-              {link.label}
-            </a>
-          ))}
+          {LINKS.map((link) => {
+            const panelClass =
+              "border-t-2 border-md-divider px-5 py-4 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red";
+            return link.route ? (
+              <Link
+                key={link.label}
+                to={link.route}
+                onClick={() => setMenuOpen(false)}
+                className={panelClass}
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className={panelClass}
+              >
+                {link.label}
+              </a>
+            );
+          })}
         </div>
       )}
     </header>

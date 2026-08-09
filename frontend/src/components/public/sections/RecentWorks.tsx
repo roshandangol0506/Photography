@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { usePublicPhotos } from "@/api/photos";
+import { LikeButton } from "@/components/public/LikeButton";
+import { CommentCount } from "@/components/public/CommentCount";
 import { MdReveal } from "@/components/public/MdReveal";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { photoSrcSet } from "@/lib/image";
@@ -75,9 +77,8 @@ export function RecentWorks() {
             ))
           : photos.map((photo, i) => (
               <MdReveal key={photo._id} className={cellClass(i)}>
-                <Link
-                  to={`/gallery?photo=${photo.slug}`}
-                  className="md-photo relative block overflow-hidden"
+                <div
+                  className="md-photo relative overflow-hidden"
                   style={{ aspectRatio: cell(i).aspect }}
                 >
                   <ProgressiveImage
@@ -88,10 +89,33 @@ export function RecentWorks() {
                     alt={photo.title}
                     className="h-full w-full"
                   />
-                  <span className="md-cap absolute bottom-3 left-3 bg-md-ink px-[10px] py-[7px] text-[10px] tracking-[0.14em] text-md-light uppercase">
+
+                  {/* Covers the frame so the whole photo stays clickable
+                      while the heart above it stays independent. */}
+                  <Link
+                    to={`/photo/${photo.slug}`}
+                    aria-label={`View ${photo.title}`}
+                    className="absolute inset-0"
+                  />
+
+                  <span className="md-cap pointer-events-none absolute bottom-3 left-3 bg-md-ink px-[10px] py-[7px] text-[10px] tracking-[0.14em] text-md-light uppercase">
                     {photo.location || photo.title}
                   </span>
-                </Link>
+
+                  <div className="md-like absolute right-3 bottom-3 z-10 flex items-center gap-3">
+                    <LikeButton
+                      photoId={photo._id}
+                      likeCount={photo.likeCount}
+                      size="sm"
+                      className="cursor-pointer text-[10px] tracking-[0.14em] text-md-light uppercase"
+                    />
+                    <CommentCount
+                      slug={photo.slug}
+                      count={photo.commentCount}
+                      className="text-[10px] tracking-[0.14em] text-md-light! uppercase"
+                    />
+                  </div>
+                </div>
               </MdReveal>
             ))}
       </div>
