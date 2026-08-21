@@ -4,33 +4,23 @@ import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 
-// `route` entries are real pages; `href` entries jump to a section of the
-// home page and are plain anchors so they work from any route.
 const LINKS: { label: string; route?: string; href?: string }[] = [
   { label: "Home", route: "/" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Photo series", href: "/#series" },
   { label: "About", route: "/about" },
   { label: "Archive", href: "/#archive" },
   { label: "Tours", href: "/#tours" },
 ];
 
-// The nav sits transparent over the hero and turns to solid ground once the
-// hero has scrolled past; 90px of lead-in so the swap lands before the seam.
 const SOLID_OFFSET = 90;
 
-// Below this the four section links collapse into the hamburger panel; it is
-// the same breakpoint the section grids collapse at.
 const MOBILE_QUERY = "(max-width: 900px)";
 
 const LINK_CLASS =
   "text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red";
 
 interface HomeNavbarProps {
-  /**
-   * True only on the home page, where the bar floats transparently over the
-   * full-bleed hero before turning solid. Every other page has content at the
-   * top of the viewport, so the bar starts solid.
-   */
   overHero?: boolean;
 }
 
@@ -50,8 +40,6 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
 
   const solid = !overHero || scrolledPastHero;
 
-  // Growing past the breakpoint reveals the links inline, so an open panel
-  // would be a stray duplicate menu.
   useEffect(() => {
     const query = window.matchMedia(MOBILE_QUERY);
     const onChange = (event: MediaQueryListEvent) => {
@@ -61,9 +49,6 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  // Scrolled past the hero in light mode is the only state where the bar goes
-  // light. Everywhere else - over the hero, or scrolled in dark mode - the
-  // background stays dark, so the light mark is the right one.
   const onLightBar = solid && !isDark;
   const logo = onLightBar ? settings.logoDark || settings.logo : settings.logo;
 
@@ -142,8 +127,6 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
         </Link>
       </nav>
 
-      {/* The bar is transparent over the hero, so the panel carries its own
-          ground rather than inheriting one. */}
       {menuOpen && (
         <div className="absolute inset-x-0 top-full hidden flex-col border-b-2 border-md-divider bg-md-ground text-md-fg max-[900px]:flex">
           {LINKS.map((link) => {

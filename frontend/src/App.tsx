@@ -5,6 +5,7 @@ import { AdminLayout } from "@/layouts/AdminLayout";
 import { AuthGuard } from "@/components/admin/AuthGuard";
 import { PageLoader } from "@/components/PageLoader";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/public/Home";
 import Gallery from "@/pages/public/Gallery";
 import AboutMe from "@/pages/public/AboutMe";
@@ -34,6 +35,7 @@ const Appearance = lazy(() => import("@/pages/admin/Appearance"));
 function App() {
   return (
     <ErrorBoundary>
+      <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route element={<PublicLayout />}>
