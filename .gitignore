@@ -1,15 +1,33 @@
-backend/node_modules
-backend/dist
-backend/uploads
-frontend/node_modules
-frontend/dist
-node_modules
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+web/node_modules/
+
+# Next.js
+web/.next/
+web/out/
+
+# Build outputs
+backend/dist/
+frontend/dist/
+dist/
+build/
+
+# Backend uploads
+backend/uploads/
+
+# Environment variables
 .env
 .env.*
+!.env.example
+
+# Vite
 vite.config.ts.timestamp*
-log
-build
-dist
-.vscode
-package-lock.json
-yarn.lock
+
+# Logs
+log/
+*.log
+
+# IDE
+.vscode/
