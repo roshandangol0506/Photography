@@ -1,10 +1,28 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/client-api";
-import type { ApiResponse } from "@/lib/shared-types";
+import type { ApiResponse, PaginationMeta } from "@/lib/shared-types";
 
-export interface MessageInput {
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  status: "new" | "read" | "archived";
+  createdAt: string;
+}
+
+export interface MessageListParams {
+  page?: number;
+  perpage?: number;
+  status?: string;
+  search?: string;
+}
+
+export interface ContactMessageInput {
   name: string;
   email: string;
   phone?: string;
@@ -14,9 +32,52 @@ export interface MessageInput {
 
 export function useCreateMessage() {
   return useMutation({
-    mutationFn: async (body: MessageInput) => {
-      const { data } = await api.post<ApiResponse<unknown>>("/messages", body);
+    mutationFn: async (body: ContactMessageInput) => {
+      const { data } = await api.post<ApiResponse<ContactMessage>>(
+        "/messages",
+        body,
+      );
       return data.data;
+    },
+  });
+}
+
+export function useMessages(params: MessageListParams) {
+  return useQuery({
+    queryKey: ["messages", params],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ messages: ContactMessage[]; pagination: PaginationMeta }>
+      >("/messages", { params });
+      return data.data;
+    },
+  });
+}
+
+export function useUpdateMessageStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { data } = await api.patch<ApiResponse<ContactMessage>>(
+        `/messages/${id}/status`,
+        { status },
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+    },
+  });
+}
+
+export function useDeleteMessage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/messages/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
     },
   });
 }

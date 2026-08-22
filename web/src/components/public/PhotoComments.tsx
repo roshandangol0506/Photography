@@ -7,9 +7,9 @@ import {
   useCreateComment,
   useLikeComment,
   usePublicComments,
-  useVisitorProfile,
   type Comment,
 } from "@/lib/api/comments";
+import { useVisitorProfile } from "@/lib/api/visitors";
 import { useVisitorId } from "@/hooks/useVisitorId";
 import { cn } from "@/lib/utils";
 

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export const metadata = {
   title: "Dashboard",
@@ -36,7 +37,9 @@ export default async function DashboardLayout({
 
   return (
     <QueryProvider>
-      <AuthProvider initialUser={user}>{children}</AuthProvider>
+      <AuthProvider initialUser={user}>
+        <AdminShell>{children}</AdminShell>
+      </AuthProvider>
     </QueryProvider>
   );
 }

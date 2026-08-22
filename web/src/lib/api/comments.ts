@@ -6,25 +6,36 @@ import type { ApiResponse, PaginationMeta } from "@/lib/shared-types";
 
 export interface Comment {
   _id: string;
+  photo: { _id: string; title: string; slug: string } | string;
   parent?: string | null;
   visitorId: string;
   name: string;
   content: string;
   isAdminReply?: boolean;
   likeCount: number;
+  // Server-computed for the requesting visitor; `likedBy` never leaves the API.
   likedByMe?: boolean;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
   replies?: Comment[];
 }
 
-interface PublicCommentParams {
+export interface CommentListParams {
+  page?: number;
+  perpage?: number;
+  status?: string;
+  search?: string;
+}
+
+export interface PublicCommentParams {
+  page?: number;
+  perpage?: number;
   visitorId?: string | null;
   sort?: "recent" | "oldest";
 }
 
 export function usePublicComments(
-  photoId: string,
+  photoId: string | undefined,
   params: PublicCommentParams = {},
 ) {
   return useQuery({
@@ -35,6 +46,7 @@ export function usePublicComments(
       >(`/comments/${photoId}`, { params });
       return data.data;
     },
+    enabled: Boolean(photoId),
   });
 }
 
@@ -45,7 +57,7 @@ export interface CreateCommentInput {
   parent?: string;
 }
 
-export function useCreateComment(photoId: string) {
+export function useCreateComment(photoId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (body: CreateCommentInput) => {
@@ -59,11 +71,13 @@ export function useCreateComment(photoId: string) {
       queryClient.invalidateQueries({
         queryKey: ["comments", "public", photoId],
       });
+      queryClient.invalidateQueries({ queryKey: ["photos"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     },
   });
 }
 
-export function useLikeComment(photoId: string) {
+export function useLikeComment(photoId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -86,16 +100,62 @@ export function useLikeComment(photoId: string) {
   });
 }
 
-export function useVisitorProfile(uniqueId: string | null) {
-  return useQuery({
-    queryKey: ["visitors", "profile", uniqueId],
-    queryFn: async () => {
-      const { data } = await api.get<
-        ApiResponse<{ uniqueId: string; name: string | null }>
-      >(`/visitors/profile/${uniqueId}`);
+export function useReplyToComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, content }: { id: string; content: string }) => {
+      const { data } = await api.post<ApiResponse<Comment>>(
+        `/comments/admin/${id}/reply`,
+        { content },
+      );
       return data.data;
     },
-    enabled: Boolean(uniqueId),
-    staleTime: 5 * 60_000,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["photos"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}
+
+export function useAdminComments(params: CommentListParams) {
+  return useQuery({
+    queryKey: ["comments", "admin", params],
+    queryFn: async () => {
+      const { data } = await api.get<
+        ApiResponse<{ comments: Comment[]; pagination: PaginationMeta }>
+      >("/comments/admin", { params });
+      return data.data;
+    },
+  });
+}
+
+export function useUpdateCommentStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { data } = await api.patch<ApiResponse<Comment>>(
+        `/comments/admin/${id}/status`,
+        { status },
+      );
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}
+
+export function useDeleteComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/comments/admin/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
   });
 }
