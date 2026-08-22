@@ -13,8 +13,7 @@ const RAIL_CLASS =
   "grid grid-cols-[220px_1fr] gap-x-14 gap-y-12 max-[900px]:grid-cols-1 max-[900px]:gap-y-6";
 const RAIL_TITLE_CLASS =
   "m-0 text-[clamp(22px,2.4vw,30px)] font-normal tracking-[-0.01em] leading-tight";
-const BODY_CLASS =
-  "m-0 max-w-[640px] text-[14px] leading-[1.75] text-md-700";
+const BODY_CLASS = "m-0 max-w-[640px] text-[14px] leading-[1.75] text-md-700";
 
 const HERO_LEAD =
   "I'm Ajay Maharjan, a Kathmandu-based photographer with over a decade of experience capturing the human spirit through portraiture, travel, and documentary photography.";
@@ -115,9 +114,7 @@ export default function AboutMe() {
         <TestimonialsCarousel />
       </div>
 
-      <section
-        className={`${SECTION_CLASS} border-t-2 border-md-divider pt-[90px] pb-[110px] text-center`}
-      >
+      <section className={`${SECTION_CLASS} pt-[90px] pb-[110px] text-center`}>
         <h2 className="m-0 font-normal tracking-[-0.02em] text-[clamp(30px,4.4vw,58px)] leading-none">
           Let's work together
         </h2>

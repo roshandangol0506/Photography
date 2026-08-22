@@ -18,7 +18,7 @@ const SOLID_OFFSET = 90;
 const MOBILE_QUERY = "(max-width: 900px)";
 
 const LINK_CLASS =
-  "text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red";
+  "md-navlink text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red";
 
 interface HomeNavbarProps {
   overHero?: boolean;
@@ -110,7 +110,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
           onClick={toggleDark}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
           aria-pressed={isDark}
-          className="cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors duration-200 hover:text-md-red"
+          className="md-navlink cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors duration-200 hover:text-md-red"
         >
           {isDark ? (
             <Sun className="h-[15px] w-[15px] max-[900px]:h-[18px] max-[900px]:w-[18px]" />
@@ -121,7 +121,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
 
         <Link
           to="/contact"
-          className="border border-current px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red max-[900px]:px-3 max-[900px]:py-2 max-[900px]:text-[10px]"
+          className="border border-current hover:border-md-red px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red! max-[900px]:px-3 max-[900px]:py-2 max-[900px]:text-[10px]"
         >
           Get in touch
         </Link>

@@ -12,6 +12,9 @@ export interface SiteSettings {
     primary: string;
     secondary: string;
     accent: string;
+    siteAccent?: string;
+    siteBackground?: string;
+    siteText?: string;
   };
   seo: {
     metaTitle?: string;
@@ -34,6 +37,7 @@ export interface SiteSettings {
   footerText?: string;
   heroSettings: {
     autoplaySpeedMs: number;
+    /** professional | creative | futuristic | photography */
     transitionStyle: string;
     eyebrow?: string;
     headline?: string;

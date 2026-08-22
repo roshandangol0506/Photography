@@ -519,6 +519,7 @@ body {
 :root {
   --md-ground: #f3f2f2;
   --md-fg: #201e1d;
+  --md-red: #ec3013;
   --md-divider: rgba(32, 30, 29, 0.4);
 
   --md-100: #f8f4f4;
@@ -537,6 +538,9 @@ body {
      bands rather than merging into the page. */
   --md-ground: #161514;
   --md-fg: #f3f2f2;
+  /* Restated so the dark palette wins even when the dashboard has themed the
+     light one - ThemeProvider clears its inline overrides in dark mode. */
+  --md-red: #ec3013;
   --md-divider: rgba(248, 244, 244, 0.28);
 
   /* The ramp inverts: low steps stay the surfaces, high steps stay the text. */
@@ -556,6 +560,7 @@ body {
 @theme inline {
   --color-md-ground: var(--md-ground);
   --color-md-fg: var(--md-fg);
+  --color-md-red: var(--md-red);
   --color-md-divider: var(--md-divider);
 
   --color-md-100: var(--md-100);
@@ -574,12 +579,13 @@ body {
 @theme {
   --color-md-ink: #201e1d;
   --color-md-light: #f8f4f4;
-  --color-md-red: #ec3013;
   --color-md-poster: #fff2ef;
 }
 
 .modernist {
-  font-family: "Archivo", system-ui, sans-serif;
+  /* Gilda Display ships a single 400 weight, so Archivo stays in the stack as
+     the fallback and the browser has something real to lean on. */
+  font-family: "Gilda Display", "Archivo", Georgia, serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -710,6 +716,104 @@ body {
 
 .wa-bubble {
   animation: wa-bubble-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Gradient/mask reveal: a soft-edged mask sweeps left to right across the
+   incoming frame. Two identical keyframes so the animation can restart on
+   every slide without remounting the image. */
+@keyframes md-hero-mask-a {
+  from {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+  to {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+}
+
+@keyframes md-hero-mask-b {
+  from {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+  to {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+}
+
+.md-hero-mask {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 18%,
+    #000 46%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 18%,
+    #000 46%,
+    #000 100%
+  );
+  -webkit-mask-size: 300% 100%;
+  mask-size: 300% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+@keyframes md-hero-sweep {
+  0% {
+    opacity: 0.9;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.md-hero-sweep {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    color-mix(in srgb, var(--md-red) 30%, transparent) 45%,
+    rgba(248, 244, 244, 0.32) 56%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  animation: md-hero-sweep 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Navbar underline. The origin flips between the two states so the line
+   always travels left to right: it grows from the left edge on hover in, then
+   collapses toward the right edge on hover out - the left end chases the
+   right one off. transform-origin is not transitioned, so it swaps instantly
+   at the start of each run and only the scale animates. Absolutely
+   positioned, so the item's own box never changes size. */
+.md-navlink {
+  position: relative;
+}
+
+.md-navlink::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -6px 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  /* Resting/exit origin: collapsing to the right. */
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.md-navlink:hover::after,
+.md-navlink:focus-visible::after {
+  transform: scaleX(1);
+  /* Entry origin: growing from the left. */
+  transform-origin: left;
 }
 
 @media (prefers-reduced-motion: reduce) {

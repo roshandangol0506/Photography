@@ -4,6 +4,7 @@ import { useReducedMotion } from "framer-motion";
 import { useActiveTestimonials } from "@/api/testimonials";
 import { useTheme } from "@/hooks/useTheme";
 import { MdReveal } from "@/components/public/MdReveal";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { cn } from "@/lib/utils";
 
@@ -45,9 +46,10 @@ export function TestimonialsCarousel() {
 
   return (
     <section id="tours" className="px-9 pt-[110px] pb-10">
-      <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
-        07 &mdash; Testimonials
-      </span>
+      <SectionHeading
+        title="Testimonials"
+        lead="What People Say About My Work"
+      />
 
       {isLoading ? (
         <div

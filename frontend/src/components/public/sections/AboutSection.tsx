@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { MdReveal } from "@/components/public/MdReveal";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 
 const DEFAULT_HEADING = "Hey, I'm\nAjay Maharjan.";
@@ -16,13 +17,8 @@ export function AboutSection() {
   const heading = (about.title || DEFAULT_HEADING).split("\n");
 
   return (
-    <section
-      id="about"
-      className="mt-[70px] border-t-2 border-md-divider px-9 pt-[80px] pb-10"
-    >
-      <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
-        02 &mdash; About
-      </span>
+    <section id="about" className="mt-[70px] px-9 pt-[80px] pb-10">
+      <SectionHeading title="About Me" lead="The Person Behind the Camera" />
 
       <div className="mt-12 grid grid-cols-2 items-end gap-[72px] max-[900px]:grid-cols-1">
         <MdReveal className="md-photo overflow-hidden">
@@ -72,7 +68,7 @@ export function AboutSection() {
                 </span>
               ))}
             </h2>
-            <p className="mt-6 mb-0 max-w-[360px] text-[12px] leading-[1.85] tracking-[0.09em] text-md-700 uppercase">
+            <p className="mt-6 mb-0 max-w-[360px] text-[14px] leading-[1.85] text-md-700">
               {about.description || DEFAULT_DESCRIPTION}
             </p>
             <Link

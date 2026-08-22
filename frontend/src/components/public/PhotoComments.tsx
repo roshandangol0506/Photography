@@ -210,7 +210,7 @@ export function PhotoComments({ photoId }: { photoId: string }) {
   return (
     <div
       id="comments"
-      className="border-t-2 border-md-divider px-9 py-[70px] max-[900px]:px-5 max-[900px]:py-10"
+      className="px-9 py-[70px] max-[900px]:px-5 max-[900px]:py-10"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="m-0 flex items-center gap-3 font-bold tracking-[-0.02em] text-[clamp(22px,2.6vw,32px)] leading-none">

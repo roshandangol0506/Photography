@@ -5,6 +5,7 @@ import { useBackgroundPhotos } from "@/api/photos";
 import { useTheme } from "@/hooks/useTheme";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { photoSrcSet } from "@/lib/image";
+import { cn } from "@/lib/utils";
 
 // Copy falls back to the handoff mock so an unconfigured CMS still renders
 // the design exactly; every string below is admin-editable.
@@ -14,6 +15,102 @@ const DEFAULT_TAGLINE =
   "Festivals, faces and the quiet minutes in between — photographed across Nepal, India and Myanmar.";
 const DEFAULT_CTA = "Enter the archive";
 const DEFAULT_SPEED_MS = 5200;
+
+const HERO_STYLES = ["slide", "gradient", "futuristic", "photography"] as const;
+
+type HeroStyle = (typeof HERO_STYLES)[number];
+
+// Anything unrecognised (including the old "fade"/"zoom" values) falls through
+// to the shipped look.
+function heroStyle(value?: string): HeroStyle {
+  return HERO_STYLES.includes(value as HeroStyle)
+    ? (value as HeroStyle)
+    : "photography";
+}
+
+interface FrameArgs {
+  style: HeroStyle;
+  isActive: boolean;
+  /** The frame being replaced, still on screen for the duration of the move. */
+  isPrevious: boolean;
+  animate: boolean;
+  speed: number;
+  /** Alternates every slide so a restartable animation can re-trigger. */
+  tick: number;
+}
+
+// Slow enough to read as cinematic; eased in and out rather than linear.
+const SLIDE_MS = 1400;
+const SLIDE_EASING = "cubic-bezier(.76,0,.24,1)";
+
+/** Per-style presentation for one background frame. */
+function frameStyle({
+  style,
+  isActive,
+  isPrevious,
+  animate,
+  speed,
+  tick,
+}: FrameArgs): CSSProperties {
+  const opacity = isActive ? 1 : 0;
+  if (!animate) return { opacity };
+
+  switch (style) {
+    // A - a curtain reveal. The outgoing frame stays on top and is clipped
+    // away from its right edge inwards, so its left edge never moves and the
+    // incoming frame - already sitting underneath, stationary - is uncovered
+    // progressively. Nothing translates, so there is no gap at any point.
+    case "slide": {
+      if (isPrevious) {
+        return {
+          opacity: 1,
+          zIndex: 2,
+          clipPath: "inset(0 100% 0 0)",
+          WebkitClipPath: "inset(0 100% 0 0)",
+          transition: `clip-path ${SLIDE_MS}ms ${SLIDE_EASING}, -webkit-clip-path ${SLIDE_MS}ms ${SLIDE_EASING}`,
+        };
+      }
+      // The active frame waits underneath fully drawn; frames not in play sit
+      // at the same un-clipped state so they are ready to become previous.
+      return {
+        opacity: isActive ? 1 : 0,
+        zIndex: isActive ? 1 : 0,
+        clipPath: "inset(0 0 0 0)",
+        WebkitClipPath: "inset(0 0 0 0)",
+        transition: "none",
+      };
+    }
+
+    // B - the incoming frame is revealed under a soft-edged mask sweeping
+    // left to right; the outgoing one simply waits underneath it.
+    case "gradient":
+      return {
+        opacity: isActive || isPrevious ? 1 : 0,
+        zIndex: isActive ? 2 : 1,
+        animation: isActive
+          ? `md-hero-mask-${tick % 2 === 0 ? "a" : "b"} 1.4s cubic-bezier(.16,1,.3,1) forwards`
+          : undefined,
+      };
+
+    // C - the incoming frame resolves out of a blur as it settles.
+    case "futuristic":
+      return {
+        opacity,
+        transform: isActive ? "scale(1)" : "scale(1.14)",
+        filter: isActive ? "blur(0px)" : "blur(20px)",
+        transition:
+          "opacity .9s ease, transform 1.5s cubic-bezier(.16,1,.3,1), filter 1.5s ease",
+      };
+
+    // D - the shipped look: long slow scale under a soft crossfade.
+    default:
+      return {
+        opacity,
+        transform: isActive ? "scale(1.05)" : "scale(1)",
+        transition: `opacity 1.8s ease, transform ${Math.round(speed * 1.8)}ms linear`,
+      };
+  }
+}
 
 const SCRIM =
   "linear-gradient(180deg,rgba(20,19,18,.62) 0%,rgba(20,19,18,.18) 38%,rgba(20,19,18,.72) 100%)";
@@ -56,19 +153,27 @@ export function Hero() {
   const prefersReducedMotion = useReducedMotion();
   const { data: photos } = useBackgroundPhotos();
 
-  const [index, setIndex] = useState(0);
+  // `previous` keeps the outgoing frame on screen for the length of the move;
+  // `tick` flips the restartable mask animation on every change.
+  const [slide, setSlide] = useState({ current: 0, previous: -1, tick: 0 });
   // Bumped on a manual jump so the autoplay timer and the progress fill both
   // restart from that slide.
   const [restart, setRestart] = useState(0);
 
   const animate = settings.animationsEnabled && !prefersReducedMotion;
   const speed = settings.heroSettings?.autoplaySpeedMs || DEFAULT_SPEED_MS;
+  const style = heroStyle(settings.heroSettings?.transitionStyle);
   const count = photos?.length ?? 0;
 
   useEffect(() => {
     if (!animate || count < 2) return;
     const timer = setInterval(
-      () => setIndex((prev) => (prev + 1) % count),
+      () =>
+        setSlide((state) => ({
+          current: (state.current + 1) % count,
+          previous: state.current,
+          tick: state.tick + 1,
+        })),
       speed,
     );
     return () => clearInterval(timer);
@@ -76,14 +181,20 @@ export function Hero() {
 
   // Clamp rather than reset in an effect: the photo list can shrink under a
   // stale index when the admin unflags a hero image.
-  const active = count > 0 ? index % count : 0;
+  const active = count > 0 ? slide.current % count : 0;
+  const previous =
+    count > 0 && slide.previous >= 0 ? slide.previous % count : -1;
 
   const heroSettings = settings.heroSettings;
   const headline = (heroSettings?.headline || DEFAULT_HEADLINE).split("\n");
   const tagline = settings.tagline || DEFAULT_TAGLINE;
 
   const goTo = (next: number) => {
-    setIndex(next);
+    setSlide((state) => ({
+      current: next,
+      previous: state.current,
+      tick: state.tick + 1,
+    }));
     setRestart((prev) => prev + 1);
   };
 
@@ -96,12 +207,18 @@ export function Hero() {
         {photos?.map((photo, i) => (
           <div
             key={photo._id}
-            className="absolute inset-0"
-            style={{
-              opacity: i === active ? 1 : 0,
-              transform: i === active && animate ? "scale(1.05)" : "scale(1)",
-              transition: "opacity 1.8s ease, transform 9s linear",
-            }}
+            className={cn(
+              "absolute inset-0",
+              style === "gradient" && i === active && animate && "md-hero-mask",
+            )}
+            style={frameStyle({
+              style,
+              isActive: i === active,
+              isPrevious: i === previous,
+              animate,
+              speed,
+              tick: slide.tick,
+            })}
           >
             <ProgressiveImage
               src={photo.images.large}
@@ -115,6 +232,15 @@ export function Hero() {
           </div>
         ))}
       </div>
+
+      {/* Gradient wipe that re-runs on every slide change. */}
+      {style === "futuristic" && animate && count > 1 && (
+        <div
+          key={`sweep-${slide.tick}`}
+          className="md-hero-sweep pointer-events-none absolute inset-0 z-[2]"
+          aria-hidden="true"
+        />
+      )}
 
       <div
         className="pointer-events-none absolute inset-0"

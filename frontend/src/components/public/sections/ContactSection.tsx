@@ -110,7 +110,7 @@ export function ContactSection() {
       <div className="grid grid-cols-[1.1fr_0.9fr] items-center gap-[72px] max-[900px]:grid-cols-1">
         <div>
           <span className="text-[11px] tracking-[0.2em] uppercase opacity-85">
-            08 &mdash; Contact
+            Contact
           </span>
           <MdReveal>
             <h2 className="mt-[18px] font-extrabold tracking-[-0.03em] text-[clamp(34px,5.4vw,84px)] leading-[0.94]">

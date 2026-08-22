@@ -3,6 +3,7 @@ import { usePublicPhotos } from "@/api/photos";
 import { LikeButton } from "@/components/public/LikeButton";
 import { CommentCount } from "@/components/public/CommentCount";
 import { MdReveal } from "@/components/public/MdReveal";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { photoSrcSet } from "@/lib/image";
 import { cn } from "@/lib/utils";
@@ -46,24 +47,14 @@ export function RecentWorks() {
 
   return (
     <section id="archive" className="px-9 pt-[110px] pb-10">
-      <div className="flex flex-wrap items-end justify-between gap-8 border-b-2 border-md-divider pb-5">
-        <div>
-          <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
-            04 &mdash; Recent works
-          </span>
-          <MdReveal>
-            <h2 className="mt-[14px] font-bold tracking-[-0.025em] text-[clamp(30px,4.4vw,62px)] leading-none">
-              The archive
-            </h2>
-          </MdReveal>
-        </div>
+      <SectionHeading kicker="Recent works" title="The archive">
         <Link
           to="/gallery"
-          className="border-b border-md-500 pb-1.5 text-[11px] tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red"
+          className="mt-6 inline-block border-b border-md-500 pb-1.5 text-[11px] tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red"
         >
           All {total} photographs &rarr;
         </Link>
-      </div>
+      </SectionHeading>
 
       <div className="mt-[52px] grid auto-rows-auto grid-cols-4 gap-9 max-[900px]:grid-cols-1">
         {isLoading

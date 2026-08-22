@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useSettings, useUpdateSettings, type SiteSettings } from "@/api/settings";
+import {
+  useSettings,
+  useUpdateSettings,
+  type SiteSettings,
+} from "@/api/settings";
 import { useUploadAsset } from "@/api/uploads";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,9 +15,9 @@ import { Switch } from "@/components/ui/Switch";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 
 interface AppearanceFormValues {
-  primary: string;
-  secondary: string;
-  accent: string;
+  siteAccent: string;
+  siteBackground: string;
+  siteText: string;
   autoplaySpeedMs: number;
   transitionStyle: string;
   animationsEnabled: boolean;
@@ -30,11 +34,11 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
 
   const form = useForm<AppearanceFormValues>({
     defaultValues: {
-      primary: settings.themeColors?.primary ?? "#c5161d",
-      secondary: settings.themeColors?.secondary ?? "#044189",
-      accent: settings.themeColors?.accent ?? "#f5a623",
+      siteAccent: settings.themeColors?.siteAccent ?? "#ec3013",
+      siteBackground: settings.themeColors?.siteBackground ?? "#f3f2f2",
+      siteText: settings.themeColors?.siteText ?? "#201e1d",
       autoplaySpeedMs: settings.heroSettings?.autoplaySpeedMs ?? 5000,
-      transitionStyle: settings.heroSettings?.transitionStyle ?? "fade",
+      transitionStyle: settings.heroSettings?.transitionStyle ?? "photography",
       animationsEnabled: settings.animationsEnabled,
       darkModeDefault: settings.darkModeDefault,
     },
@@ -66,9 +70,14 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
         logo,
         logoDark,
         themeColors: {
-          primary: values.primary,
-          secondary: values.secondary,
-          accent: values.accent,
+          // Dashboard palette is not edited here - carry it through so saving
+          // this form never wipes it.
+          primary: settings.themeColors?.primary ?? "#c5161d",
+          secondary: settings.themeColors?.secondary ?? "#044189",
+          accent: settings.themeColors?.accent ?? "#f5a623",
+          siteAccent: values.siteAccent,
+          siteBackground: values.siteBackground,
+          siteText: values.siteText,
         },
         heroSettings: {
           autoplaySpeedMs: Number(values.autoplaySpeedMs),
@@ -111,34 +120,47 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
       </section>
 
       <section className="space-y-4 rounded-xl border border-border p-4">
-        <h2 className="text-sm font-semibold text-foreground">Theme colors</h2>
+        <h2 className="text-sm font-semibold text-foreground">
+          Website colors
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Applies to the public site in light mode. Dark mode keeps its own
+          palette.
+        </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="primary">Primary</Label>
+            <Label htmlFor="siteAccent">Accent</Label>
             <Input
-              id="primary"
+              id="siteAccent"
               type="color"
               className="h-10 p-1"
-              {...form.register("primary")}
+              {...form.register("siteAccent")}
             />
+            <p className="text-xs text-muted-foreground">
+              Kickers, hover states, hero progress bar.
+            </p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="secondary">Secondary</Label>
+            <Label htmlFor="siteBackground">Background</Label>
             <Input
-              id="secondary"
+              id="siteBackground"
               type="color"
               className="h-10 p-1"
-              {...form.register("secondary")}
+              {...form.register("siteBackground")}
             />
+            <p className="text-xs text-muted-foreground">Page ground.</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="accent">Accent</Label>
+            <Label htmlFor="siteText">Text</Label>
             <Input
-              id="accent"
+              id="siteText"
               type="color"
               className="h-10 p-1"
-              {...form.register("accent")}
+              {...form.register("siteText")}
             />
+            <p className="text-xs text-muted-foreground">
+              Headings and body copy.
+            </p>
           </div>
         </div>
       </section>
@@ -159,9 +181,14 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
           <div className="space-y-2">
             <Label htmlFor="transitionStyle">Transition style</Label>
             <Select id="transitionStyle" {...form.register("transitionStyle")}>
-              <option value="fade">Fade</option>
-              <option value="slide">Slide</option>
-              <option value="zoom">Zoom</option>
+              <option value="slide">A — Slide (right to left)</option>
+              <option value="gradient">B — Gradient / mask reveal</option>
+              <option value="futuristic">
+                C — Futuristic (blur + scale + sweep)
+              </option>
+              <option value="photography">
+                D — Photography (Ken Burns + crossfade)
+              </option>
             </Select>
           </div>
         </div>
@@ -179,7 +206,10 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
             control={form.control}
             name="animationsEnabled"
             render={({ field }) => (
-              <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+              <Switch
+                checked={field.value ?? true}
+                onCheckedChange={field.onChange}
+              />
             )}
           />
         </div>
@@ -196,7 +226,10 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
             control={form.control}
             name="darkModeDefault"
             render={({ field }) => (
-              <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+              <Switch
+                checked={field.value ?? true}
+                onCheckedChange={field.onChange}
+              />
             )}
           />
         </div>

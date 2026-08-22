@@ -3,6 +3,7 @@ import { usePublicPhotos } from "@/api/photos";
 import { LikeButton } from "@/components/public/LikeButton";
 import { CommentCount } from "@/components/public/CommentCount";
 import { MdReveal } from "@/components/public/MdReveal";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
 import { photoSrcSet } from "@/lib/image";
 
@@ -28,21 +29,11 @@ export function FeaturedPhotos() {
 
   return (
     <section id="work" className="px-9 pt-[110px] pb-10">
-      <div className="flex flex-wrap items-end justify-between gap-8 border-b-2 border-md-divider pb-5">
-        <div>
-          <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
-            01 &mdash; Featured
-          </span>
-          <MdReveal>
-            <h2 className="mt-[14px] font-bold tracking-[-0.025em] text-[clamp(30px,4.4vw,62px)] leading-none">
-              Selected frames
-            </h2>
-          </MdReveal>
-        </div>
-        <p className="m-0 max-w-[330px] text-[13px] leading-[1.65] text-md-700">
-          Curated by the photographer from the featured set.
-        </p>
-      </div>
+      <SectionHeading
+        kicker="Featured"
+        title="Selected frames"
+        lead="Curated by the photographer from the featured set."
+      />
 
       <div className="mt-16 grid grid-cols-3 items-start gap-[52px] max-[900px]:grid-cols-1">
         {isLoading

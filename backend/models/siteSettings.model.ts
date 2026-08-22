@@ -8,9 +8,15 @@ export interface ISiteSettings extends mongoose.Document {
   // over photography and on dark bands.
   logoDark?: string;
   themeColors: {
+    // Dashboard palette (shadcn tokens).
     primary: string;
     secondary: string;
     accent: string;
+    // Public-site palette. Defaults are the shipped design, so an untouched
+    // install looks exactly as designed.
+    siteAccent: string;
+    siteBackground: string;
+    siteText: string;
   };
   seo: {
     metaTitle?: string;
@@ -60,6 +66,9 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
       primary: { type: String, default: "#c5161d" },
       secondary: { type: String, default: "#044189" },
       accent: { type: String, default: "#f5a623" },
+      siteAccent: { type: String, default: "#ec3013" },
+      siteBackground: { type: String, default: "#f3f2f2" },
+      siteText: { type: String, default: "#201e1d" },
     },
     seo: {
       metaTitle: { type: String, default: "" },

@@ -209,7 +209,7 @@ export default function Contact() {
       <section
         ref={bookingRef}
         id="book-a-demo"
-        className={`${SECTION_CLASS} scroll-mt-28 border-t-2 border-md-divider pt-[70px] pb-[70px]`}
+        className={`${SECTION_CLASS} scroll-mt-28 pt-[70px] pb-[70px]`}
       >
         <div className="grid grid-cols-2 items-start gap-16 max-[1000px]:grid-cols-1 max-[1000px]:gap-10">
           <div>

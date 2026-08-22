@@ -38,6 +38,31 @@ function ThemeProviderInner({
     };
   }, [settings.themeColors]);
 
+  // Public-site palette. Inline properties outrank the `.dark` rule, so in
+  // dark mode they are cleared rather than overwritten - that keeps the dark
+  // theme exactly as designed no matter what the dashboard is set to.
+  useEffect(() => {
+    const root = document.documentElement;
+    const tokens = {
+      "--md-red": settings.themeColors.siteAccent,
+      "--md-ground": settings.themeColors.siteBackground,
+      "--md-fg": settings.themeColors.siteText,
+    };
+
+    if (isDark) {
+      Object.keys(tokens).forEach((name) => root.style.removeProperty(name));
+      return;
+    }
+
+    Object.entries(tokens).forEach(([name, value]) => {
+      if (value) root.style.setProperty(name, value);
+    });
+
+    return () => {
+      Object.keys(tokens).forEach((name) => root.style.removeProperty(name));
+    };
+  }, [settings.themeColors, isDark]);
+
   const toggleDark = () => {
     setIsDark((prev) => {
       const next = !prev;

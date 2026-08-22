@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useActiveCategories, type ActiveCategory } from "@/api/categories";
 import { ProgressiveImage } from "@/components/public/ProgressiveImage";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import { cn } from "@/lib/utils";
 
 const PREVIEW_SLOTS = 2;
@@ -105,9 +106,7 @@ export function PhotoSeries() {
 
   return (
     <section id="series" className="px-9 pt-[110px]">
-      <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
-        03 &mdash; Photo series
-      </span>
+      <SectionHeading kicker="Photo series" title="Visual Journeys" />
 
       <div className="mt-[18px] flex flex-col gap-[18px]">
         {isLoading
