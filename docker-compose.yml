@@ -26,7 +26,6 @@ services:
     volumes:
       - /home/ubuntu/your-project:/app
       - /app/backend/node_modules
-      - /app/frontend/node_modules
 
 volumes:
   redis_data:

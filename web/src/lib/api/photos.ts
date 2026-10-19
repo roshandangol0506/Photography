@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/client-api";
 import type { ApiResponse, PaginationMeta } from "@/lib/shared-types";
 
@@ -55,94 +50,11 @@ export interface PhotoListParams {
   tag?: string;
 }
 
-export interface PublicPhotoListParams {
-  page?: number;
-  perpage?: number;
-  search?: string;
-  category?: string;
-  collection?: string;
-  tag?: string;
-  featured?: boolean;
-  trending?: boolean;
-  /** Photos belonging to no series. */
-  uncategorized?: boolean;
-}
-
-export function usePublicPhotos(params: PublicPhotoListParams) {
-  return useQuery({
-    queryKey: ["photos", "public", params],
-    queryFn: async () => {
-      const { data } = await api.get<
-        ApiResponse<{ photos: Photo[]; pagination: PaginationMeta }>
-      >("/photos", { params });
-      return data.data;
-    },
-  });
-}
-
-export function useInfinitePublicPhotos(
-  params: Omit<PublicPhotoListParams, "page">,
-) {
-  return useInfiniteQuery({
-    queryKey: ["photos", "public", "infinite", params],
-    queryFn: async ({ pageParam }) => {
-      const { data } = await api.get<
-        ApiResponse<{ photos: Photo[]; pagination: PaginationMeta }>
-      >("/photos", { params: { ...params, page: pageParam, perpage: 12 } });
-      return data.data;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
-      lastPage.pagination.currentPage < lastPage.pagination.totalPages
-        ? lastPage.pagination.currentPage + 1
-        : undefined,
-  });
-}
-
 export interface RelatedPhoto {
   _id: string;
   title: string;
   slug: string;
   images: Photo["images"];
-}
-
-export function usePhotoBySlug(slug: string | undefined) {
-  return useQuery({
-    queryKey: ["photos", "detail", slug],
-    queryFn: async () => {
-      const { data } = await api.get<
-        ApiResponse<{ photo: Photo; related: RelatedPhoto[] }>
-      >(`/photos/${slug}`);
-      return data.data;
-    },
-    enabled: Boolean(slug),
-  });
-}
-
-export function useBackgroundPhotos() {
-  return useQuery({
-    queryKey: ["photos", "background"],
-    queryFn: async () => {
-      const { data } = await api.get<ApiResponse<Photo[]>>(
-        "/photos/background",
-      );
-      return data.data;
-    },
-    staleTime: 5 * 60_000,
-  });
-}
-
-export function useSideScrollPhotos() {
-  return useQuery({
-    queryKey: ["photos", "sidescroll"],
-    queryFn: async () => {
-      const { data } = await api.get<ApiResponse<Photo[]>>(
-        "/photos/sidescroll",
-      );
-      return data.data;
-    },
-    staleTime: 5 * 60_000,
-  });
 }
 
 export function useAdminPhotos(params: PhotoListParams) {

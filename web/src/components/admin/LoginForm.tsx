@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AuthProvider, useAuth } from "@/components/providers/AuthProvider";
 
 function Form() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { login, verifyOtp } = useAuth();
 

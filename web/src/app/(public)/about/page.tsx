@@ -65,8 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const [settings, awards, testimonials] = await Promise.all([
-    getSettings(),
+  const [awards, testimonials] = await Promise.all([
     getActiveAwards(),
     getActiveTestimonials(),
   ]);

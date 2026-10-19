@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/client-api";
 import type { ApiResponse, PaginationMeta } from "@/lib/shared-types";
 
@@ -23,24 +23,6 @@ export interface VisitorListParams {
   device?: string;
   browser?: string;
   platform?: string;
-}
-
-export function useIdentifyVisitor() {
-  return useMutation({
-    mutationFn: async ({
-      uniqueId,
-      path,
-    }: {
-      uniqueId: string;
-      path?: string;
-    }) => {
-      const { data } = await api.post<ApiResponse<Visitor>>(
-        "/visitors/identify",
-        { uniqueId, path },
-      );
-      return data.data;
-    },
-  });
 }
 
 // Side-effect free lookup so a returning visitor keeps the name they gave.

@@ -46,17 +46,6 @@ export function useTestimonials(params: TestimonialListParams) {
   });
 }
 
-export function useActiveTestimonials() {
-  return useQuery({
-    queryKey: ["testimonials", "active"],
-    queryFn: async () => {
-      const { data } =
-        await api.get<ApiResponse<Testimonial[]>>("/testimonials/active");
-      return data.data;
-    },
-  });
-}
-
 export function useCreateTestimonial() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 backend/node_modules/
-frontend/node_modules/
 web/node_modules/
 
 # Next.js
@@ -10,7 +9,6 @@ web/out/
 
 # Build outputs
 backend/dist/
-frontend/dist/
 dist/
 build/
 
@@ -22,8 +20,6 @@ backend/uploads/
 .env.*
 !.env.example
 
-# Vite
-vite.config.ts.timestamp*
 
 # Logs
 log/
