@@ -75,6 +75,7 @@ export default async function AboutPage() {
     <div className="modernist bg-md-ground text-md-fg">
       <section className="relative h-screen min-h-[620px] overflow-hidden bg-md-ink">
         <Image
+          quality={90}
           src="/about.jpg"
           alt=""
           fill
@@ -121,6 +122,7 @@ export default async function AboutPage() {
             <MdReveal className="md-photo overflow-hidden">
               <PhotoFrame>
                 <Image
+                  quality={90}
                   src={block.image}
                   alt={block.title}
                   width={1600}

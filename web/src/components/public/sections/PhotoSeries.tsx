@@ -39,10 +39,13 @@ function Preview({ src, alt }: { src?: string; alt: string }) {
     <div className="relative h-92 flex-1 overflow-hidden">
       {src && (
         <Image
+          quality={90}
           src={src}
           alt={alt}
           fill
-          sizes="(max-width: 900px) 50vw, 200px"
+          // Each preview is flex-1 in the wide column, so it renders around
+          // 40vw - not the 200px of the label column beside it.
+          sizes="(max-width: 900px) 50vw, 42vw"
           className="object-cover select-none"
           draggable={false}
         />

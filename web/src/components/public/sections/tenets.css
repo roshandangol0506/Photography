@@ -1,0 +1,388 @@
+/* =========================================================================
+   Tenets - scroll-driven horizontal slider.
+
+   Namespaced under .tenets / .panel so nothing leaks into the rest of the
+   site. Colours come from the existing --md-* tokens, so the section follows
+   light and dark mode without its own theme handling.
+
+   The STACKED layout is the base case and the sticky/horizontal behaviour is
+   layered on top for wide viewports that have not asked for reduced motion.
+   Written that way round, the accessible fallback cannot be forgotten - it is
+   what the CSS does by default.
+   ========================================================================= */
+
+.tenets {
+  --tenets-panels: 8;
+  --tenets-pad: clamp(20px, 5vw, 72px);
+  --tenets-gap: clamp(16px, 2.5vw, 40px);
+  position: relative;
+  background: var(--md-ground);
+  color: var(--md-fg);
+}
+
+.tenets__track {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--tenets-gap);
+  padding: clamp(48px, 9vw, 104px) var(--tenets-pad);
+}
+
+/* ---- type ------------------------------------------------------------- */
+
+.tenets__title {
+  margin: 0;
+  font-size: clamp(34px, 6vw, 78px);
+  font-weight: 400;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+.panel__display {
+  margin: 0;
+  font-size: clamp(30px, 5.2vw, 70px);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.panel__kicker {
+  margin: 0 0 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--md-red);
+}
+
+.panel__body,
+.panel__lede {
+  margin: 0;
+  max-width: 46ch;
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.75;
+  color: var(--md-700);
+}
+
+.panel__lede {
+  margin-top: 20px;
+}
+
+.tenets__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- media ------------------------------------------------------------ */
+
+.panel img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+.panel figure {
+  margin: 0;
+}
+
+.panel__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--md-300);
+}
+
+.panel__media-title {
+  position: absolute;
+  left: clamp(14px, 2vw, 28px);
+  bottom: clamp(14px, 2vw, 28px);
+  margin: 0;
+  font-size: clamp(20px, 2.6vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #f3f2f2;
+  text-shadow: 0 1px 24px rgba(0, 0, 0, 0.55);
+}
+
+/* ---- 1. intro card ---------------------------------------------------- */
+
+.panel__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tenets-gap);
+}
+
+/* ---- 2/4/6. full-bleed image ------------------------------------------ */
+
+.panel--image {
+  padding: 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+
+.panel__bleed {
+  /* Oversized and pulled left so the +/-8% parallax never exposes an edge. */
+  position: absolute;
+  inset: 0 auto 0 -10%;
+  width: 120%;
+  height: 100%;
+  will-change: transform;
+}
+
+/* ---- 3. text + small image -------------------------------------------- */
+
+.panel__aside {
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  background: var(--md-300);
+}
+
+/* ---- 5. three-up media ------------------------------------------------ */
+
+.panel__tiles {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 62%;
+  gap: var(--tenets-gap);
+  /* Below the desktop breakpoint the multi-image rows become swipeable
+     instead of shrinking each tile to an unreadable sliver. */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.panel__tiles::-webkit-scrollbar {
+  display: none;
+}
+
+.panel__tile {
+  scroll-snap-align: start;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--md-300);
+}
+
+/* ---- 7. editorial ----------------------------------------------------- */
+
+.panel__offsets {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 58%;
+  align-items: start;
+  gap: var(--tenets-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.panel__offsets::-webkit-scrollbar {
+  display: none;
+}
+
+.panel__offset {
+  scroll-snap-align: start;
+  overflow: hidden;
+  background: var(--md-300);
+}
+
+.panel__offset--a {
+  aspect-ratio: 3 / 4;
+}
+.panel__offset--b {
+  aspect-ratio: 1 / 1;
+}
+.panel__offset--c {
+  aspect-ratio: 4 / 5;
+}
+
+/* ---- 8. closing ------------------------------------------------------- */
+
+.panel--closing {
+  position: relative;
+  /* vh first, svh second - the later declaration wins where it is supported. */
+  min-height: 70vh;
+  min-height: 70svh;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  color: #f3f2f2;
+}
+
+.panel__closing-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Dark scrim so the centred type holds against any photograph behind it. */
+.panel__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(20, 19, 18, 0.62);
+}
+
+.panel__closing-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.panel--closing .panel__body {
+  color: rgba(243, 242, 242, 0.82);
+  text-align: center;
+}
+
+/* =========================================================================
+   Desktop, motion allowed: pin the stage and run the track horizontally.
+   Both conditions in one query - reduced motion falls back to the stacked
+   layout above by simply not matching.
+   ========================================================================= */
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .tenets {
+    /* Tall spacer: one viewport of scroll per panel. */
+    height: calc(var(--tenets-panels) * 100vh);
+    height: calc(var(--tenets-panels) * 100svh);
+  }
+
+  .tenets__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .tenets__track {
+    flex-direction: row;
+    height: 100%;
+    will-change: transform;
+  }
+
+  .panel {
+    /* --tenets-vw is set from JS to the true stage width; 100vw is the
+       pre-measurement fallback and differs only by the scrollbar. */
+    flex: 0 0 var(--tenets-vw, 100vw);
+    width: var(--tenets-vw, 100vw);
+    height: 100%;
+    padding: var(--tenets-pad);
+    overflow: hidden;
+  }
+
+  .panel--image,
+  .panel--closing {
+    aspect-ratio: auto;
+    min-height: 0;
+    padding: 0;
+  }
+
+  /* 1. intro card - scaled from JS, anchored centre so it grows outward. */
+  .panel--intro {
+    justify-content: center;
+  }
+
+  .panel__card {
+    transform-origin: center center;
+    max-width: 62%;
+    margin-inline: auto;
+  }
+
+  .panel__card-body {
+    text-align: center;
+  }
+
+  /* Stops the card overflowing on short desktop viewports. */
+  .panel__card .panel__media {
+    max-height: 48svh;
+  }
+
+  .panel__card .panel__lede {
+    margin-inline: auto;
+  }
+
+  /* 3. text + small image side by side. */
+  .panel--text {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: clamp(40px, 5vw, 88px);
+  }
+
+  .panel--text .panel__aside {
+    aspect-ratio: 2 / 1;
+  }
+
+  /* 5. heading rail, three staggered tiles, narrow body. */
+  .panel--trio {
+    display: grid;
+    grid-template-columns: 0.7fr 2fr 0.7fr;
+    align-items: center;
+    gap: clamp(28px, 3.2vw, 56px);
+  }
+
+  .panel__tiles {
+    grid-auto-columns: 1fr;
+    align-items: start;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  /* Height units, not percentages: a percentage margin-top resolves against
+     the container's WIDTH, so the stagger would drift with viewport width. */
+  .panel__tile--mid {
+    margin-top: 6svh;
+  }
+  .panel__tile--low {
+    margin-top: 12svh;
+  }
+
+  /* 7. three offset images at different sizes and heights. */
+  .panel--editorial {
+    display: grid;
+    grid-template-columns: 1.6fr 0.8fr;
+    align-content: center;
+    gap: clamp(28px, 3.2vw, 56px);
+  }
+
+  .panel__offsets {
+    grid-column: 1 / -1;
+    grid-auto-columns: 0.9fr 1.2fr 0.7fr;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .panel__offset--b {
+    margin-top: 7svh;
+  }
+  .panel__offset--c {
+    margin-top: 2.5svh;
+  }
+
+  .panel--editorial .panel__display {
+    align-self: end;
+  }
+}

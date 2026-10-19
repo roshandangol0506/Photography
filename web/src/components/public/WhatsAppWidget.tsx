@@ -106,6 +106,7 @@ export function WhatsAppWidget() {
             <span className="relative flex-none">
               {avatar ? (
                 <Image
+                  quality={90}
                   src={avatar}
                   alt=""
                   width={44}

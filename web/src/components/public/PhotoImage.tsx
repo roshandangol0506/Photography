@@ -5,7 +5,14 @@ import { cn } from "@/lib/utils";
 interface PhotoImageProps {
   images: PhotoImages;
   alt: string;
-  /** Which stored derivative to request. Never the original - none is kept. */
+  /**
+   * Which stored derivative to request. Never the original - none is kept.
+   *
+   * Defaults to `large` on purpose. next/image downscales server-side, so the
+   * browser still receives exactly the width its slot needs; sourcing from the
+   * widest derivative costs the visitor nothing and stops the optimizer from
+   * being asked for more pixels than the source actually has.
+   */
   variant?: "thumb" | "medium" | "large";
   sizes: string;
   /** Only for a genuine LCP element; everything else stays lazy. */
@@ -32,16 +39,18 @@ interface PhotoImageProps {
 export function PhotoImage({
   images,
   alt,
-  variant = "medium",
+  variant = "large",
   sizes,
   priority = false,
   fill = false,
   width,
   height,
   className,
-  quality = 82,
+  quality = 90,
 }: PhotoImageProps) {
-  const src = images[variant];
+  // Fall back down the chain: a record processed before a variant existed
+  // should still render rather than pointing next/image at undefined.
+  const src = images[variant] || images.large || images.medium || images.thumb;
 
   return (
     <Image

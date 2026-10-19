@@ -116,8 +116,9 @@ export function SideScrollStrip({ photos }: { photos: Photo[] }) {
           // images whose ratio is not known ahead of time - the srcset still
           // comes from `sizes`.
           <Image
+            quality={90}
             key={`${photo._id}-${i}`}
-            src={photo.images.medium}
+            src={photo.images.large}
             alt={photo.title}
             width={0}
             height={0}

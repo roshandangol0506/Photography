@@ -68,6 +68,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
       <a href="#top" className="flex items-center gap-3 text-inherit">
         {logo ? (
           <Image
+            quality={90}
             src={logo}
             alt={settings.siteTitle}
             width={0}

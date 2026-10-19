@@ -129,6 +129,7 @@ export function CollectionShowcase({
         >
           {collection.coverImage && (
             <Image
+              quality={90}
               src={collection.coverImage}
               alt=""
               fill

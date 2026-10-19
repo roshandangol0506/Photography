@@ -40,6 +40,7 @@ export function Footer({
         <div>
           {settings.logo ? (
             <Image
+              quality={90}
               src={settings.logo}
               alt={settings.siteTitle}
               width={0}

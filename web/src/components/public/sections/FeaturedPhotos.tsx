@@ -15,7 +15,9 @@ const COLUMNS = [
   { paddingTop: 66, aspect: "4 / 5" },
 ];
 
-const SIZES = "(max-width: 900px) 100vw, 33vw";
+// The columns are 33vw wide but 4/5 and 3/4 tall, and object-cover scales a
+// landscape source to the taller edge - so it is drawn wider than its column.
+const SIZES = "(max-width: 900px) 100vw, 55vw";
 
 function column(index: number) {
   return COLUMNS[index % COLUMNS.length];

@@ -75,6 +75,7 @@ export function TestimonialsCarousel({
             <div className="relative aspect-5/4.5">
               {active.image ? (
                 <Image
+                  quality={90}
                   src={active.image}
                   alt={active.name}
                   fill
@@ -97,6 +98,7 @@ export function TestimonialsCarousel({
               <div className="relative h-[52px] w-[52px] flex-none">
                 {active.avatar ? (
                   <Image
+                    quality={90}
                     src={active.avatar}
                     alt={active.name}
                     fill

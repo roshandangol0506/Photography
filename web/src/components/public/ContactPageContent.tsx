@@ -89,6 +89,7 @@ function CategoryCard({
         <div className="relative h-32 w-32 flex-none overflow-hidden rounded-3xl">
           {category.coverImage ? (
             <Image
+              quality={90}
               src={category.coverImage}
               alt={category.name}
               fill
@@ -175,6 +176,7 @@ export function ContactPageContent({
     <div className="modernist bg-md-ground text-md-fg">
       <section className="relative flex h-screen min-h-[620px] items-center justify-center overflow-hidden bg-md-ink px-9 max-[900px]:px-5">
         <Image
+          quality={90}
           src="/bookADemo.jpg"
           alt=""
           fill

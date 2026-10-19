@@ -24,6 +24,7 @@ export function AboutSection({ settings }: { settings: SiteSettings }) {
           <PhotoFrame className="aspect-6/5">
             {about.image ? (
               <Image
+                quality={90}
                 src={about.image}
                 alt={settings.siteTitle}
                 fill
@@ -42,6 +43,7 @@ export function AboutSection({ settings }: { settings: SiteSettings }) {
             <PhotoFrame className="aspect-[5/6] overflow-hidden">
               {about.portraitImage ? (
                 <Image
+                  quality={90}
                   src={about.portraitImage}
                   alt={settings.siteTitle}
                   fill

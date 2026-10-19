@@ -30,10 +30,16 @@ function cellClass(index: number) {
   );
 }
 
+// `sizes` must describe the width the image is DRAWN at, not the width of the
+// box it peeks through. The 3/2 cells match the usual source aspect, so drawn
+// width == cell width. The 3/4 cells are taller than a landscape source, so
+// object-cover scales to fit the HEIGHT and the image is drawn ~2x the cell
+// width, with the overflow cropped. Declaring the cell width there made every
+// upright frame fetch a file half the resolution it needed.
 const sizes = (index: number) =>
   cell(index).span
     ? "(max-width: 900px) 100vw, 50vw"
-    : "(max-width: 900px) 100vw, 25vw";
+    : "(max-width: 900px) 100vw, 50vw";
 
 export function RecentWorks({
   photos,
