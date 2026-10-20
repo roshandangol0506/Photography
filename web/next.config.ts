@@ -34,6 +34,13 @@ const nextConfig: NextConfig = {
         port: apiOrigin.port || undefined,
         pathname: "/uploads/**",
       },
+      // Stock stand-ins for the scroll-expansion hero preview. Remove once
+      // that hero is fed from uploaded photos.
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/photo-*",
+      },
     ],
     // Capped at 2048 deliberately: the largest stored derivative is wider than
     // this, so every request the browser makes is satisfied by DOWNSCALING.
