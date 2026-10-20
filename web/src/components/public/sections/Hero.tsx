@@ -8,6 +8,8 @@ import { PhotoImage } from "@/components/public/PhotoImage";
 import { PhotoFrame } from "@/components/public/PhotoFrame";
 import type { Photo } from "@/types/content";
 import { cn } from "@/lib/utils";
+import { CinematicSlider } from "./CinematicSlider";
+import { CINEMATIC_SLIDES } from "./cinematicSlides";
 
 // Copy falls back to the handoff mock so an unconfigured CMS still renders
 // the design exactly; every string below is admin-editable.
@@ -18,7 +20,13 @@ const DEFAULT_TAGLINE =
 const DEFAULT_CTA = "Enter the archive";
 const DEFAULT_SPEED_MS = 5200;
 
-const HERO_STYLES = ["slide", "gradient", "futuristic", "photography"] as const;
+const HERO_STYLES = [
+  "slide",
+  "gradient",
+  "futuristic",
+  "photography",
+  "cinematic",
+] as const;
 
 type HeroStyle = (typeof HERO_STYLES)[number];
 
@@ -167,7 +175,7 @@ export function Hero({ photos }: { photos: Photo[] }) {
   const count = photos.length;
 
   useEffect(() => {
-    if (!animate || count < 2) return;
+    if (!animate || count < 2 || style === "cinematic") return;
     const timer = setInterval(
       () =>
         setSlide((state) => ({
@@ -178,7 +186,7 @@ export function Hero({ photos }: { photos: Photo[] }) {
       speed,
     );
     return () => clearInterval(timer);
-  }, [animate, count, speed, restart]);
+  }, [animate, count, speed, restart, style]);
 
   // Clamp rather than reset in an effect: the photo list can shrink under a
   // stale index when the admin unflags a hero image.
@@ -189,6 +197,21 @@ export function Hero({ photos }: { photos: Photo[] }) {
   const heroSettings = settings.heroSettings;
   const headline = (heroSettings?.headline || DEFAULT_HEADLINE).split("\n");
   const tagline = settings.tagline || DEFAULT_TAGLINE;
+
+  // E - a layered, click-to-navigate slider with its own photos and copy,
+  // edited in cinematicSlides.ts rather than taken from the hero photos.
+  if (style === "cinematic") {
+    return (
+      <PhotoFrame className="block">
+        <CinematicSlider
+          id="top"
+          slides={CINEMATIC_SLIDES}
+          animate={settings.animationsEnabled}
+          pageHeading={headline.join(" ")}
+        />
+      </PhotoFrame>
+    );
+  }
 
   const goTo = (next: number) => {
     setSlide((state) => ({

@@ -72,9 +72,15 @@ export default async function HomePage() {
     getActiveTestimonials(),
   ]);
 
+  // The cinematic hero brings its own slides, so it shows even when no photo
+  // is flagged as a hero background.
+  const showHero =
+    settings?.heroSettings?.transitionStyle === "cinematic" ||
+    (background?.length ?? 0) > 0;
+
   return (
     <>
-      {background && background.length > 0 && <Hero photos={background} />}
+      {showHero && <Hero photos={background ?? []} />}
       <FeaturedPhotos photos={featured?.photos ?? []} />
       {settings && <AboutSection settings={settings} />}
       <PhotoSeries categories={categories ?? []} />

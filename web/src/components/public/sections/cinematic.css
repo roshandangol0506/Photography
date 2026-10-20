@@ -1,0 +1,588 @@
+/* =========================================================================
+   Cinematic hero - a strip of photographs, stepped by clicking either half.
+
+   After the Slider Revolution module on stockphotographynepal.com, whose
+   consecutive slides share a photograph: what is on the right of one slide
+   is on the left of the next. So this is one strip of frames that alternate
+   wide and narrow, with two on screen - photo n on the left, n+1 on the
+   right - and a fixed gap between them.
+
+   Because wide + gap + narrow is exactly the frame width, one step moves
+   every frame by the same distance (the left frame's width plus the gap):
+   the right photo lands in the left slot, the left one leaves past the left
+   edge, and the next photo arrives from just past the right edge. One
+   transition on transform does all of it.
+
+   Copy belongs to the left photo. It travels in from beyond the right edge
+   and the old copy leaves past the left edge, a line at a time.
+
+   Namespaced under .cine. --dir (1 forward, -1 back) flips the copy
+   keyframes; only transform and opacity animate.
+   ========================================================================= */
+
+.cine {
+  --cine-d: 1100ms;
+  /* Slow off the mark, fast through the middle, a long settle. */
+  --cine-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --cine-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --cine-light: #f8f4f4; /* md-light */
+  --cine-accent: #ec3013; /* md-red */
+  --dir: 1;
+  --cine-mx: 0;
+  --cine-my: 0;
+
+  /* The strip. Narrow is whatever is left, so the pair always fills the
+     width edge to edge with exactly one gap between them. */
+  --cine-gap: max(144px, 30cqw);
+  --cine-wide: 43cqw;
+  --cine-narrow: calc(100cqw - var(--cine-wide) - var(--cine-gap));
+  --cine-wide-top: 13%;
+  --cine-narrow-h: 33.333%;
+
+  position: relative;
+  /* 100%, not 100vw: 100vw includes the scrollbar and scrolls sideways. */
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  /* cqw below is a share of this box, so every distance scales with it. */
+  container-type: inline-size;
+  background:
+    radial-gradient(120% 90% at 65% 35%, #2c2927 0%, transparent 70%),
+    #201e1d; /* md-ink */
+  color: var(--cine-light);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cine[data-dir="prev"] {
+  --dir: -1;
+}
+
+/* ----------------------------------------------------------------- strip */
+
+/* Each photo is a window onto the strip described by three animatable
+   values: its left edge, its right edge, and a squeeze factor (1 = full
+   width, 0 = collapsed). Registered so they can transition and animate
+   independently - that independence is the whole effect. */
+@property --cine-l {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --cine-r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --cine-s {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+.cine-strip {
+  position: absolute;
+  inset: 0;
+}
+
+/* A shot spans the whole strip width; its window is clipped out of it. */
+.cine-shot {
+  position: absolute;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+}
+.cine-shot[data-wide="true"] {
+  --w: var(--cine-wide);
+  top: var(--cine-wide-top);
+  bottom: 0;
+}
+.cine-shot[data-wide="false"] {
+  --w: var(--cine-narrow);
+  bottom: 0;
+  height: var(--cine-narrow-h);
+}
+
+/* Slots. Off-screen ones are collapsed (squeeze 0) against the edge they
+   leave by or arrive from, so leaving is folding into the screen edge and
+   arriving is unfolding out of it - never a box sliding in from nowhere.
+     slot   left      right   squeeze
+      -1    0         0       0        folded into the left edge
+       0    0         w       1        left photo
+       1    100 - w   100     1        right photo
+       2    100       100     0        folded into the right edge      */
+.cine-shot[data-slot="-1"] {
+  --cine-l: 0px;
+  --cine-r: 0px;
+  --cine-s: 0;
+}
+.cine-shot[data-slot="0"] {
+  --cine-l: 0px;
+  --cine-r: var(--w);
+  --cine-s: 1;
+}
+.cine-shot[data-slot="1"] {
+  --cine-l: calc(100cqw - var(--w));
+  --cine-r: 100cqw;
+  --cine-s: 1;
+}
+.cine-shot[data-slot="2"] {
+  --cine-l: 100cqw;
+  --cine-r: 100cqw;
+  --cine-s: 0;
+}
+
+/* The window is measured from the LEADING edge (left going forward, right
+   going back): width x squeeze. So a squeeze pulls the trailing edge in
+   toward the leading one and can never invert, whatever the photo's size.
+   The picture rides the leading edge at its natural size - the window only
+   ever shows more or less of it, nothing is stretched. */
+.cine-window {
+  position: absolute;
+  inset: 0;
+}
+.cine-pic {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--w);
+  overflow: hidden;
+  /* Shows only until the photo decodes - never a white flash. */
+  background: rgb(0 0 0 / 0.5);
+}
+.cine[data-dir="next"] .cine-window {
+  clip-path: inset(
+    0 calc(100cqw - var(--cine-l) - var(--w) * var(--cine-s)) 0
+      var(--cine-l)
+  );
+}
+.cine[data-dir="next"] .cine-pic {
+  transform: translate3d(var(--cine-l), 0, 0);
+}
+.cine[data-dir="prev"] .cine-window {
+  clip-path: inset(
+    0 calc(100cqw - var(--cine-r)) 0
+      calc(var(--cine-r) - var(--w) * var(--cine-s))
+  );
+}
+.cine[data-dir="prev"] .cine-pic {
+  transform: translate3d(calc(var(--cine-r) - var(--w)), 0, 0);
+}
+
+.cine-px {
+  width: 100%;
+  height: 100%;
+  /* Mouse parallax. --cine-mx/--cine-my run -1..1 across the frame and --k
+     weights each layer: the two photos drift against each other, the copy
+     further. Lags behind the pointer for a camera-like float. */
+  transform: translate3d(
+    calc(var(--cine-mx) * var(--k, 0) * 14px),
+    calc(var(--cine-my) * var(--k, 0) * 8px),
+    0
+  );
+  transition: transform 0.9s var(--cine-ease-out);
+}
+
+.cine-img {
+  object-fit: cover;
+}
+
+.cine-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / calc(var(--shade) * 0.6)) 0%,
+    rgb(0 0 0 / var(--shade)) 100%
+  );
+}
+
+/* ------------------------------------------------------------------ copy */
+
+.cine-copy {
+  position: absolute;
+  top: 24%;
+  left: 20cqw;
+  right: 10cqw;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* Outgoing and incoming copy share the spot; each slides its own way. */
+.cine-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.cine-line {
+  display: block;
+  margin: 0;
+}
+
+.cine-rule {
+  width: min(240px, 16cqw);
+  height: 1px;
+  margin-bottom: clamp(16px, 2cqw, 30px);
+  background: var(--cine-accent);
+}
+
+.cine-heading {
+  max-width: 13ch;
+  font-size: clamp(40px, 6.6cqw, 120px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow: 0 2px 30px rgb(0 0 0 / 0.25);
+}
+
+/* Outlined, as in the reference. */
+.cine-subtitle {
+  margin-top: clamp(14px, 2cqw, 30px);
+  font-size: clamp(16px, 2cqw, 34px);
+  font-weight: 900;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--cine-light);
+}
+@supports not (-webkit-text-stroke: 1px black) {
+  .cine-subtitle {
+    color: var(--cine-light);
+  }
+}
+
+.cine-desc {
+  margin-top: clamp(12px, 1.4cqw, 22px);
+  max-width: 44ch;
+  font-size: clamp(14px, 1.05cqw, 18px);
+  line-height: 1.65;
+  color: rgb(248 244 244 / 0.75);
+}
+
+/* -------------------------------------------------- navigation and chrome */
+
+.cine-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  width: 50%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  appearance: none;
+}
+.cine-zone--prev {
+  left: 0;
+  cursor: w-resize;
+}
+.cine-zone--next {
+  right: 0;
+  cursor: e-resize;
+}
+.cine-zone:focus-visible {
+  outline: 2px solid var(--cine-light);
+  outline-offset: -10px;
+}
+
+.cine-count {
+  position: absolute;
+  top: 50%;
+  right: clamp(12px, 1.6cqw, 28px);
+  z-index: 6;
+  margin: 0;
+  translate: 0 -50%;
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
+  pointer-events: none;
+}
+.cine-count span {
+  opacity: 0.5;
+}
+
+/* A ring that follows the mouse and points the way a click will go. Only
+   for a real mouse; touch and keyboard keep the native cues. */
+.cine-cursor {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cine-zone {
+    cursor: none;
+  }
+  /* Positioned only: CinematicSlider writes transform: translate3d(x, y) on
+     it. Nothing else may transform it - the `scale` property composes with
+     `transform` and would scale the translation too, throwing the ring
+     toward the corner. */
+  .cine-cursor {
+    --size: 200px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 7;
+    display: block;
+    width: var(--size);
+    height: var(--size);
+    /* Centred on the pointer whatever the size. */
+    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+    pointer-events: none;
+  }
+  /* The visible ring. Same size and place before, during and after a click;
+     it only fades/grows in when the mouse enters the hero. */
+  .cine-cursor-ring {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgb(248 244 244 / 0.7);
+    border-radius: 50%;
+    color: var(--cine-light);
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity 0.25s ease,
+      scale 0.4s var(--cine-ease-out);
+  }
+  .cine-cursor svg {
+    grid-area: 1 / 1;
+    width: 22px;
+    height: 22px;
+    transition: opacity 0.2s ease;
+  }
+  .cine[data-cursor="on"] .cine-cursor-ring {
+    opacity: 1;
+    scale: 1;
+  }
+  .cine:not([data-side="prev"]) .cine-cursor-prev,
+  .cine[data-side="prev"] .cine-cursor-next {
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------------------------------- motion */
+
+/* Copy crosses the whole frame: in from past the right edge going forward
+   (past the left going back), out past the opposite edge. */
+@keyframes cine-copy-in {
+  from {
+    transform: translate3d(calc(var(--dir) * 100cqw), 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes cine-copy-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(var(--dir) * -100cqw), 0, 0);
+  }
+}
+@keyframes cine-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Timeline of one step, as shares of --cine-d (D). Everything starts on the
+   click and runs on one shared curve, so photos and copy move as one:
+
+     crossing photo   0 -> .04D   the dart: the trailing edge snaps in by
+                                  90% of the photo's width, leaving a thin
+                                  10% strip, near-instantly (~45ms), while
+                                  the leading edge holds
+                      .04 -> .88D the leading edge travels to the new slot
+                                  while the squeeze unwinds on the SAME
+                                  curve, so it unfolds as it moves
+     leaving photo    0 -> .2D    folds into the screen edge it is nearest
+     arriving photo   .25 -> .9D  unfolds out of the far screen edge
+     copy line i      30ms*i, for .85D - out past the near edge and in from
+                                  past the far edge in lockstep, a frame
+                                  width apart, like the strip itself
+
+   CinematicSlider's settleTime() waits for the last copy line. */
+
+.cine {
+  /* The travel after the dart: under way from the first frame (no ease-in,
+     which read as a stall right after the dart), then a long soft glide
+     into place. The squeeze's second half, the arriving photo and the copy
+     all share it. */
+  --cine-move-ease: cubic-bezier(0.3, 0.4, 0.1, 1);
+  /* The leaving photo's fold: as close to instant as still reads as motion.
+     (The dart has its own, sharper curve in cine-squeeze.) */
+  --cine-fold-ease: cubic-bezier(0.2, 0.9, 0.3, 1);
+  /* Starts the moment the dart lands (4%) and ends where it always did. */
+  --cine-move: calc(var(--cine-d) * 0.84) var(--cine-move-ease)
+    calc(var(--cine-d) * 0.04);
+  --cine-fold: calc(var(--cine-d) * 0.2) var(--cine-fold-ease);
+  --cine-unfold: calc(var(--cine-d) * 0.65) var(--cine-move-ease)
+    calc(var(--cine-d) * 0.25);
+}
+
+/* Segment curves written out - keyframe timing functions are not a place to
+   rely on var(). The dart (0 -> 4%) has its own near-vertical curve: almost
+   all of the 90% squeeze lands in the first frame or two. The second
+   segment equals --cine-move-ease, and the 4% and 88% stops line up with
+   --cine-move's delay and end, so the unfolding tracks the leading edge
+   exactly. */
+@keyframes cine-squeeze {
+  0% {
+    --cine-s: 1;
+    animation-timing-function: cubic-bezier(0.05, 0.95, 0.2, 1);
+  }
+  4% {
+    --cine-s: 0.1;
+    animation-timing-function: cubic-bezier(0.3, 0.4, 0.1, 1);
+  }
+  88%,
+  100% {
+    --cine-s: 1;
+  }
+}
+
+/* The crossing photo: right -> left slot going forward, left -> right back. */
+.cine[data-dir="next"] .cine-shot[data-slot="0"],
+.cine[data-dir="prev"] .cine-shot[data-slot="1"] {
+  transition:
+    --cine-l var(--cine-move),
+    --cine-r var(--cine-move);
+}
+.cine[data-stepping="true"][data-dir="next"] .cine-shot[data-slot="0"],
+.cine[data-stepping="true"][data-dir="prev"] .cine-shot[data-slot="1"] {
+  animation: cine-squeeze var(--cine-d) linear both;
+}
+
+/* The leaving photo folds into its edge; its slot values only change the
+   squeeze visibly, the edges it is pinned to stay put. */
+.cine[data-dir="next"] .cine-shot[data-slot="-1"],
+.cine[data-dir="prev"] .cine-shot[data-slot="2"] {
+  transition:
+    --cine-s var(--cine-fold),
+    --cine-l var(--cine-fold),
+    --cine-r var(--cine-fold);
+}
+
+/* The arriving photo unfolds: edge and squeeze on one curve, so its far
+   edge stays pinned to the screen edge while the near edge opens out. */
+.cine[data-dir="next"] .cine-shot[data-slot="1"],
+.cine[data-dir="prev"] .cine-shot[data-slot="0"] {
+  transition:
+    --cine-s var(--cine-unfold),
+    --cine-l var(--cine-unfold),
+    --cine-r var(--cine-unfold);
+}
+
+/* Old and new copy share delay, duration and curve, so each outgoing line
+   and its incoming twin stay exactly one frame width apart the whole way. */
+.cine-lines[data-state="enter"] .cine-line {
+  animation: cine-copy-in calc(var(--cine-d) * 0.85) var(--cine-move-ease)
+    calc(var(--i, 0) * 30ms) both;
+}
+.cine-lines[data-state="leave"] .cine-line {
+  animation: cine-copy-out calc(var(--cine-d) * 0.85) var(--cine-move-ease)
+    calc(var(--i, 0) * 30ms) both;
+}
+
+/* Reduced motion: the strip jumps, the new copy fades in, nothing travels. */
+@media (prefers-reduced-motion: reduce) {
+  .cine .cine-shot {
+    transition: none !important;
+    animation: none !important;
+  }
+  .cine-lines[data-state] .cine-line {
+    animation: none;
+  }
+  .cine-lines[data-state="enter"] {
+    animation: cine-fade-in 0.3s ease both;
+  }
+  .cine-lines[data-state="leave"] {
+    visibility: hidden;
+  }
+  .cine-px {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* The site-wide "Animations" switch is off: changes are instant. */
+.cine[data-motion="off"] .cine-shot {
+  transition: none !important;
+  animation: none !important;
+}
+.cine[data-motion="off"] .cine-lines,
+.cine[data-motion="off"] .cine-line {
+  animation: none !important;
+}
+.cine[data-motion="off"] .cine-lines[data-state="leave"] {
+  visibility: hidden;
+}
+.cine[data-motion="off"] .cine-px {
+  transform: none;
+  transition: none;
+}
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 900px) {
+  .cine {
+    --cine-wide-top: 18%;
+    --cine-narrow-h: 30%;
+  }
+  .cine-copy {
+    top: 21%;
+    left: 7cqw;
+    right: 7cqw;
+  }
+}
+
+/* Phones: the photos sit lower so the copy has the top of the screen. */
+@media (max-width: 600px) {
+  .cine {
+    --cine-gap: 24cqw;
+    --cine-wide: 47cqw;
+    --cine-wide-top: 40%;
+    --cine-narrow-h: 32%;
+  }
+  .cine-copy {
+    top: 13%;
+    left: 6cqw;
+    right: 6cqw;
+  }
+  .cine-heading {
+    font-size: clamp(32px, 10.5cqw, 48px);
+  }
+  .cine-subtitle {
+    font-size: 15px;
+  }
+  .cine-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Short landscape screens: size the heading by height and drop the body. */
+@media (max-height: 560px) and (min-width: 601px) {
+  .cine-heading {
+    font-size: clamp(28px, 10svh, 64px);
+  }
+  .cine-desc {
+    display: none;
+  }
+}

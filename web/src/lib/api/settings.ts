@@ -39,7 +39,7 @@ export interface SiteSettings {
   footerText?: string;
   heroSettings: {
     autoplaySpeedMs: number;
-    /** professional | creative | futuristic | photography */
+    /** slide | gradient | futuristic | photography | cinematic */
     transitionStyle: string;
     eyebrow?: string;
     headline?: string;
