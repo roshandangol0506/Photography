@@ -5,6 +5,7 @@ import {
   ContainerScroll,
 } from "@/components/ui/hero-gallery-scroll-animation";
 
+import type { CSSProperties } from "react";
 import { getImageProps } from "next/image";
 
 import { Button } from "@/components/ui/Button";
@@ -37,7 +38,10 @@ const HeroDemo1 = () => {
         {IMAGES.map((imageUrl, index) => (
           <BentoCell
             key={index}
-            className="overflow-hidden rounded-xl shadow-xl"
+            // flow-item: follows the section in when it slides in sideways
+            // (FlowPanel); --i staggers the cells.
+            className="flow-item overflow-hidden rounded-xl shadow-xl"
+            style={{ "--i": index } as CSSProperties}
           >
             <img
               className="size-full object-cover object-center"
@@ -49,10 +53,10 @@ const HeroDemo1 = () => {
       </BentoGrid>
 
       <ContainerScale className="relative z-10 text-center">
-        <h2 className="max-w-xl text-5xl font-bold tracking-tighter text-slate-800 ">
+        <h2 className="max-w-xl text-5xl font-bold tracking-tighter text-md-light">
           Your Animated Hero
         </h2>
-        <p className="my-6 max-w-xl text-sm text-slate-700 md:text-base">
+        <p className="my-6 max-w-xl text-sm text-md-light/75 md:text-base">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>

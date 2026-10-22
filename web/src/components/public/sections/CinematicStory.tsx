@@ -4,7 +4,7 @@ import "./cinematic-story.css";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import Image, { getImageProps } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowDownRight, ArrowRight } from "lucide-react";
 import { useSite } from "@/components/providers/SiteProvider";
@@ -60,14 +60,6 @@ const SWIPE_MIN_PX = 40;
  * in and out, while that section plays its entrance on the story's timings.
  */
 const HANDOFF_MS = Math.round(DURATION * 0.75);
-
-// Same optimized texture as the cinematic hero (the original is ~17MB).
-// Exported so the section the story hands off to can share it.
-export const STORY_BACKGROUND = `url("${
-  getImageProps({ src: "/blackBg.jpg", alt: "", width: 2048, height: 1365 })
-    .props.src
-}")`;
-const BACKGROUND = STORY_BACKGROUND;
 
 /** Drive the page to `to` over `ms`, easing in and out. Returns a cancel. */
 function tweenScroll(to: number, ms: number, done?: () => void) {
@@ -335,10 +327,7 @@ export function CinematicStory({
       const now = performance.now();
       const fresh =
         now - g.lastT > GESTURE_GAP_MS ||
-        (g.used &&
-          !locked.current &&
-          abs >= 20 &&
-          abs > g.lastAbs * 2.5);
+        (g.used && !locked.current && abs >= 20 && abs > g.lastAbs * 2.5);
       g.lastT = now;
       g.lastAbs = abs;
       if (fresh) g.used = false;
@@ -406,7 +395,7 @@ export function CinematicStory({
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [count, engaged, handoffDown, motion, step]);
+  }, [count, engaged, motion, step]);
 
   // Keyboard: arrows, Page Up/Down and Space step scenes while pinned.
   useEffect(() => {
@@ -427,11 +416,11 @@ export function CinematicStory({
         e.preventDefault();
         return;
       }
-      if (step(dir) || (dir === 1 && handoffDown())) e.preventDefault();
+      if (step(dir)) e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [engaged, handoffDown, motion, step]);
+  }, [engaged, motion, step]);
 
   if (!count) return null;
 
@@ -439,7 +428,7 @@ export function CinematicStory({
     view.from === i
       ? "leave"
       : i === view.idx
-        ? view.from !== null || view.entering
+        ? view.from !== null
           ? "enter"
           : "current"
         : "hidden";
@@ -452,13 +441,10 @@ export function CinematicStory({
         {
           "--story-n": count,
           "--story-d": `${DURATION}ms`,
-          "--story-bg": BACKGROUND,
         } as CSSProperties
       }
       data-dir={view.dir === 1 ? "down" : "up"}
       data-motion={motion}
-      // The section below may hand back to the last scene (see onReturn).
-      data-cinematic-return={motion === "full" ? "on" : "off"}
       aria-label="Selected work"
     >
       <div ref={stageRef} className="story-stage">
@@ -564,7 +550,11 @@ function Intro({
       </span>
       {scene.cta && (
         <span className="story-mask" style={{ "--i": 2 } as CSSProperties}>
-          <button type="button" className="story-rise story-cta" onClick={onNext}>
+          <button
+            type="button"
+            className="story-rise story-cta"
+            onClick={onNext}
+          >
             {scene.cta}
             <ArrowDownRight aria-hidden="true" strokeWidth={1.5} />
           </button>

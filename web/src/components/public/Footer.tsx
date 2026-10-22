@@ -32,7 +32,7 @@ export function Footer({
   ].filter((social) => Boolean(social.href));
 
   return (
-    <footer className="modernist bg-md-ink px-9 pt-16 pb-[34px] text-md-light">
+    <footer className="modernist border-t-2 border-md-divider px-9 pt-16 pb-[34px] text-md-light">
       <div
         className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-11 border-b-2 pb-11 max-[900px]:grid-cols-1"
         style={{ borderBottomColor: "rgba(248,244,244,.2)" }}

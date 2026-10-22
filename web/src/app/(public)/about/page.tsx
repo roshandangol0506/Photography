@@ -71,8 +71,8 @@ export default async function AboutPage() {
   ]);
 
   return (
-    <div className="modernist bg-md-ground text-md-fg">
-      <section className="relative h-screen min-h-[620px] overflow-hidden bg-md-ink">
+    <div className="modernist text-md-fg">
+      <section className="relative h-screen min-h-[620px] overflow-hidden">
         <Image
           quality={90}
           src="/about.jpg"

@@ -111,7 +111,7 @@ export function CollectionShowcase({
 
   return (
     <section
-      className="relative overflow-hidden bg-md-ink text-md-light"
+      className="relative overflow-hidden text-md-light"
       style={{ height: BAND_HEIGHT }}
       onMouseLeave={() => setHovered(null)}
     >

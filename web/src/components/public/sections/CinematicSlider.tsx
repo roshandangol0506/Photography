@@ -32,16 +32,23 @@ interface CinematicSliderProps {
   label?: string;
   id?: string;
   className?: string;
+  /**
+   * Stepping past the first (-1) or last (1) slide - by scroll, click, key or
+   * swipe; the slider itself stops at both ends. Return true if that is
+   * handled - e.g. by sliding on to a neighbouring section - and false to let
+   * a scroll carry on down the page as normal.
+   */
+  onEdge?: (dir: Direction) => boolean;
 }
 
 type Direction = 1 | -1;
 
 interface View {
   /**
-   * Position along the strip. Unbounded, so it keeps counting past the end
-   * of the list: frame k shows slides[k mod count], and k's parity decides
-   * wide or narrow, which keeps the pair on screen alternating even when the
-   * list wraps round on an odd count.
+   * Position along the strip, 0 to count - 1: navigation stops at both
+   * ends. Frame k shows slides[k mod count] (the frames waiting off either
+   * edge, and the right photo on the last slide, wrap round to the other
+   * end of the list) and k's parity decides wide or narrow.
    */
   pos: number;
   /** The position whose copy is on its way out. */
@@ -65,7 +72,7 @@ const NARROW_SIZES = "(max-width: 600px) 29vw, 27vw";
 // The textured backdrop. The original is a ~17MB camera-size file, so it goes
 // through the image optimizer (2048px WebP) rather than straight to CSS.
 const BACKGROUND = `url("${
-  getImageProps({ src: "/blackBg2.jpg", alt: "", width: 2048, height: 1365 })
+  getImageProps({ src: "/blackBg.jpg", alt: "", width: 2048, height: 1365 })
     .props.src
 }")`;
 
@@ -142,6 +149,7 @@ export function CinematicSlider({
   label = "Featured photographs",
   id,
   className,
+  onEdge,
 }: CinematicSliderProps) {
   const count = slides.length;
   const reduced = usePrefersReducedMotion();
@@ -201,10 +209,21 @@ export function CinematicSlider({
     [],
   );
 
+  // Strip position, mirrored outside React state so input handlers can tell
+  // the first and last slides apart without waiting for a render.
+  const posRef = useRef(0);
+
+  /** The slider sits at the top of the screen. */
+  const pinned = useCallback(() => {
+    const top = rootRef.current?.getBoundingClientRect().top;
+    return top !== undefined && Math.abs(top) <= 2;
+  }, []);
+
   const go = useCallback(
     (direction: Direction) => {
       if (busy.current || count < 2) return;
       busy.current = true;
+      posRef.current += direction;
       setView((state) => ({
         pos: state.pos + direction,
         previous: state.pos,
@@ -218,6 +237,26 @@ export function CinematicSlider({
       }, settle);
     },
     [count, settle],
+  );
+
+  /**
+   * One step from any input: the next/previous slide, or at either end hand
+   * over to onEdge - only with full motion and the slider filling the
+   * screen, as that slides the page sideways. True if handled.
+   */
+  const step = useCallback(
+    (dir: Direction) => {
+      const atEdge =
+        (dir === 1 && posRef.current >= count - 1) ||
+        (dir === -1 && posRef.current <= 0);
+      if (!atEdge) {
+        go(dir);
+        return true;
+      }
+      if (busy.current) return true;
+      return motion === "full" && pinned() && (onEdge?.(dir) ?? false);
+    },
+    [count, go, motion, onEdge, pinned],
   );
 
   // Arrow keys work page-wide while the hero fills most of the screen, but
@@ -247,14 +286,148 @@ export function CinematicSlider({
       )
         return;
       event.preventDefault();
-      go(event.key === "ArrowRight" ? 1 : -1);
+      step(event.key === "ArrowRight" ? 1 : -1);
     };
     window.addEventListener("keydown", onKey);
     return () => {
       observer.disconnect();
       window.removeEventListener("keydown", onKey);
     };
-  }, [go]);
+  }, [step]);
+
+  // ── scroll navigation ──────────────────────────────────────────────
+  // While the slider fills the screen, one scroll gesture (wheel/trackpad,
+  // vertical swipe, Down/Up/Page/Space) moves one slide - a horizontal
+  // scroll. Past the first or last slide, onEdge decides (see step): slide
+  // on to a neighbouring section, or let the page scroll on.
+  const gesture = useRef({ lastT: 0, lastAbs: 0, used: false });
+  const touchNav = useRef<{ y: number; engaged: boolean; used: boolean } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (motion !== "full") return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // pinch-zoom
+      const unit =
+        e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      const abs = Math.abs(e.deltaY) * unit;
+      if (abs === 0 || Math.abs(e.deltaX) * unit > abs) return;
+      // A gesture is a stream of events: it ends after a short pause, or
+      // when a fresh swipe re-accelerates out of a decaying momentum tail.
+      const g = gesture.current;
+      const now = performance.now();
+      const fresh =
+        now - g.lastT > 180 ||
+        (g.used && !busy.current && abs >= 20 && abs > g.lastAbs * 2.5);
+      g.lastT = now;
+      g.lastAbs = abs;
+      if (fresh) g.used = false;
+      if (!pinned()) {
+        g.used = true; // began elsewhere on the page
+        return;
+      }
+      if (busy.current || g.used) {
+        e.preventDefault();
+        return;
+      }
+      if (step(e.deltaY > 0 ? 1 : -1)) {
+        e.preventDefault();
+        g.used = true;
+      }
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchNav.current = {
+        y: e.touches[0].clientY,
+        engaged: pinned(),
+        used: false,
+      };
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = touchNav.current;
+      if (!t || !t.engaged || e.touches.length > 1) return;
+      const dy = t.y - e.touches[0].clientY;
+      if (Math.abs(dy) < 6) return;
+      if (busy.current || t.used) {
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+      if (Math.abs(dy) < SWIPE_MIN_PX) {
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+      t.used = true;
+      if (step(dy > 0 ? 1 : -1) && e.cancelable) e.preventDefault();
+    };
+    const onTouchEnd = () => {
+      touchNav.current = null;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) ||
+          target.closest("[role='dialog']"))
+      )
+        return;
+      let dir: Direction | 0 = 0;
+      if (e.key === "ArrowDown" || e.key === "PageDown") dir = 1;
+      else if (e.key === "ArrowUp" || e.key === "PageUp") dir = -1;
+      else if (e.key === " ") {
+        if (target?.closest?.("a, button")) return;
+        dir = e.shiftKey ? -1 : 1;
+      }
+      if (!dir || !pinned()) return;
+      if (busy.current) {
+        e.preventDefault();
+        return;
+      }
+      if (step(dir)) e.preventDefault();
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("touchcancel", onTouchEnd);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [motion, pinned, step]);
+
+  // Arriving sideways from a neighbouring section (see lib/hflow): show the
+  // slide it should open on - the first going forward, the last coming back -
+  // and replay the copy's entrance from the side it arrives from, so the
+  // text follows the slide in.
+  useEffect(() => {
+    const flow = rootRef.current?.closest("[data-hflow]");
+    if (!flow) return;
+    const onEnter = (e: Event) => {
+      const from = (e as CustomEvent<{ from: Direction }>).detail?.from ?? 1;
+      posRef.current = from === 1 ? 0 : count - 1;
+      busy.current = true;
+      setView({
+        pos: posRef.current,
+        previous: null,
+        direction: from,
+        entering: true,
+      });
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        setView((state) => ({ ...state, entering: false }));
+        busy.current = false;
+      }, settle);
+    };
+    flow.addEventListener("hflow:enter", onEnter);
+    return () => flow.removeEventListener("hflow:enter", onEnter);
+  }, [count, settle]);
 
   // The arrow inside the cursor ring leans the way the mouse is moving and
   // settles back to the centre when it stops. Eased once a frame, and only
@@ -362,12 +535,12 @@ export function CinematicSlider({
     if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 1.2)
       return;
     lastSwipe.current = performance.now();
-    go(dx < 0 ? 1 : -1);
+    step(dx < 0 ? 1 : -1);
   };
 
   const onZone = (direction: Direction) => {
     if (performance.now() - lastSwipe.current < SWIPE_CLICK_GUARD_MS) return;
-    go(direction);
+    step(direction);
   };
 
   if (!count) return null;

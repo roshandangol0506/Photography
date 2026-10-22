@@ -39,7 +39,6 @@
   position: relative;
   height: calc(var(--story-n) * 100vh);
   height: calc(var(--story-n) * 100svh);
-  background: #111;
   color: var(--story-light);
   font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 }
@@ -50,14 +49,16 @@
   --s-rise: -105%;
 }
 
-/* Pinned while the section is under the viewport; the scenes stack in it. */
+/* Pinned while the section is under the viewport; the scenes stack in it.
+   No background of its own: the site's fixed backdrop (the public layout)
+   shows through, so scrolling in from the hero never brings a second copy of
+   the texture up over the first. */
 .story-stage {
   position: sticky;
   top: 0;
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  background: var(--story-bg) center / cover no-repeat, #111;
 }
 
 /* ---------------------------------------------------------------- scenes */

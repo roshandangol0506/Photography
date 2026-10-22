@@ -3,9 +3,8 @@
 import "./scroll-expansion.css";
 
 import { useEffect, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import ScrollExpandMedia from "@/components/ui/scroll-expansion-hero";
-import { STORY_BACKGROUND } from "./CinematicStory";
+import { hflowNeighbour, hflowSlide } from "@/lib/hflow";
 
 // Photos from /public. ScrollExpandMedia draws both with next/image, so the
 // full-size originals are resized by the optimizer on the way out.
@@ -26,7 +25,7 @@ const ENTRANCE_MS = 1300;
  * Placed straight after CinematicStory, it takes part in the story's scene
  * transitions: it opts in with data-cinematic-entry, so scrolling on from the
  * story's last scene drives the page here as a scene change and fires
- * "cinematic:enter" - the background fades up out of the story's texture, the
+ * "cinematic:enter" - the background photo fades up over the texture, the
  * photo rises in as a masked window that opens out, and the title follows
  * (see scroll-expansion.css). Scrolling up from its collapsed start hands
  * back to the story the same way, via "cinematic:return".
@@ -59,13 +58,22 @@ export function ScrollExpansion() {
     return true;
   };
 
+  /** Fully expanded and scrolling on: slide the next linked section in
+      from the right (lib/hflow), rather than scrolling down to it. */
+  const exitDown = () => {
+    const here = ref.current;
+    const next = hflowNeighbour(here, 1);
+    return !!here && !!next && hflowSlide(here, next);
+  };
+
   return (
     <div
       ref={ref}
       className="sx-section min-h-screen"
       data-cinematic-entry=""
+      // Linked to the section after it: that one slides in sideways.
+      data-hflow=""
       data-entering={entering}
-      style={{ "--sx-bg": STORY_BACKGROUND } as CSSProperties}
     >
       <ScrollExpandMedia
         mediaType="image"
@@ -76,6 +84,7 @@ export function ScrollExpansion() {
         scrollToExpand={MEDIA.scrollToExpand}
         entering={entering}
         onExitUp={exitUp}
+        onExitDown={exitDown}
       />
     </div>
   );

@@ -17,9 +17,9 @@
 .sx-section {
   --sx-d: 1300ms;
   --sx-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  /* The story's own texture under everything, so the hand-off never shows
-     the page's light background between the two. */
-  background: var(--sx-bg) center / cover no-repeat, #111;
+  /* No background of its own: like the story above it, it sits on the
+     site's fixed backdrop, so the hand-off between the two shows one
+     unbroken texture. */
 }
 
 @keyframes sx-bg-in {

@@ -36,7 +36,7 @@ export function StreamHero() {
       rightImages={RIGHT}
       // One card per photo, so every photo on each side is on screen.
       cards={10}
-      className="h-screen min-h-[620px] w-full bg-md-ink"
+      className="h-screen min-h-[620px] w-full"
     >
       <div className="relative z-10 flex h-full flex-col items-center justify-between pt-32 pb-16 text-center text-md-light">
         <div className="px-6">

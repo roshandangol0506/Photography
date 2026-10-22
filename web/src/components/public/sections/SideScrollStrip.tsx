@@ -88,7 +88,7 @@ export function SideScrollStrip({ photos }: { photos: Photo[] }) {
   };
 
   return (
-    <section className="mt-[90px] bg-md-ink py-10">
+    <section className="mt-[90px] py-10">
       <div className="flex items-baseline justify-between px-9 py-10 text-md-light">
         <span className="text-[11px] tracking-[0.2em] uppercase">
           06 &mdash; On the road

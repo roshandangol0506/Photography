@@ -13,6 +13,7 @@ import { FeaturedPhotos } from "@/components/public/sections/FeaturedPhotos";
 import { CinematicStory } from "@/components/public/sections/CinematicStory";
 import { ScrollExpansion } from "@/components/public/sections/ScrollExpansion";
 import { CinematicSliderSection } from "@/components/public/sections/CinematicSliderSection";
+import { FlowPanel } from "@/components/public/sections/FlowPanel";
 import { HeroDemo1 as HeroGallery } from "@/components/public/sections/HeroGallery";
 import { SmoothScrollHero } from "@/components/ui/modern-hero";
 import { Skiper31 as TextScroll } from "@/components/ui/text-scroll-animation";
@@ -81,7 +82,10 @@ export default async function HomePage() {
       <CinematicStory />
       <ScrollExpansion />
       <CinematicSliderSection />
-      <HeroGallery />
+      {/* Slides in sideways from the slider's last slide (lib/hflow). */}
+      <FlowPanel>
+        <HeroGallery />
+      </FlowPanel>
       <SmoothScrollHero />
       {/* `relative` anchors the section's "Scroll to see more" hint to it.
           No Lenis here: it would take over scrolling for the whole page. */}
@@ -89,7 +93,7 @@ export default async function HomePage() {
         <TextScroll smooth={false} />
       </div>
 
-      {settings && <AboutSection settings={settings} />}
+      {/* {settings && <AboutSection settings={settings} />}
       <PhotoSeries categories={categories ?? []} />
       <RecentWorks
         photos={recent?.photos ?? []}
@@ -99,7 +103,7 @@ export default async function HomePage() {
       <AwardsTimeline awards={awards ?? []} />
       <SideScrollStrip photos={strip ?? []} />
       <TestimonialsCarousel testimonials={testimonials ?? []} />
-      <ContactSection />
+      <ContactSection /> */}
     </>
   );
 }

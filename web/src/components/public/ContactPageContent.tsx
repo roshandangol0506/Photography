@@ -173,8 +173,8 @@ export function ContactPageContent({
   };
 
   return (
-    <div className="modernist bg-md-ground text-md-fg">
-      <section className="relative flex h-screen min-h-[620px] items-center justify-center overflow-hidden bg-md-ink px-9 max-[900px]:px-5">
+    <div className="modernist text-md-fg">
+      <section className="relative flex h-screen min-h-[620px] items-center justify-center overflow-hidden px-9 max-[900px]:px-5">
         <Image
           quality={90}
           src="/bookADemo.jpg"

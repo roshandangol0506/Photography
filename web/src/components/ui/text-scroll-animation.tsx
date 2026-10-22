@@ -127,10 +127,10 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
   const content = (
       // A section, not <main>: the site layout already provides the page's
       // one <main>.
-      <section className="w-full bg-white">
+      <section className="w-full">
         {/* Шапка-подсказка */}
-        <div className="top-22 absolute left-1/2 z-10 grid -translate-x-1/2 content-start justify-items-center gap-6 text-center text-black">
-          <span className="relative max-w-[12ch] text-xs uppercase leading-tight opacity-40 after:absolute after:left-1/2 after:top-full after:h-16 after:w-px after:bg-gradient-to-b after:from-[#f5f4f3] after:to-black after:content-['']">
+        <div className="top-22 absolute left-1/2 z-10 grid -translate-x-1/2 content-start justify-items-center gap-6 text-center text-md-light">
+          <span className="relative max-w-[12ch] text-xs uppercase leading-tight opacity-40 after:absolute after:left-1/2 after:top-full after:h-16 after:w-px after:bg-gradient-to-b after:from-transparent after:to-md-light after:content-['']">
             Scroll to see more
           </span>
         </div>
@@ -138,10 +138,10 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
         {/* Блок 1 — текст */}
         <div
           ref={targetRef}
-          className="relative box-border flex h-[210vh] items-center justify-center gap-[2vw] overflow-hidden bg-[#f5f4f3] p-[2vw]"
+          className="relative box-border flex h-[210vh] items-center justify-center gap-[2vw] overflow-hidden p-[2vw]"
         >
           <div
-            className="font-geist w-full max-w-4xl text-center text-6xl font-bold uppercase tracking-tighter text-black"
+            className="font-geist w-full max-w-4xl text-center text-6xl font-bold uppercase tracking-tighter text-md-light"
             style={{ perspective: "500px" }}
           >
             {characters.map((char, index) => (
@@ -159,12 +159,12 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
 
         <div
           ref={targetRef2}
-          className="relative -mt-[100vh] box-border flex h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden bg-[#f5f4f3] p-[2vw]"
+          className="relative -mt-[100vh] box-border flex h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]"
         >
-          <p className="font-geist flex items-center justify-center gap-3 text-2xl font-medium tracking-tight text-black">
-            <Bracket className="h-12 text-black" />
+          <p className="font-geist flex items-center justify-center gap-3 text-2xl font-medium tracking-tight text-md-light">
+            <Bracket className="h-12" />
             <span className="font-geist font-medium">integrate with your fav tech stack</span>
-            <Bracket className="h-12 scale-x-[-1] text-black" />
+            <Bracket className="h-12 scale-x-[-1]" />
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-8">
@@ -183,12 +183,12 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
         {/* Блок 3 — иконки (вариант с поворотом) */}
         <div
           ref={targetRef3}
-          className="relative -mt-[95vh] box-border flex h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden bg-[#f5f4f3] p-[2vw]"
+          className="relative -mt-[95vh] box-border flex h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]"
         >
-          <p className="font-geist flex items-center justify-center gap-3 text-2xl font-medium tracking-tight text-black">
-            <Bracket className="h-12 text-black" />
+          <p className="font-geist flex items-center justify-center gap-3 text-2xl font-medium tracking-tight text-md-light">
+            <Bracket className="h-12" />
             <span className="font-geist font-medium">integrate with your fav tech stack</span>
-            <Bracket className="h-12 scale-x-[-1] text-black" />
+            <Bracket className="h-12 scale-x-[-1]" />
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-8" style={{ perspective: "500px" }}>
@@ -215,7 +215,7 @@ const Bracket = ({ className }: { className: string }) => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" className={className}>
       <path
-        fill="#000"
+        fill="currentColor"
         d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"
       />
     </svg>

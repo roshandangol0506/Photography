@@ -122,13 +122,13 @@ export default async function PhotoDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="modernist min-h-screen bg-md-ground text-md-fg">
+    <div className="modernist min-h-screen text-md-fg">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <PhotoFrame className="flex justify-center bg-md-ink px-9 py-10 max-[900px]:px-4 max-[900px]:py-5">
+      <PhotoFrame className="flex justify-center px-9 py-10 max-[900px]:px-4 max-[900px]:py-5">
         <PhotoImage
           images={photo.images}
           variant="large"

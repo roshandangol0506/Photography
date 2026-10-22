@@ -1,9 +1,19 @@
+import type { CSSProperties } from "react";
+import { getImageProps } from "next/image";
 import { getActiveCategories, getSettings } from "@/lib/content";
 import { SiteProvider } from "@/components/providers/SiteProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { HomeNavbar } from "@/components/public/HomeNavbar";
 import { Footer } from "@/components/public/Footer";
 import { WhatsAppWidget } from "@/components/public/WhatsAppWidget";
+
+// The site's backdrop, behind every public page. The original is a ~17MB
+// camera file, so it goes through the image optimizer - at the same size as
+// the cinematic sections' copy of it, so the browser fetches it once.
+const BACKDROP = `url("${
+  getImageProps({ src: "/blackBg.jpg", alt: "", width: 2048, height: 1365 })
+    .props.src
+}")`;
 
 /**
  * Server Component: settings and categories are fetched here and handed to
@@ -32,7 +42,12 @@ export default async function PublicLayout({
   return (
     <QueryProvider>
       <SiteProvider settings={settings}>
-        <div className="modernist flex min-h-screen flex-col bg-md-ground text-md-fg">
+        {/* `dark` from the server, so the first paint is already light-on-dark
+            (SiteProvider adds it to <html> too, for portals). */}
+        <div
+          className="modernist dark site-backdrop flex min-h-screen flex-col text-md-fg"
+          style={{ "--site-bg": BACKDROP } as CSSProperties}
+        >
           <HomeNavbar overHero />
           <main className="flex-1">{children}</main>
           <WhatsAppWidget />

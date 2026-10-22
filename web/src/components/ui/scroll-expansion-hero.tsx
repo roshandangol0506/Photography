@@ -40,6 +40,12 @@ interface ScrollExpandMediaProps {
    * (e.g. hand back to the section above with its own transition).
    */
   onExitUp?: () => boolean;
+  /**
+   * Scrolling down once fully expanded (a fresh gesture, not the tail of the
+   * one that finished the expansion): return true to take that over, e.g. by
+   * sliding on to the next section. Otherwise the page scrolls on.
+   */
+  onExitDown?: () => boolean;
 }
 
 const ScrollExpandMedia = ({
@@ -54,6 +60,7 @@ const ScrollExpandMedia = ({
   children,
   entering = false,
   onExitUp,
+  onExitDown,
 }: ScrollExpandMediaProps) => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [showContent, setShowContent] = useState<boolean>(false);
@@ -116,6 +123,8 @@ const ScrollExpandMedia = ({
       if (mediaFullyExpanded && e.deltaY < 0 && atTop()) {
         setMediaFullyExpanded(false);
         e.preventDefault();
+      } else if (mediaFullyExpanded && e.deltaY > 0 && atTop()) {
+        if (onExitDown?.()) e.preventDefault();
       } else if (!mediaFullyExpanded) {
         // Only while parked at the top, and scrolling up from fully collapsed
         // hands control back to the page.
@@ -135,6 +144,10 @@ const ScrollExpandMedia = ({
         if (newProgress >= 1) {
           setMediaFullyExpanded(true);
           setShowContent(true);
+          // The rest of this gesture must not also carry on past the
+          // expanded photo: hold input until it has died away.
+          quiet.current.on = true;
+          quiet.current.last = performance.now();
         } else if (newProgress < 0.75) {
           setShowContent(false);
         }
@@ -155,6 +168,8 @@ const ScrollExpandMedia = ({
       if (mediaFullyExpanded && deltaY < -20 && atTop()) {
         setMediaFullyExpanded(false);
         e.preventDefault();
+      } else if (mediaFullyExpanded && deltaY > 20 && atTop()) {
+        if (onExitDown?.()) e.preventDefault();
       } else if (!mediaFullyExpanded) {
         if (!atTop()) return;
         if (deltaY < 0 && scrollProgress <= COLLAPSED) {
@@ -174,6 +189,10 @@ const ScrollExpandMedia = ({
         if (newProgress >= 1) {
           setMediaFullyExpanded(true);
           setShowContent(true);
+          // The rest of this gesture must not also carry on past the
+          // expanded photo: hold input until it has died away.
+          quiet.current.on = true;
+          quiet.current.last = performance.now();
         } else if (newProgress < 0.75) {
           setShowContent(false);
         }
@@ -236,7 +255,7 @@ const ScrollExpandMedia = ({
       );
       window.removeEventListener("touchend", handleTouchEnd as EventListener);
     };
-  }, [scrollProgress, mediaFullyExpanded, touchStartY, reduced, entering, onExitUp]);
+  }, [scrollProgress, mediaFullyExpanded, touchStartY, reduced, entering, onExitUp, onExitDown]);
 
   useEffect(() => {
     const checkIfMobile = (): void => {

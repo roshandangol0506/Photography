@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useSite } from "@/components/providers/SiteProvider";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ interface HomeNavbarProps {
 }
 
 export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
-  const { settings, isDark, toggleDark } = useSite();
+  const { settings } = useSite();
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -52,8 +52,9 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  const onLightBar = solid && !isDark;
-  const logo = onLightBar ? settings.logoDark || settings.logo : settings.logo;
+  // The site is always dark, so the bar never turns light: the light-ground
+  // logo variant (logoDark) isn't needed.
+  const logo = settings.logo;
 
   return (
     <header
@@ -111,20 +112,6 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
             <X className="h-[22px] w-[22px]" />
           ) : (
             <Menu className="h-[22px] w-[22px]" />
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={toggleDark}
-          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          aria-pressed={isDark}
-          className="md-navlink cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors duration-200 hover:text-md-red"
-        >
-          {isDark ? (
-            <Sun className="h-[15px] w-[15px] max-[900px]:h-[18px] max-[900px]:w-[18px]" />
-          ) : (
-            <Moon className="h-[15px] w-[15px] max-[900px]:h-[18px] max-[900px]:w-[18px]" />
           )}
         </button>
 

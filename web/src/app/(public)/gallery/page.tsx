@@ -69,7 +69,7 @@ export default async function GalleryPage({ searchParams }: PageProps) {
       categories.find((item) => item.slug === category)?.name ?? "";
 
     return (
-      <div className="modernist bg-md-ground text-md-fg">
+      <div className="modernist text-md-fg">
         <Header categories={categories} />
 
         <section className={`${SECTION_CLASS} pb-[90px]`}>
@@ -127,7 +127,7 @@ export default async function GalleryPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <div className="modernist bg-md-ground text-md-fg">
+    <div className="modernist text-md-fg">
       <Header categories={categories} />
 
       <div className="pb-[70px]">
