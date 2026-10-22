@@ -1,0 +1,392 @@
+/* =========================================================================
+   Cinematic story - full-screen scenes, one scroll gesture per scene.
+
+   After the scroll choreography of stockphotographynepal.com (traced frame
+   by frame from the live site). A change is one camera move of ~1.3s:
+
+     0    -> .5D   the current composition accelerates out of frame
+     .34D -> .89D  the next one's photos rise in as narrow masked windows -
+                   emerging from the bottom edge (top, going up) and opening
+                   to their full panels, staggered 90ms apart, the picture
+                   settling from 1.12 to 1.0 inside its mask
+     .58D -> .92D  titles rise last, each behind its own mask
+
+   Going up mirrors every move. CinematicStory's SETTLE waits for the last
+   title. Namespaced under .story; only transform, opacity and clip-path
+   animate.
+   ========================================================================= */
+
+.story {
+  --story-d: 1300ms;
+  --story-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Slow off the mark, then gone - the reference's exit. */
+  --story-exit-ease: cubic-bezier(0.55, 0, 0.78, 0.2);
+  --story-light: #f8f4f4; /* md-light */
+  --story-accent: #ec3013; /* md-red */
+  /* The fixed navbar is ~70px once solid; scenes start below it. */
+  --story-top: 72px;
+  --g: clamp(6px, 0.7vw, 12px);
+
+  /* Direction-dependent pieces of the choreography. An incoming panel waits
+     as the bottom 40% of itself, 75% of a screen low: for every slot that is
+     wholly below the stage, so nothing peeks in before its cue - it emerges
+     from the screen edge as it rises. */
+  --s-out: -100%;
+  --s-from-y: 75svh;
+  --s-clip: inset(60% 28% 0 28%);
+  --s-rise: 105%;
+
+  position: relative;
+  height: calc(var(--story-n) * 100vh);
+  height: calc(var(--story-n) * 100svh);
+  background: #111;
+  color: var(--story-light);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+.story[data-dir="up"] {
+  --s-out: 100%;
+  --s-from-y: -75svh;
+  --s-clip: inset(0 28% 60% 28%);
+  --s-rise: -105%;
+}
+
+/* Pinned while the section is under the viewport; the scenes stack in it. */
+.story-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--story-bg) center / cover no-repeat, #111;
+}
+
+/* ---------------------------------------------------------------- scenes */
+
+.story-scene {
+  position: absolute;
+  inset: var(--story-top) 0 0 0;
+  z-index: 1;
+  display: grid;
+  gap: var(--g);
+  padding: 0 var(--g) var(--g);
+  visibility: hidden;
+}
+.story-scene[data-state="current"],
+.story-scene[data-state="enter"],
+.story-scene[data-state="leave"] {
+  visibility: visible;
+}
+/* The incoming composition draws over the outgoing one. */
+.story-scene[data-state="enter"] {
+  z-index: 2;
+}
+
+.story-scene--pair {
+  grid-template-columns: 1fr 1fr;
+}
+.story-scene--trio {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1.15fr 1fr;
+}
+.story-scene--trio > .story-panel:first-child {
+  grid-column: 1 / -1;
+}
+.story-scene--feature {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1.35fr 1fr;
+}
+.story-scene--feature > .story-panel:first-child {
+  grid-row: 1 / -1;
+}
+
+/* ---------------------------------------------------------------- panels */
+
+.story-panel {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  /* Shows only until the photo decodes - never a white flash. */
+  background: rgb(0 0 0 / 0.5);
+}
+.story-pic {
+  position: absolute;
+  inset: 0;
+}
+.story-img {
+  object-fit: cover;
+}
+/* Shade for the caption. */
+.story-pic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0) 45%,
+    rgb(0 0 0 / 0.55) 100%
+  );
+}
+
+.story-cap {
+  position: absolute;
+  left: clamp(16px, 2.2vw, 34px);
+  right: clamp(16px, 2.2vw, 34px);
+  bottom: clamp(14px, 2.2vw, 30px);
+  z-index: 1;
+}
+.story-mask {
+  display: block;
+  overflow: hidden;
+  /* Room for descenders inside the mask. */
+  padding-bottom: 0.06em;
+}
+.story-title {
+  display: block;
+  font-size: clamp(24px, 3.4vw, 60px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.3);
+}
+.story-sub {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.story-panel--link {
+  display: grid;
+  place-items: center;
+  background: transparent;
+}
+.story-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--story-light);
+  font-size: clamp(13px, 1vw, 16px);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.story-link:hover,
+.story-link:focus-visible {
+  color: var(--story-accent);
+}
+.story-link svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ----------------------------------------------------------------- intro */
+
+.story-scene--intro {
+  align-content: center;
+  padding-inline: clamp(24px, 9vw, 160px);
+}
+.story-intro {
+  display: grid;
+  gap: clamp(18px, 2.4vw, 36px);
+  max-width: 60ch;
+}
+.story-rise {
+  display: block;
+}
+.story-eyebrow {
+  color: var(--story-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.story-lede {
+  margin: 0;
+  font-size: clamp(18px, 1.55vw, 27px);
+  line-height: 1.6;
+  color: rgb(248 244 244 / 0.86);
+}
+.story-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--story-light);
+  font: inherit;
+  font-size: clamp(18px, 1.6vw, 26px);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.story-cta svg {
+  width: 1.2em;
+  height: 1.2em;
+  color: var(--story-accent);
+}
+.story-cta:hover,
+.story-cta:focus-visible {
+  color: var(--story-accent);
+}
+
+/* ---------------------------------------------------------------- chrome */
+
+.story-count {
+  position: absolute;
+  top: 50%;
+  right: clamp(10px, 1.4vw, 24px);
+  z-index: 5;
+  margin: 0;
+  translate: 0 -50%;
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
+  pointer-events: none;
+}
+.story-count span {
+  opacity: 0.5;
+}
+.story-cue {
+  position: absolute;
+  bottom: clamp(18px, 3svh, 32px);
+  left: clamp(10px, 1.4vw, 24px);
+  z-index: 5;
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------- motion */
+
+@keyframes story-out {
+  to {
+    transform: translate3d(0, var(--s-out), 0);
+  }
+}
+@keyframes story-panel-in {
+  from {
+    transform: translate3d(0, var(--s-from-y), 0);
+    clip-path: var(--s-clip);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes story-zoom {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes story-rise {
+  from {
+    transform: translate3d(0, var(--s-rise), 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes story-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes story-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.story[data-motion="full"] .story-scene[data-state="leave"] {
+  animation: story-out calc(var(--story-d) * 0.5) var(--story-exit-ease) both;
+}
+.story[data-motion="full"] .story-scene[data-state="enter"] .story-panel {
+  animation: story-panel-in calc(var(--story-d) * 0.55) var(--story-ease)
+    calc(var(--story-d) * 0.34 + var(--i, 0) * 90ms) both;
+}
+.story[data-motion="full"] .story-scene[data-state="enter"] .story-pic {
+  animation: story-zoom calc(var(--story-d) * 0.55) var(--story-ease)
+    calc(var(--story-d) * 0.34 + var(--i, 0) * 90ms) both;
+}
+.story[data-motion="full"] .story-scene[data-state="enter"] .story-title,
+.story[data-motion="full"] .story-scene[data-state="enter"] .story-sub,
+.story[data-motion="full"] .story-scene[data-state="enter"] .story-link {
+  animation: story-rise calc(var(--story-d) * 0.34) var(--story-ease)
+    calc(var(--story-d) * 0.58 + var(--i, 0) * 80ms) both;
+}
+.story[data-motion="full"] .story-scene[data-state="enter"] .story-rise {
+  animation: story-rise calc(var(--story-d) * 0.5) var(--story-ease)
+    calc(var(--story-d) * 0.36 + var(--i, 0) * 90ms) both;
+}
+
+/* Reduced motion: scenes cross-fade in place, nothing travels. */
+.story[data-motion="reduced"] .story-scene[data-state="enter"] {
+  animation: story-fade-in 0.35s ease both;
+}
+.story[data-motion="reduced"] .story-scene[data-state="leave"] {
+  animation: story-fade-out 0.3s ease both;
+}
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 900px) {
+  .story {
+    --story-top: 64px;
+  }
+}
+
+@media (max-width: 700px) {
+  .story-scene--pair {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+  .story-scene--feature {
+    grid-template-rows: 1.4fr 1fr;
+  }
+  .story-scene--feature > .story-panel:first-child {
+    grid-row: auto;
+    grid-column: 1 / -1;
+  }
+  .story-lede {
+    font-size: clamp(16px, 4.3vw, 19px);
+    line-height: 1.55;
+  }
+  /* Half-width phone panels are ~185px: titles size to the screen so a
+     two-word title fits on its lines without being cut. */
+  .story-title {
+    font-size: clamp(15px, 4.6vw, 22px);
+    line-height: 1.05;
+  }
+  .story-cap {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .story-count,
+  .story-cue {
+    display: none;
+  }
+}

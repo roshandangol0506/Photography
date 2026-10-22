@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import ScrollExpansionDemo from "./demo";
+import { ScrollExpansion } from "@/components/public/sections/ScrollExpansion";
 
 /**
- * Scratch page for viewing the scroll-expansion hero in isolation.
+ * Scratch page for viewing the scroll-expansion section in isolation. The
+ * section itself now lives in ScrollExpansion, which the home page also uses.
  *
  * Not linked from anywhere and not in the sitemap (that file is an explicit
- * list). Delete this route once the hero has been placed on a real page.
+ * list).
  */
 export const metadata: Metadata = {
   title: "Scroll expansion preview",
@@ -13,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function ScrollExpansionPreviewPage() {
-  return <ScrollExpansionDemo />;
+  return <ScrollExpansion />;
 }

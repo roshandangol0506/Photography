@@ -191,9 +191,6 @@ function AppearanceForm({ settings }: { settings: SiteSettings }) {
               <option value="photography">
                 D — Photography (Ken Burns + crossfade)
               </option>
-              <option value="cinematic">
-                E — Cinematic (layered, click left/right to navigate)
-              </option>
             </Select>
           </div>
         </div>

@@ -4,7 +4,7 @@ import "./cinematic.css";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { MoveLeft, MoveRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +62,21 @@ const SLOTS = [-1, 0, 1, 2] as const;
 const WIDE_SIZES = "(max-width: 600px) 47vw, 43vw";
 const NARROW_SIZES = "(max-width: 600px) 29vw, 27vw";
 
+// The textured backdrop. The original is a ~17MB camera-size file, so it goes
+// through the image optimizer (2048px WebP) rather than straight to CSS.
+const BACKGROUND = `url("${
+  getImageProps({ src: "/blackBg2.jpg", alt: "", width: 2048, height: 1365 })
+    .props.src
+}")`;
+
+// The arrow's lean inside the 200px cursor ring: at most 28px off centre (the
+// 22px arrow stays well inside), reached at 24px of pointer travel per event;
+// eased 18% of the way each frame, and released after 80ms without movement.
+const ARROW_MAX_PX = 28;
+const ARROW_FULL_SPEED = 24;
+const ARROW_EASE = 0.18;
+const ARROW_IDLE_MS = 80;
+
 const SWIPE_MIN_PX = 50;
 // A swipe can still end in a click on the zone under the finger.
 const SWIPE_CLICK_GUARD_MS = 500;
@@ -71,14 +86,19 @@ const LINE_STAGGER_MS = 30;
 
 /**
  * How long one step takes end to end, from the timeline in cinematic.css:
- * the photos are done by 90% of the duration and the last line of copy
- * (three staggers in, running 85%) just after. Navigation stays locked until
- * then, so a new step never restarts anything mid-flight.
+ * the photos are done by 90% of the duration, the last line of copy (three
+ * staggers in, running 85%) just after; the incoming backdrop lands with the
+ * photos at 88%. Navigation stays locked until all of it is done, so a new
+ * step never restarts anything mid-flight or snaps the backdrop into place.
  */
 function settleTime(duration: number, motion: "full" | "reduced" | "off") {
   if (motion === "off") return 0;
   if (motion === "reduced") return REDUCED_MS;
-  return Math.round(duration * 0.9) + 3 * LINE_STAGGER_MS + 40;
+  return (
+    Math.round(
+      Math.max(duration * 0.9 + 3 * LINE_STAGGER_MS, duration * 0.88),
+    ) + 40
+  );
 }
 
 const wrap = (index: number, count: number) =>
@@ -138,6 +158,20 @@ export function CinematicSlider({
 
   const rootRef = useRef<HTMLElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<HTMLDivElement>(null);
+  // Arrow drift inside the ring: last pointer position, the offset the
+  // movement asks for (target) and the offset currently drawn, all in px.
+  const drift = useRef({
+    lastX: 0,
+    lastY: 0,
+    tracking: false,
+    lastMove: 0,
+    tx: 0,
+    ty: 0,
+    x: 0,
+    y: 0,
+    raf: 0,
+  });
   const busy = useRef(animate);
   const timer = useRef<number | undefined>(undefined);
   const frame = useRef(0);
@@ -222,6 +256,34 @@ export function CinematicSlider({
     };
   }, [go]);
 
+  // The arrow inside the cursor ring leans the way the mouse is moving and
+  // settles back to the centre when it stops. Eased once a frame, and only
+  // while there is something to animate.
+  const stepDrift = useCallback(() => {
+    const d = drift.current;
+    // No movement for a moment: the mouse has stopped, so let go of the lean.
+    if (performance.now() - d.lastMove > ARROW_IDLE_MS) {
+      d.tx = 0;
+      d.ty = 0;
+    }
+    d.x += (d.tx - d.x) * ARROW_EASE;
+    d.y += (d.ty - d.y) * ARROW_EASE;
+    const settled =
+      d.tx === 0 && d.ty === 0 && Math.abs(d.x) < 0.1 && Math.abs(d.y) < 0.1;
+    if (settled) {
+      d.x = 0;
+      d.y = 0;
+    }
+    if (arrowRef.current)
+      arrowRef.current.style.transform = `translate3d(${d.x.toFixed(2)}px, ${d.y.toFixed(2)}px, 0)`;
+    d.raf = settled ? 0 : requestAnimationFrame(stepDrift);
+  }, []);
+
+  useEffect(() => {
+    const d = drift.current;
+    return () => cancelAnimationFrame(d.raf);
+  }, []);
+
   // Mouse only: the custom cursor and the parallax both follow it. Written
   // straight to the DOM once a frame, so moving the mouse never re-renders.
   const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
@@ -231,6 +293,26 @@ export function CinematicSlider({
     const rect = root.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
+
+    // Direction of travel since the last event. Normalised, so a diagonal
+    // leans no further than a straight move; scaled by speed and capped, so
+    // the arrow never leaves the ring.
+    const d = drift.current;
+    if (d.tracking && !reduced) {
+      const dx = event.clientX - d.lastX;
+      const dy = event.clientY - d.lastY;
+      const speed = Math.hypot(dx, dy);
+      if (speed > 0.5) {
+        const lean = Math.min(speed / ARROW_FULL_SPEED, 1) * ARROW_MAX_PX;
+        d.tx = (dx / speed) * lean;
+        d.ty = (dy / speed) * lean;
+        d.lastMove = performance.now();
+        if (!d.raf) d.raf = requestAnimationFrame(stepDrift);
+      }
+    }
+    d.lastX = event.clientX;
+    d.lastY = event.clientY;
+    d.tracking = true;
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
       root.dataset.cursor = "on";
@@ -252,6 +334,13 @@ export function CinematicSlider({
     const root = rootRef.current;
     if (!root) return;
     cancelAnimationFrame(frame.current);
+    // Re-centre the arrow, and measure afresh next time the mouse comes in
+    // rather than from wherever it left.
+    const d = drift.current;
+    d.tracking = false;
+    d.tx = 0;
+    d.ty = 0;
+    if (!d.raf) d.raf = requestAnimationFrame(stepDrift);
     root.dataset.cursor = "off";
     root.style.setProperty("--cine-mx", "0");
     root.style.setProperty("--cine-my", "0");
@@ -291,7 +380,12 @@ export function CinematicSlider({
       ref={rootRef}
       id={id}
       className={cn("cine", className)}
-      style={{ "--cine-d": `${duration}ms` } as CSSProperties}
+      style={
+        {
+          "--cine-d": `${duration}ms`,
+          "--cine-bg": BACKGROUND,
+        } as CSSProperties
+      }
       data-dir={view.direction === 1 ? "next" : "prev"}
       data-motion={motion}
       data-busy={view.entering}
@@ -307,6 +401,24 @@ export function CinematicSlider({
       onPointerCancel={() => (touchStart.current = null)}
     >
       {pageHeading && <h1 className="sr-only">{pageHeading}</h1>}
+
+      {/* Backdrop: on each step an identical layer slides in over the old
+          one, which drifts away beneath it. Keyed like the copy, so the
+          current layer is the same node that then plays its exit. */}
+      <div className="cine-bg" aria-hidden="true">
+        {view.previous !== null && (
+          <div
+            key={`bg-${view.previous}`}
+            className="cine-bg-layer"
+            data-state="leave"
+          />
+        )}
+        <div
+          key={`bg-${view.pos}`}
+          className="cine-bg-layer"
+          data-state={view.previous !== null ? "enter" : "idle"}
+        />
+      </div>
 
       <div className="cine-strip">
         {SLOTS.map((slot) => {
@@ -396,8 +508,11 @@ export function CinematicSlider({
               any scaling, so a size change can never move the position. */}
           <div ref={cursorRef} className="cine-cursor" aria-hidden="true">
             <div className="cine-cursor-ring">
-              <MoveLeft className="cine-cursor-prev" strokeWidth={1.5} />
-              <MoveRight className="cine-cursor-next" strokeWidth={1.5} />
+              {/* Only this moves: it leans with the mouse inside the ring. */}
+              <div ref={arrowRef} className="cine-cursor-arrow">
+                <MoveLeft className="cine-cursor-prev" strokeWidth={1.5} />
+                <MoveRight className="cine-cursor-next" strokeWidth={1.5} />
+              </div>
             </div>
           </div>
           <p className="cine-count" aria-hidden="true">

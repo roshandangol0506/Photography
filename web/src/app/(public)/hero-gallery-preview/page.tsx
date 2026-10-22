@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { HeroDemo1, HeroDemo2, HeroDemo3 } from "./demo";
+import {
+  HeroDemo1,
+  HeroDemo2,
+  HeroDemo3,
+} from "@/components/public/sections/HeroGallery";
 
 /**
  * Scratch page for viewing the bento scroll hero in isolation.

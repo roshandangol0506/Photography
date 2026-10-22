@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Photo } from "@/types/content";
 import Image from "next/image";
 import { useSite } from "@/components/providers/SiteProvider";

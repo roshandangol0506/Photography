@@ -14,6 +14,7 @@ import {
 } from "framer-motion"
 
 import { cn } from "@/lib/utils"
+import { useReducedMotion } from "@/hooks/useReducedMotion"
 
 const bentoGridVariants = cva(
   "relative grid gap-4 [&>*:first-child]:origin-top-right [&>*:nth-child(3)]:origin-bottom-right [&>*:nth-child(4)]:origin-top-right",
@@ -48,6 +49,8 @@ const bentoGridVariants = cva(
 
 interface ContainerScrollContextValue {
   scrollYProgress: MotionValue<number>
+  /** 0 until the container's top reaches the top of the screen. */
+  pinProgress: MotionValue<number>
 }
 const ContainerScrollContext = React.createContext<
   ContainerScrollContextValue | undefined
@@ -70,8 +73,15 @@ const ContainerScroll = ({
   const { scrollYProgress } = useScroll({
     target: scrollRef,
   })
+  // Separate from the progress above (which keeps its original mapping):
+  // lets the heading know whether the section has been reached yet, so it
+  // stays put in the page until then instead of floating over what's above.
+  const { scrollYProgress: pinProgress } = useScroll({
+    target: scrollRef,
+    offset: ["start start", "end end"],
+  })
   return (
-    <ContainerScrollContext.Provider value={{ scrollYProgress }}>
+    <ContainerScrollContext.Provider value={{ scrollYProgress, pinProgress }}>
       <div
         ref={scrollRef}
         className={cn("relative min-h-screen w-full", className)}
@@ -102,12 +112,14 @@ const BentoCell = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
     const { scrollYProgress } = useContainerScrollContext()
     const translate = useTransform(scrollYProgress, [0.1, 0.9], ["-35%", "0%"])
     const scale = useTransform(scrollYProgress, [0, 0.9], [0.5, 1])
+    // Reduced motion: cells at their full, final size; no scroll scaling.
+    const reduced = useReducedMotion()
 
     return (
       <motion.div
         ref={ref}
         className={className}
-        style={{ translate, scale, ...style }}
+        style={reduced ? style : { translate, scale, ...style }}
         {...props}
       ></motion.div>
     )
@@ -117,24 +129,42 @@ BentoCell.displayName = "BentoCell"
 
 const ContainerScale = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
   ({ className, style, ...props }, ref) => {
-    const { scrollYProgress } = useContainerScrollContext()
+    const { scrollYProgress, pinProgress } = useContainerScrollContext()
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
     const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
-    const position = useTransform(scrollYProgress, (pos) =>
-      pos >= 0.6 ? "absolute" : "fixed"
+    // Before the section is reached it sits at the centre of the section's
+    // first screen (absolute, 50vh down) and scrolls in with the page; once
+    // pinned, it is fixed to the screen centre - the same spot - until 0.6.
+    const position = useTransform(
+      [scrollYProgress, pinProgress],
+      ([pos, pin]: number[]) =>
+        pin <= 0 || pos >= 0.6 ? "absolute" : "fixed"
     )
+    const top = useTransform(pinProgress, (pin) => (pin <= 0 ? "50vh" : "50%"))
+    // Reduced motion: the heading simply sits in the section's first screen.
+    const reduced = useReducedMotion()
     return (
       <motion.div
         ref={ref}
         className={cn("left-1/2 top-1/2  size-fit", className)}
-        style={{
-          translate: "-50% -50%",
-          scale,
-          position,
-          opacity,
-          ...style,
-        }}
+        style={
+          reduced
+            ? {
+                translate: "-50% -50%",
+                position: "absolute",
+                top: "50vh",
+                ...style,
+              }
+            : {
+                translate: "-50% -50%",
+                scale,
+                position,
+                top,
+                opacity,
+                ...style,
+              }
+        }
         {...props}
       />
     )

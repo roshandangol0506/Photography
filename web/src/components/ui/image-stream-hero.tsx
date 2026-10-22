@@ -90,20 +90,59 @@ const PATH: Required<CorridorPath> = {
   stops: 24,
 };
 
+/** Where a card is at progress u (0 = born, 1 = gone) along the corridor. */
+function along(u: number, p: Required<CorridorPath>) {
+  // Geometric in apparent size, so consecutive cards keep a constant size
+  // ratio and the ribbon stays solid at both ends.
+  const scale =
+    (p.birthHeight / p.cardHeight) * Math.pow(p.exitHeight / p.birthHeight, u);
+  const z = p.perspective * (1 - 1 / scale);
+  const rail = p.railExit - (p.railExit - p.railBirth) * Math.pow(1 - u, p.fan);
+  const turn = p.turnBirth + (p.turnExit - p.turnBirth) * u;
+  return { scale, z, rail, turn };
+}
+
+/* ── the entrance ────────────────────────────────────────────────
+ * On load the corridor starts gathered into a small cluster round the
+ * centre and bursts outward into place, nearest-the-centre cards first.
+ *
+ * It never touches a card's own transform - that belongs to the endless
+ * keyframes. Each card sits in a preserve-3d wrapper that carries a one-off
+ * offset in corridor space, (dx, 0, dz), animating to zero. Under the
+ * projection a card at depth z is drawn s = P / (P - z) times its size and
+ * its x is scaled by the same s, so the start offset is solved per card:
+ * pushed back to z' where it draws at SIZE * s, and across to x' where
+ * x' * s' = GATHER * x * s - i.e. at GATHER of its real distance from the
+ * centre. As the offset eases to zero each card lands exactly where the
+ * endless animation has it, and that animation runs underneath the whole
+ * time, so there is nothing to hand over and no frame where anything snaps.
+ * ─────────────────────────────────────────────────────────────── */
+
+/** Cards start at this share of their real distance from the centre. */
+const INTRO_GATHER = 0.12;
+/**
+ * Cards start at this share of their real size: pushed back along the
+ * corridor's depth, so the gathered cluster reads as a compact ribbon rather
+ * than a pile of full-size near cards. 1 keeps every card at its size.
+ */
+const INTRO_SIZE = 0.4;
+/** Start once the photos are decoded, but never wait longer than this. */
+const INTRO_WAIT_MS = 1200;
+/** Seconds each card takes to travel out. */
+const INTRO_DURATION = 1.4;
+/** Seconds before the first (most central) card moves. */
+const INTRO_FIRST = 0.1;
+/** Seconds between successive cards, ordered from the centre outward. */
+const INTRO_STAGGER = 0.04;
+/** Fast off the mark, long soft landing. */
+const INTRO_EASE = "cubic-bezier(0.19, 1, 0.22, 1)";
+
 /** Sample the path once so the CSS keyframes trace the real curve. */
 function keyframes(dir: 1 | -1, name: string, p: Required<CorridorPath>) {
   const steps: string[] = [];
   for (let s = 0; s <= p.stops; s++) {
     const u = s / p.stops;
-    // Geometric in apparent size, so consecutive cards keep a constant size
-    // ratio and the ribbon stays solid at both ends.
-    const scale =
-      (p.birthHeight / p.cardHeight) *
-      Math.pow(p.exitHeight / p.birthHeight, u);
-    const z = p.perspective * (1 - 1 / scale);
-    const rail =
-      p.railExit - (p.railExit - p.railBirth) * Math.pow(1 - u, p.fan);
-    const turn = p.turnBirth + (p.turnExit - p.turnBirth) * u;
+    const { z, rail, turn } = along(u, p);
     steps.push(
       `${(u * 100).toFixed(2)}%{transform:translate3d(${(dir * rail).toFixed(
         2,
@@ -154,6 +193,12 @@ export type ImageStreamHeroProps = {
   axis?: number;
   /** Override any part of the corridor geometry. Merged over the defaults. */
   path?: CorridorPath;
+  /**
+   * Play the entrance on load: the cards start gathered at the centre and
+   * scatter out to their places before the endless motion carries on.
+   * @default true
+   */
+  intro?: boolean;
   /** Content rendered above the corridor. */
   children?: React.ReactNode;
   className?: string;
@@ -167,6 +212,7 @@ export function ImageStreamHero({
   speed = 18,
   axis = 55,
   path,
+  intro = true,
   children,
   className,
   ...props
@@ -175,17 +221,73 @@ export function ImageStreamHero({
   const right = `ish-r-${id}`;
   const left = `ish-l-${id}`;
   const card = `ish-c-${id}`;
+  const gather = `ish-g-${id}`;
+  const scatter = `ish-s-${id}`;
 
   const p = React.useMemo(() => ({ ...PATH, ...path }), [path]);
+
+  // The entrance, per card slot (both rails mirror each other). Slot i starts
+  // the page at progress i / cards - that is its negative delay - so where it
+  // really is on screen is known: x = rail at depth z, drawn `scale` times.
+  // Slots are ranked by that on-screen distance, so the most central cards
+  // set off first and the outermost last.
+  const entrance = React.useMemo(() => {
+    const P = p.perspective;
+    const slots = Array.from({ length: cards }, (_, i) => {
+      const { rail, scale, z } = along(i / cards, p);
+      const startScale = INTRO_SIZE * scale;
+      const startZ = P * (1 - 1 / startScale);
+      const startX = (INTRO_GATHER * rail * scale) / startScale;
+      return {
+        dx: startX - rail,
+        dz: startZ - z,
+        onScreen: Math.abs(rail * scale),
+      };
+    });
+    const rank: number[] = [];
+    slots
+      .map((s, i) => [s.onScreen, i] as const)
+      .sort((a, b) => a[0] - b[0])
+      .forEach(([, i], r) => (rank[i] = r));
+    return slots.map((s, i) => ({
+      dx: s.dx,
+      dz: s.dz,
+      delay: INTRO_FIRST + rank[i] * INTRO_STAGGER,
+    }));
+  }, [cards, p]);
+
+  // Hold the entrance (cards hidden, offsets paused) until the photos are
+  // decoded, so it never plays out over empty cards - capped, so a slow
+  // network never holds the hero back.
+  const stageRef = React.useRef<HTMLDivElement>(null);
+  const [ready, setReady] = React.useState(!intro);
+  React.useEffect(() => {
+    if (!intro) return;
+    let settled = false;
+    const start = () => {
+      if (settled) return;
+      settled = true;
+      setReady(true);
+    };
+    const cap = window.setTimeout(start, INTRO_WAIT_MS);
+    const imgs = [...(stageRef.current?.querySelectorAll("img") ?? [])];
+    Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(start);
+    return () => {
+      settled = true;
+      window.clearTimeout(cap);
+    };
+  }, [intro]);
 
   const css = React.useMemo(
     () =>
       `${keyframes(1, right, p)}${keyframes(-1, left, p)}` +
+      `@keyframes ${scatter}{from{transform:translate3d(var(--ish-dx),0,var(--ish-dz))}to{transform:translate3d(0,0,0)}}` +
       // Pausing rather than disabling keeps the corridor whole: every card is
       // already dropped mid-flight by its negative delay, so it freezes as a
-      // finished still instead of collapsing onto the axis.
-      `@media(prefers-reduced-motion:reduce){.${card}{animation-play-state:paused}}`,
-    [right, left, card, p],
+      // finished still instead of collapsing onto the axis. The entrance is
+      // skipped outright: the cards are simply in place, shown at once.
+      `@media(prefers-reduced-motion:reduce){.${card}{animation-play-state:paused;opacity:1!important}.${gather}{animation:none!important}}`,
+    [right, left, card, gather, scatter, p],
   );
 
   return (
@@ -205,22 +307,47 @@ export function ImageStreamHero({
         }}
       >
         <div
+          ref={stageRef}
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >
           {(
             [
-              [right, rightImages ?? images],
-              [left, leftImages ?? images],
+              [right, rightImages ?? images, 1],
+              [left, leftImages ?? images, -1],
             ] as const
-          ).map(([name, rail]) =>
+          ).map(([name, rail, dir]) =>
             Array.from({ length: cards }, (_, i) => {
               // Without a list of its own, each rail walks the shared
               // sequence, so the left side mirrors the right at every depth.
               const img = rail[i % Math.max(rail.length, 1)];
+              // Where the endless animation starts this card. A running
+              // animation always overrides it; it only shows if animations
+              // are stripped (the site's global reduced-motion rule does
+              // that), leaving the corridor as a finished still instead of
+              // every card collapsed onto the axis.
+              const rest = along(i / cards, p);
               return (
+                // The entrance wrapper: preserve-3d so the card inside keeps
+                // its depth; its shift eases from the centre to zero.
                 <div
                   key={`${name}-${i}`}
+                  className={gather}
+                  style={
+                    {
+                      position: "absolute",
+                      inset: 0,
+                      transformStyle: "preserve-3d",
+                      ...(intro && {
+                        "--ish-dx": `${(dir * entrance[i].dx).toFixed(2)}cqw`,
+                        "--ish-dz": `${entrance[i].dz.toFixed(2)}cqw`,
+                        animation: `${scatter} ${INTRO_DURATION}s ${INTRO_EASE} ${entrance[i].delay.toFixed(2)}s both`,
+                        animationPlayState: ready ? "running" : "paused",
+                      }),
+                    } as React.CSSProperties
+                  }
+                >
+                <div
                   className={cn(card, "absolute overflow-hidden")}
                   style={{
                     left: "50%",
@@ -230,11 +357,19 @@ export function ImageStreamHero({
                     marginLeft: `${-p.cardWidth / 2}cqw`,
                     marginTop: `${-p.cardHeight / 2}cqw`,
                     borderRadius: `${p.cardRadius}cqw`,
+                    transform: `translate3d(${(dir * rest.rail).toFixed(2)}cqw,0,${rest.z.toFixed(2)}cqw) rotateY(${(-dir * rest.turn).toFixed(2)}deg)`,
                     animation: `${name} ${speed}s linear infinite`,
                     // Negative delay drops each card mid-flight, so the
                     // corridor is already full on the first frame.
                     animationDelay: `${-(i * speed) / cards}s`,
                     backfaceVisibility: "hidden",
+                    // Hidden until the entrance can start. On the card, not
+                    // the wrapper: opacity on a preserve-3d wrapper would
+                    // flatten the corridor's depth.
+                    ...(intro && {
+                      opacity: ready ? 1 : 0,
+                      transition: "opacity .45s ease",
+                    }),
                   }}
                 >
                   {img ? (
@@ -247,6 +382,7 @@ export function ImageStreamHero({
                       draggable={false}
                     />
                   ) : null}
+                </div>
                 </div>
               );
             }),

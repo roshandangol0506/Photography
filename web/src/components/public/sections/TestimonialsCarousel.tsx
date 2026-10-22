@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Testimonial } from "@/types/content";
 import { useSite } from "@/components/providers/SiteProvider";
 import { MdReveal } from "@/components/public/MdReveal";

@@ -24,8 +24,8 @@ const photo = (n: number, width: number) =>
 // carries the meaning - so alt stays empty.
 const IMAGES = [
   photo(5, 1080), // masked dancer above a festival crowd
-  photo(10, 480), // close portrait of a young girl
-  photo(15, 480), // boy in sunglasses in a shower of orange powder
+  photo(10, 480), // snow-dusted Himalayan peak against a blue sky
+  photo(15, 480), // girl in a red festival costume in a dark doorway
   photo(1, 720), // woman working in a green rice field
   photo(9, 720), // girl with eyes closed, orange powder in her hair
 ];
@@ -49,9 +49,9 @@ const HeroDemo1 = () => {
       </BentoGrid>
 
       <ContainerScale className="relative z-10 text-center">
-        <h1 className="max-w-xl text-5xl font-bold tracking-tighter text-slate-800 ">
+        <h2 className="max-w-xl text-5xl font-bold tracking-tighter text-slate-800 ">
           Your Animated Hero
-        </h1>
+        </h2>
         <p className="my-6 max-w-xl text-sm text-slate-700 md:text-base">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
@@ -93,9 +93,9 @@ const HeroDemo2 = () => {
         ))}
       </BentoGrid>
       <ContainerScale className="text-center">
-        <h1 className="max-w-xl text-5xl font-bold tracking-tighter">
+        <h2 className="max-w-xl text-5xl font-bold tracking-tighter">
           Your Animated Hero
-        </h1>
+        </h2>
         <p className="my-6 max-w-xl text-sm text-stone-500 md:text-base">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
@@ -137,9 +137,9 @@ const HeroDemo3 = () => {
         ))}
       </BentoGrid>
       <ContainerScale className="text-center">
-        <h1 className="max-w-xl text-5xl font-bold tracking-tighter ">
+        <h2 className="max-w-xl text-5xl font-bold tracking-tighter ">
           Your Animated Hero
-        </h1>
+        </h2>
         <p className="my-6 max-w-xl text-sm opacity-80 md:text-base">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.

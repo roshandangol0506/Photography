@@ -4,13 +4,18 @@ import {
   getActiveCategories,
   getActiveCollections,
   getActiveTestimonials,
-  getBackgroundPhotos,
   getPhotos,
   getSettings,
   getSideScrollPhotos,
 } from "@/lib/content";
-import { Hero } from "@/components/public/sections/Hero";
+import { StreamHero } from "@/components/public/sections/StreamHero";
 import { FeaturedPhotos } from "@/components/public/sections/FeaturedPhotos";
+import { CinematicStory } from "@/components/public/sections/CinematicStory";
+import { ScrollExpansion } from "@/components/public/sections/ScrollExpansion";
+import { CinematicSliderSection } from "@/components/public/sections/CinematicSliderSection";
+import { HeroDemo1 as HeroGallery } from "@/components/public/sections/HeroGallery";
+import { SmoothScrollHero } from "@/components/ui/modern-hero";
+import { Skiper31 as TextScroll } from "@/components/ui/text-scroll-animation";
 import { AboutSection } from "@/components/public/sections/AboutSection";
 import { RecentWorks } from "@/components/public/sections/RecentWorks";
 import { AwardsTimeline } from "@/components/public/sections/AwardsTimeline";
@@ -23,8 +28,7 @@ import { ContactSection } from "@/components/public/sections/ContactSection";
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const title = settings?.siteTitle ?? "Photography Portfolio";
-  const description =
-    settings?.seo?.metaDescription || settings?.tagline || "";
+  const description = settings?.seo?.metaDescription || settings?.tagline || "";
 
   return {
     // Home overrides the layout's "%s | site" template with its own absolute
@@ -52,7 +56,6 @@ export default async function HomePage() {
   // would add latency for no reason.
   const [
     settings,
-    background,
     featured,
     recent,
     awards,
@@ -62,7 +65,6 @@ export default async function HomePage() {
     testimonials,
   ] = await Promise.all([
     getSettings(),
-    getBackgroundPhotos(),
     getPhotos({ featured: true, perpage: 3 }),
     getPhotos({ perpage: 6 }),
     getActiveAwards(),
@@ -72,16 +74,20 @@ export default async function HomePage() {
     getActiveTestimonials(),
   ]);
 
-  // The cinematic hero brings its own slides, so it shows even when no photo
-  // is flagged as a hero background.
-  const showHero =
-    settings?.heroSettings?.transitionStyle === "cinematic" ||
-    (background?.length ?? 0) > 0;
-
   return (
     <>
-      {showHero && <Hero photos={background ?? []} />}
-      <FeaturedPhotos photos={featured?.photos ?? []} />
+      <StreamHero />
+      {/* <FeaturedPhotos photos={featured?.photos ?? []} /> */}
+      <CinematicStory />
+      <ScrollExpansion />
+      <CinematicSliderSection />
+      <SmoothScrollHero />
+      <HeroGallery />
+      {/* `relative` anchors the section's "Scroll to see more" hint to it.
+          No Lenis here: it would take over scrolling for the whole page. */}
+      <div className="relative">
+        <TextScroll smooth={false} />
+      </div>
       {settings && <AboutSection settings={settings} />}
       <PhotoSeries categories={categories ?? []} />
       <RecentWorks

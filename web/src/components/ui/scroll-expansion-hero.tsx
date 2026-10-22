@@ -10,6 +10,7 @@ import {
 } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface ScrollExpandMediaProps {
   mediaType?: "video" | "image";
@@ -48,12 +49,37 @@ const ScrollExpandMedia = ({
     setMediaFullyExpanded(false);
   }, [mediaType]);
 
+  // Adapted to sit anywhere on a page, not only at its top: everything below
+  // is measured against this section's own top edge rather than scrollY 0.
+  // `lastTop` tells a scroll *into* the section from above (hold it there
+  // until it has expanded) from arriving from below (show it expanded).
+  const lastTop = useRef<number | null>(null);
+  /** Distance of the section's top from the viewport's top, in px. */
+  const sectionTop = () =>
+    sectionRef.current?.getBoundingClientRect().top ?? Infinity;
+  /** The section is parked at the top of the screen. */
+  const atTop = () => Math.abs(sectionTop()) <= 5;
+
+  // Reduced motion: show the finished, expanded state and leave scrolling
+  // alone - no scroll-jacking for people who have asked for less motion.
+  const reduced = useReducedMotion();
   useEffect(() => {
+    if (!reduced) return;
+    setScrollProgress(1);
+    setMediaFullyExpanded(true);
+    setShowContent(true);
+  }, [reduced]);
+
+  useEffect(() => {
+    if (reduced) return;
     const handleWheel = (e: WheelEvent) => {
-      if (mediaFullyExpanded && e.deltaY < 0 && window.scrollY <= 5) {
+      if (mediaFullyExpanded && e.deltaY < 0 && atTop()) {
         setMediaFullyExpanded(false);
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
+        // Only while parked at the top, and scrolling up from fully collapsed
+        // hands control back to the page.
+        if (!atTop() || (e.deltaY < 0 && scrollProgress <= 0)) return;
         e.preventDefault();
         const scrollDelta = e.deltaY * 0.0009;
         const newProgress = Math.min(
@@ -81,10 +107,11 @@ const ScrollExpandMedia = ({
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY - touchY;
 
-      if (mediaFullyExpanded && deltaY < -20 && window.scrollY <= 5) {
+      if (mediaFullyExpanded && deltaY < -20 && atTop()) {
         setMediaFullyExpanded(false);
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
+        if (!atTop() || (deltaY < 0 && scrollProgress <= 0)) return;
         e.preventDefault();
         // Increase sensitivity for mobile, especially when scrolling back
         const scrollFactor = deltaY < 0 ? 0.008 : 0.005; // Higher sensitivity for scrolling back
@@ -111,8 +138,20 @@ const ScrollExpandMedia = ({
     };
 
     const handleScroll = (): void => {
-      if (!mediaFullyExpanded) {
-        window.scrollTo(0, 0);
+      const top = sectionTop();
+      const previous = lastTop.current;
+      lastTop.current = top;
+      const height = sectionRef.current?.offsetHeight ?? 0;
+      if (mediaFullyExpanded || top >= 0 || top <= -height) return;
+      if (previous !== null && previous >= 0) {
+        // Scrolled down into it before it expanded: hold it at the top.
+        window.scrollTo(0, window.scrollY + top);
+      } else {
+        // Arrived from below (or loaded part-way down): it has been passed,
+        // so show it finished rather than yanking the page back up.
+        setScrollProgress(1);
+        setMediaFullyExpanded(true);
+        setShowContent(true);
       }
     };
 
@@ -148,7 +187,7 @@ const ScrollExpandMedia = ({
       );
       window.removeEventListener("touchend", handleTouchEnd as EventListener);
     };
-  }, [scrollProgress, mediaFullyExpanded, touchStartY]);
+  }, [scrollProgress, mediaFullyExpanded, touchStartY, reduced]);
 
   useEffect(() => {
     const checkIfMobile = (): void => {

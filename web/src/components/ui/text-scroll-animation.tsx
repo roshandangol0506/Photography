@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import ReactLenis from "lenis/react";
 // Lenis's recommended base styles. Every rule is scoped to `html.lenis`, which
 // only exists while a Lenis instance is mounted, so this is inert elsewhere.
@@ -27,11 +28,13 @@ const CharacterV1 = ({
 
   const x = useTransform(scrollYProgress, [0, 0.5], [distanceFromCenter * 50, 0]);
   const rotateX = useTransform(scrollYProgress, [0, 0.5], [distanceFromCenter * 50, 0]);
+  // Reduced motion: letters in their resting place, no scroll travel.
+  const reduced = useReducedMotion();
 
   return (
     <motion.span
       className={cn("inline-block text-orange-500", isSpace && "w-4")}
-      style={{ x, rotateX }}
+      style={reduced ? undefined : { x, rotateX }}
     >
       {char}
     </motion.span>
@@ -50,13 +53,14 @@ const CharacterV2 = ({
   const x = useTransform(scrollYProgress, [0, 0.5], [distanceFromCenter * 50, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [0.75, 1]);
   const y = useTransform(scrollYProgress, [0, 0.5], [Math.abs(distanceFromCenter) * 50, 0]);
+  const reduced = useReducedMotion();
 
   return (
     <motion.img
       src={char}
       alt=""
       className="h-16 w-16 shrink-0 object-contain will-change-transform"
-      style={{ x, scale, y, transformOrigin: "center" }}
+      style={reduced ? undefined : { x, scale, y, transformOrigin: "center" }}
     />
   );
 };
@@ -74,13 +78,14 @@ const CharacterV3 = ({
   const rotate = useTransform(scrollYProgress, [0, 0.5], [distanceFromCenter * 50, 0]);
   const y = useTransform(scrollYProgress, [0, 0.5], [-Math.abs(distanceFromCenter) * 20, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [0.75, 1]);
+  const reduced = useReducedMotion();
 
   return (
     <motion.img
       src={char}
       alt=""
       className="h-16 w-16 shrink-0 object-contain will-change-transform"
-      style={{ x, rotate, y, scale, transformOrigin: "center" }}
+      style={reduced ? undefined : { x, rotate, y, scale, transformOrigin: "center" }}
     />
   );
 };
@@ -89,7 +94,12 @@ const CharacterV3 = ({
 const unsplashTile = (id: string) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=128&h=128&q=80`;
 
-const Skiper31 = () => {
+/**
+ * `smooth` wraps the page in Lenis smooth scrolling, as the original did. Turn
+ * it off when the section sits on a page with other scroll-driven sections:
+ * Lenis takes over scrolling for the whole page, not just this section.
+ */
+const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
   const targetRef = useRef<HTMLDivElement | null>(null);
   const targetRef2 = useRef<HTMLDivElement | null>(null);
   const targetRef3 = useRef<HTMLDivElement | null>(null);
@@ -114,9 +124,10 @@ const Skiper31 = () => {
   ];
   const iconCenterIndex = Math.floor(macIcon.length / 2);
 
-  return (
-    <ReactLenis root>
-      <main className="w-full bg-white">
+  const content = (
+      // A section, not <main>: the site layout already provides the page's
+      // one <main>.
+      <section className="w-full bg-white">
         {/* Шапка-подсказка */}
         <div className="top-22 absolute left-1/2 z-10 grid -translate-x-1/2 content-start justify-items-center gap-6 text-center text-black">
           <span className="relative max-w-[12ch] text-xs uppercase leading-tight opacity-40 after:absolute after:left-1/2 after:top-full after:h-16 after:w-px after:bg-gradient-to-b after:from-[#f5f4f3] after:to-black after:content-['']">
@@ -192,9 +203,10 @@ const Skiper31 = () => {
             ))}
           </div>
         </div>
-      </main>
-    </ReactLenis>
+      </section>
   );
+
+  return smooth ? <ReactLenis root>{content}</ReactLenis> : content;
 };
 
 export { CharacterV1, CharacterV2, CharacterV3, Skiper31 };

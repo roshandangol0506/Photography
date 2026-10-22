@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Collection } from "@/types/content";
 import { useSite } from "@/components/providers/SiteProvider";
 import { cn } from "@/lib/utils";

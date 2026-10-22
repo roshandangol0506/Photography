@@ -47,9 +47,10 @@
   overflow: hidden;
   /* cqw below is a share of this box, so every distance scales with it. */
   container-type: inline-size;
-  background:
-    radial-gradient(120% 90% at 65% 35%, #2c2927 0%, transparent 70%),
-    #201e1d; /* md-ink */
+  /* The same blackBg.jpg, at rest, under the sliding layers: if the slow
+     incoming layer ever trails the drifting outgoing one, what shows through
+     is the same texture, never a flat colour. #111 until it has loaded. */
+  background: var(--cine-bg) center / cover no-repeat, #111;
   color: var(--cine-light);
   font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   touch-action: pan-y;
@@ -59,6 +60,28 @@
 
 .cine[data-dir="prev"] {
   --dir: -1;
+}
+
+/* -------------------------------------------------------------- backdrop */
+
+/* blackBg.jpg, as identical full-frame layers behind everything. At rest
+   there is one; during a step the old one drifts off the near edge while a
+   new copy slides in from the far edge over it (see cine-bg-in / -out). */
+.cine-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.cine-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--cine-bg) center / cover no-repeat, #111;
+}
+/* The incoming layer passes over the outgoing one. */
+.cine-bg-layer[data-state="leave"] {
+  z-index: 0;
 }
 
 /* ----------------------------------------------------------------- strip */
@@ -354,6 +377,14 @@
       opacity 0.25s ease,
       scale 0.4s var(--cine-ease-out);
   }
+  /* Holds the two arrows, stacked. CinematicSlider moves it with
+     transform: translate3d() so the arrow leans with the mouse inside the
+     ring; the ring itself never moves for this. */
+  .cine-cursor-arrow {
+    display: grid;
+    place-items: center;
+    will-change: transform;
+  }
   .cine-cursor svg {
     grid-area: 1 / 1;
     width: 22px;
@@ -487,6 +518,37 @@
     --cine-r var(--cine-unfold);
 }
 
+/* Backdrop, starting on the click. The new layer travels the full width from
+   the far edge on a curve that eases in, so the whole trip reads from the
+   very edge rather than the first half flashing past - and it lands at .85D
+   with the same (0.1, 1) tail as --cine-move, so it reaches the near edge
+   together with the crossing photo. The old one drifts a third of the way
+   on the copy's curve, so the new one visibly slides over it. */
+@keyframes cine-bg-in {
+  from {
+    transform: translate3d(calc(var(--dir) * 100cqw), 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes cine-bg-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(var(--dir) * -30cqw), 0, 0);
+  }
+}
+.cine-bg-layer[data-state="enter"] {
+  animation: cine-bg-in calc(var(--cine-d) * 0.85)
+    cubic-bezier(0.4, 0, 0.1, 1) both;
+}
+.cine-bg-layer[data-state="leave"] {
+  animation: cine-bg-out calc(var(--cine-d) * 0.85) var(--cine-move-ease)
+    both;
+}
+
 /* Old and new copy share delay, duration and curve, so each outgoing line
    and its incoming twin stay exactly one frame width apart the whole way. */
 .cine-lines[data-state="enter"] .cine-line {
@@ -517,9 +579,15 @@
     transform: none;
     transition: none;
   }
+  .cine-bg-layer[data-state] {
+    animation: none;
+  }
 }
 
 /* The site-wide "Animations" switch is off: changes are instant. */
+.cine[data-motion="off"] .cine-bg-layer {
+  animation: none !important;
+}
 .cine[data-motion="off"] .cine-shot {
   transition: none !important;
   animation: none !important;

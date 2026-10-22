@@ -7,6 +7,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { MapPin } from "lucide-react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { getImageProps } from "next/image";
 import { useRef } from "react";
 
@@ -56,31 +57,43 @@ const Hero = () => {
 };
 
 const CenterImage = () => {
+  const ref = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
+  // How far the page has scrolled into this hero (0 until its top reaches
+  // the top of the screen). The reveal used to read scrollY directly, which
+  // only worked with the hero at the very top of the page.
+  const scrolled = useTransform(scrollY, (y) => {
+    const hero = ref.current?.parentElement;
+    return hero ? Math.max(0, -hero.getBoundingClientRect().top) : y;
+  });
 
-  const clip1 = useTransform(scrollY, [0, 1500], [25, 0]);
-  const clip2 = useTransform(scrollY, [0, 1500], [75, 100]);
+  const clip1 = useTransform(scrolled, [0, 1500], [25, 0]);
+  const clip2 = useTransform(scrolled, [0, 1500], [75, 100]);
 
   const clipPath = useMotionTemplate`polygon(${clip1}% ${clip1}%, ${clip2}% ${clip1}%, ${clip2}% ${clip2}%, ${clip1}% ${clip2}%)`;
 
   const backgroundSize = useTransform(
-    scrollY,
+    scrolled,
     [0, SECTION_HEIGHT + 500],
     ["170%", "100%"],
   );
   const opacity = useTransform(
-    scrollY,
+    scrolled,
     [SECTION_HEIGHT, SECTION_HEIGHT + 500],
     [1, 0],
   );
 
+  // Reduced motion: the photo shown whole and still, no scroll-driven reveal.
+  const reduced = useReducedMotion();
+
   return (
     <motion.div
+      ref={ref}
       className="sticky top-0 h-screen w-full"
       style={{
-        clipPath,
-        backgroundSize,
-        opacity,
+        ...(reduced
+          ? { backgroundSize: "cover" }
+          : { clipPath, backgroundSize, opacity }),
         backgroundImage: `url(${photo(16, 4800)})`,
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -146,6 +159,8 @@ const ParallaxImg = ({ className, alt, src, start, end }: ParallaxImgProps) => {
 
   const y = useTransform(scrollYProgress, [0, 1], [start, end]);
   const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
+  // Reduced motion: the photos sit still in the flow, no parallax.
+  const reduced = useReducedMotion();
 
   return (
     <motion.img
@@ -153,7 +168,7 @@ const ParallaxImg = ({ className, alt, src, start, end }: ParallaxImgProps) => {
       alt={alt}
       className={className}
       ref={ref}
-      style={{ transform, opacity }}
+      style={reduced ? undefined : { transform, opacity }}
     />
   );
 };
@@ -164,14 +179,14 @@ const Schedule = () => {
       id="launch-schedule"
       className="mx-auto max-w-5xl px-4 py-48 text-white"
     >
-      <motion.h1
+      <motion.h2
         initial={{ y: 48, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         transition={{ ease: "easeInOut", duration: 0.75 }}
         className="mb-20 text-4xl font-black uppercase text-zinc-50"
       >
         Launch Schedule
-      </motion.h1>
+      </motion.h2>
       <ScheduleItem title="NG-21" date="Dec 9th" location="Florida" />
       <ScheduleItem title="Starlink" date="Dec 20th" location="Texas" />
       <ScheduleItem title="Starlink" date="Jan 13th" location="Florida" />
