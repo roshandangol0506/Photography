@@ -12,6 +12,13 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+/**
+ * Progress at or below this counts as fully collapsed. Progress moves in
+ * float steps (0.09 a wheel notch), so collapsing again lands on ~1e-17, not
+ * 0 - which would cost an extra, invisible notch before the page moves on.
+ */
+const COLLAPSED = 0.001;
+
 interface ScrollExpandMediaProps {
   mediaType?: "video" | "image";
   mediaSrc: string;
@@ -22,6 +29,17 @@ interface ScrollExpandMediaProps {
   scrollToExpand?: string;
   textBlend?: boolean;
   children?: ReactNode;
+  /**
+   * True while a cinematic hand-off is bringing this section in: input is
+   * held until the entrance has played and the gesture that caused it has
+   * died away, so its momentum doesn't start the expansion.
+   */
+  entering?: boolean;
+  /**
+   * Scrolling up from the collapsed start: return true to take that over
+   * (e.g. hand back to the section above with its own transition).
+   */
+  onExitUp?: () => boolean;
 }
 
 const ScrollExpandMedia = ({
@@ -34,6 +52,8 @@ const ScrollExpandMedia = ({
   scrollToExpand,
   textBlend,
   children,
+  entering = false,
+  onExitUp,
 }: ScrollExpandMediaProps) => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [showContent, setShowContent] = useState<boolean>(false);
@@ -70,16 +90,40 @@ const ScrollExpandMedia = ({
     setShowContent(true);
   }, [reduced]);
 
+  // Holds input through a hand-off: on while `entering`, then until a short
+  // pause in wheel events shows the incoming gesture has ended.
+  const quiet = useRef({ on: false, last: 0 });
+  useEffect(() => {
+    if (entering) quiet.current.on = true;
+  }, [entering]);
+  const held = (e: { cancelable: boolean; preventDefault(): void }) => {
+    const q = quiet.current;
+    if (!entering && !q.on) return false;
+    const now = performance.now();
+    if (!entering && now - q.last > 180) {
+      q.on = false;
+      return false;
+    }
+    q.last = now;
+    if (e.cancelable) e.preventDefault();
+    return true;
+  };
+
   useEffect(() => {
     if (reduced) return;
     const handleWheel = (e: WheelEvent) => {
+      if (held(e)) return;
       if (mediaFullyExpanded && e.deltaY < 0 && atTop()) {
         setMediaFullyExpanded(false);
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
         // Only while parked at the top, and scrolling up from fully collapsed
         // hands control back to the page.
-        if (!atTop() || (e.deltaY < 0 && scrollProgress <= 0)) return;
+        if (!atTop()) return;
+        if (e.deltaY < 0 && scrollProgress <= COLLAPSED) {
+          if (onExitUp?.()) e.preventDefault();
+          return;
+        }
         e.preventDefault();
         const scrollDelta = e.deltaY * 0.0009;
         const newProgress = Math.min(
@@ -102,6 +146,7 @@ const ScrollExpandMedia = ({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (held(e)) return;
       if (!touchStartY) return;
 
       const touchY = e.touches[0].clientY;
@@ -111,7 +156,11 @@ const ScrollExpandMedia = ({
         setMediaFullyExpanded(false);
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
-        if (!atTop() || (deltaY < 0 && scrollProgress <= 0)) return;
+        if (!atTop()) return;
+        if (deltaY < 0 && scrollProgress <= COLLAPSED) {
+          if (onExitUp?.()) e.preventDefault();
+          return;
+        }
         e.preventDefault();
         // Increase sensitivity for mobile, especially when scrolling back
         const scrollFactor = deltaY < 0 ? 0.008 : 0.005; // Higher sensitivity for scrolling back
@@ -187,7 +236,7 @@ const ScrollExpandMedia = ({
       );
       window.removeEventListener("touchend", handleTouchEnd as EventListener);
     };
-  }, [scrollProgress, mediaFullyExpanded, touchStartY, reduced]);
+  }, [scrollProgress, mediaFullyExpanded, touchStartY, reduced, entering, onExitUp]);
 
   useEffect(() => {
     const checkIfMobile = (): void => {
@@ -215,7 +264,7 @@ const ScrollExpandMedia = ({
       <section className="relative flex flex-col items-center justify-start min-h-[100dvh]">
         <div className="relative w-full flex flex-col items-center min-h-[100dvh]">
           <motion.div
-            className="absolute inset-0 z-0 h-full"
+            className="sem-bg absolute inset-0 z-0 h-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 - scrollProgress }}
             transition={{ duration: 0.1 }}
@@ -238,7 +287,7 @@ const ScrollExpandMedia = ({
           <div className="container mx-auto flex flex-col items-center justify-start relative z-10">
             <div className="flex flex-col items-center justify-center w-full h-[100dvh] relative">
               <div
-                className="absolute z-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-none rounded-2xl"
+                className="sem-media absolute z-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-none rounded-2xl"
                 style={{
                   width: `${mediaWidth}px`,
                   height: `${mediaHeight}px`,
@@ -347,7 +396,7 @@ const ScrollExpandMedia = ({
               </div>
 
               <div
-                className={`flex items-center justify-center text-center gap-4 w-full relative z-10 transition-none flex-col ${
+                className={`sem-title flex items-center justify-center text-center gap-4 w-full relative z-10 transition-none flex-col ${
                   textBlend ? "mix-blend-difference" : "mix-blend-normal"
                 }`}
               >

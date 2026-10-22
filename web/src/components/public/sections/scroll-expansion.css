@@ -1,0 +1,75 @@
+/* =========================================================================
+   Scroll expansion - its entrance when the cinematic story hands off to it.
+
+   Same timeline as a story scene change (cinematic-story.css, D = 1300ms),
+   counted from the gesture on the story's last scene. While the page is
+   driven down one screen:
+
+     .08D -> .6D   the background fades up out of the story's dark texture
+     .34D -> .89D  the photo rises in as a narrow masked window and opens to
+                   its full card, settling from a slight zoom
+     .58D -> .92D  the title rises in last
+
+   Only transform, opacity and clip-path animate, and only on wrappers the
+   component does not itself transform.
+   ========================================================================= */
+
+.sx-section {
+  --sx-d: 1300ms;
+  --sx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The story's own texture under everything, so the hand-off never shows
+     the page's light background between the two. */
+  background: var(--sx-bg) center / cover no-repeat, #111;
+}
+
+@keyframes sx-bg-in {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes sx-media-in {
+  from {
+    transform: translate3d(0, 40svh, 0) scale(1.06);
+    clip-path: inset(55% 28% 0 28% round 16px);
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+}
+@keyframes sx-title-in {
+  from {
+    transform: translate3d(0, 48px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.sx-section[data-entering="true"] .sem-bg {
+  animation: sx-bg-in calc(var(--sx-d) * 0.52) ease
+    calc(var(--sx-d) * 0.08) both;
+}
+.sx-section[data-entering="true"] .sem-media {
+  animation: sx-media-in calc(var(--sx-d) * 0.55) var(--sx-ease)
+    calc(var(--sx-d) * 0.34) both;
+}
+.sx-section[data-entering="true"] .sem-title {
+  animation: sx-title-in calc(var(--sx-d) * 0.34) var(--sx-ease)
+    calc(var(--sx-d) * 0.58) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-section[data-entering="true"] .sem-bg,
+  .sx-section[data-entering="true"] .sem-media,
+  .sx-section[data-entering="true"] .sem-title {
+    animation: none;
+  }
+}

@@ -81,13 +81,14 @@ export default async function HomePage() {
       <CinematicStory />
       <ScrollExpansion />
       <CinematicSliderSection />
-      <SmoothScrollHero />
       <HeroGallery />
+      <SmoothScrollHero />
       {/* `relative` anchors the section's "Scroll to see more" hint to it.
           No Lenis here: it would take over scrolling for the whole page. */}
       <div className="relative">
         <TextScroll smooth={false} />
       </div>
+
       {settings && <AboutSection settings={settings} />}
       <PhotoSeries categories={categories ?? []} />
       <RecentWorks

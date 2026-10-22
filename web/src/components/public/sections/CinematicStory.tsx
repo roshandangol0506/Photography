@@ -38,6 +38,9 @@ interface View {
   /** The scene on its way out while a change runs. */
   from: number | null;
   dir: Direction;
+  /** Replaying the current scene's entrance with nothing leaving: arriving
+      back from the section below. */
+  entering?: boolean;
 }
 
 /** One scene change, ms. Every stage of the choreography is a share of it. */
@@ -51,12 +54,37 @@ const REDUCED_MS = 380;
 /** A pause this long between wheel events ends one gesture. */
 const GESTURE_GAP_MS = 180;
 const SWIPE_MIN_PX = 40;
+/**
+ * The hand-off to/from the section below (one that opts in with
+ * data-cinematic-entry): the page is driven one screen in this long, easing
+ * in and out, while that section plays its entrance on the story's timings.
+ */
+const HANDOFF_MS = Math.round(DURATION * 0.75);
 
 // Same optimized texture as the cinematic hero (the original is ~17MB).
-const BACKGROUND = `url("${
+// Exported so the section the story hands off to can share it.
+export const STORY_BACKGROUND = `url("${
   getImageProps({ src: "/blackBg.jpg", alt: "", width: 2048, height: 1365 })
     .props.src
 }")`;
+const BACKGROUND = STORY_BACKGROUND;
+
+/** Drive the page to `to` over `ms`, easing in and out. Returns a cancel. */
+function tweenScroll(to: number, ms: number, done?: () => void) {
+  const from = window.scrollY;
+  const start = performance.now();
+  const ease = (p: number) =>
+    p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  let raf = 0;
+  const tick = (now: number) => {
+    const p = Math.min(1, (now - start) / ms);
+    window.scrollTo(0, from + (to - from) * ease(p));
+    if (p < 1) raf = requestAnimationFrame(tick);
+    else done?.();
+  };
+  raf = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(raf);
+}
 
 /** Rendered widths per layout slot, for the optimizer. */
 const SIZES: Record<Exclude<StoryScene["kind"], "intro">, string[]> = {
@@ -233,6 +261,64 @@ export function CinematicStory({
     [alignScroll, count, go],
   );
 
+  // ── hand-off to the section below ──────────────────────────────────
+  // Past the last scene, instead of letting the page scroll on, drive it one
+  // screen down to the next section - if that section opts in with
+  // data-cinematic-entry - and tell it to play its entrance. The feature
+  // scene leaves upward as the page moves; the next one rises in.
+  const tween = useRef<(() => void) | null>(null);
+  useEffect(() => () => tween.current?.(), []);
+
+  const nextSection = () => {
+    const next = sectionRef.current?.nextElementSibling as HTMLElement | null;
+    return next?.hasAttribute("data-cinematic-entry") ? next : null;
+  };
+
+  const handoffDown = useCallback(() => {
+    const next = nextSection();
+    if (!next || idxRef.current !== count - 1) return false;
+    locked.current = true;
+    next.dispatchEvent(new CustomEvent("cinematic:enter"));
+    tween.current?.();
+    tween.current = tweenScroll(
+      next.getBoundingClientRect().top + window.scrollY,
+      HANDOFF_MS,
+      () => {
+        locked.current = false;
+      },
+    );
+    return true;
+  }, [count]);
+
+  // And back: the section below asks to return (scrolling up from its start).
+  // Drive the page back onto the last scene and replay that scene's entrance,
+  // coming down from above.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || motion !== "full") return;
+    const onReturn = () => {
+      if (locked.current) return;
+      const last = count - 1;
+      locked.current = true;
+      idxRef.current = last;
+      setView({ idx: last, from: null, dir: -1, entering: true });
+      tween.current?.();
+      tween.current = tweenScroll(
+        section.getBoundingClientRect().top +
+          window.scrollY +
+          last * stageHeight(),
+        HANDOFF_MS,
+      );
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        locked.current = false;
+        setView((v) => ({ ...v, entering: false }));
+      }, SETTLE);
+    };
+    section.addEventListener("cinematic:return", onReturn);
+    return () => section.removeEventListener("cinematic:return", onReturn);
+  }, [count, motion]);
+
   // Wheel and trackpad. One physical gesture is a stream of events: it ends
   // after a short pause, or when a fresh swipe re-accelerates out of a
   // decaying momentum tail. Each gesture may move at most one scene.
@@ -267,14 +353,15 @@ export function CinematicStory({
         e.preventDefault();
         return;
       }
-      if (step(e.deltaY > 0 ? 1 : -1)) {
+      const dir: Direction = e.deltaY > 0 ? 1 : -1;
+      if (step(dir) || (dir === 1 && handoffDown())) {
         e.preventDefault();
         g.used = true;
       }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
-  }, [engaged, motion, step]);
+  }, [engaged, handoffDown, motion, step]);
 
   // Touch: one swipe, one scene; at the ends the page scrolls on natively.
   useEffect(() => {
@@ -297,11 +384,13 @@ export function CinematicStory({
         return;
       }
       const to = idxRef.current + dir;
-      if (to < 0 || to >= count) return; // let the page scroll on
+      const handoff = to >= count && dir === 1 && !!nextSection();
+      if ((to < 0 || to >= count) && !handoff) return; // page scrolls on
       if (e.cancelable) e.preventDefault();
       if (Math.abs(dy) >= SWIPE_MIN_PX) {
         t.used = true;
-        step(dir);
+        if (handoff) handoffDown();
+        else step(dir);
       }
     };
     const onEnd = () => {
@@ -317,7 +406,7 @@ export function CinematicStory({
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [count, engaged, motion, step]);
+  }, [count, engaged, handoffDown, motion, step]);
 
   // Keyboard: arrows, Page Up/Down and Space step scenes while pinned.
   useEffect(() => {
@@ -338,11 +427,11 @@ export function CinematicStory({
         e.preventDefault();
         return;
       }
-      if (step(dir)) e.preventDefault();
+      if (step(dir) || (dir === 1 && handoffDown())) e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [engaged, motion, step]);
+  }, [engaged, handoffDown, motion, step]);
 
   if (!count) return null;
 
@@ -350,7 +439,7 @@ export function CinematicStory({
     view.from === i
       ? "leave"
       : i === view.idx
-        ? view.from !== null
+        ? view.from !== null || view.entering
           ? "enter"
           : "current"
         : "hidden";
@@ -368,6 +457,8 @@ export function CinematicStory({
       }
       data-dir={view.dir === 1 ? "down" : "up"}
       data-motion={motion}
+      // The section below may hand back to the last scene (see onReturn).
+      data-cinematic-return={motion === "full" ? "on" : "off"}
       aria-label="Selected work"
     >
       <div ref={stageRef} className="story-stage">
