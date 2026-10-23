@@ -3,6 +3,7 @@ import {
   ImageStreamHero,
   type StreamImage,
 } from "@/components/ui/image-stream-hero";
+import { VenomButton } from "@/components/ui/venom-button";
 
 // The photos in /public are numbered 1.jpg, 2.jpg, ... Several are full-size
 // camera originals (up to ~23 MB), so each goes through the Next image
@@ -46,10 +47,13 @@ export function StreamHero() {
             front and centre.
           </h1>
         </div>
-        <p className="max-w-md text-balance px-6 text-sm text-md-light/80">
-          A hero that leads with the images instead of describing them. Swap in
-          your own and the corridor rebuilds around them.
-        </p>
+        <div className="flex flex-col items-center gap-10">
+          <VenomButton href="/contact" />
+          <p className="max-w-md text-balance px-6 text-sm text-md-light/80">
+            A hero that leads with the images instead of describing them. Swap
+            in your own and the corridor rebuilds around them.
+          </p>
+        </div>
       </div>
     </ImageStreamHero>
   );

@@ -1,0 +1,132 @@
+/* =========================================================================
+   VenomButton - the glossy black pill the symbiote lives under.
+
+   Lit from the upper left, like a wet bead of black resin: a bright lip
+   along the top edge, a sharp catchlight that slides toward the pointer
+   (--vb-hx / --vb-hy, written by the component each frame), and a dark
+   belly that turns away from the light. The transform - the tug, the
+   squash on press - is written inline too, so nothing here animates it.
+   ========================================================================= */
+
+.venom-surface {
+  --vb-hx: 30%;
+  --vb-hy: 18%;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.75rem;
+  padding: 0 2.5rem;
+  border-radius: 9999px;
+  /* Keeps the reflections inside the pill. The focus outline is drawn
+     outside the box, so it is unaffected. */
+  overflow: hidden;
+  color: #fff;
+  /* A tight grotesque, as on the reference, whatever the page is set in. */
+  font-family:
+    "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  text-decoration: none;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+  background:
+    radial-gradient(
+      70% 140% at var(--vb-hx) var(--vb-hy),
+      rgba(255, 255, 255, 0.13),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #303034 0%,
+      #151517 44%,
+      #050506 56%,
+      #0c0c0d 100%
+    );
+  box-shadow:
+    /* The lip of light along the top edge, and a fainter one underneath. */
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.07),
+    /* The belly, turning away from the light. */
+    inset 0 -12px 18px -8px rgba(0, 0, 0, 0.9),
+    /* A hairline rim, so the silhouette holds on a black page. */
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    /* Raised off the page: a tight contact shadow and a soft long one. */
+    0 1px 1px rgba(0, 0, 0, 0.5),
+    0 10px 22px -10px rgba(0, 0, 0, 0.75),
+    0 24px 44px -20px rgba(0, 0, 0, 0.6);
+  transform-origin: 50% 55%;
+  will-change: transform;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* The reflection along the top: brightest at the lit left end. */
+.venom-surface::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5%;
+  right: 5%;
+  height: 44%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.05) 75%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  pointer-events: none;
+}
+
+/* The catchlight: a small hot spot riding the top edge. */
+.venom-surface::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: calc(var(--vb-hx) - 15%);
+  width: 30%;
+  height: 16%;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0)
+  );
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+.venom-label {
+  position: relative;
+  z-index: 1;
+}
+
+.venom-surface:focus-visible {
+  outline: 2px solid var(--color-md-light, #f8f4f4);
+  outline-offset: 4px;
+}
+
+@media (max-width: 640px) {
+  .venom-surface {
+    height: 3.375rem;
+    padding: 0 2.1rem;
+    font-size: 1rem;
+  }
+}
