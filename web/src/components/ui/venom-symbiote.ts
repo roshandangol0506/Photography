@@ -56,15 +56,31 @@ const PRESETS: Record<SymbioteIntensity, Preset> = {
 /** Simulated points per strand. */
 const NODES = 12;
 /** Smoothed samples per segment when drawing. */
-const SUB = 3;
+const SUB = 4;
 const SAMPLES = (NODES - 1) * SUB + 1;
 /** Fixed simulation step, ms, so the motion is the same at 60 and 144 Hz. */
 const STEP = 1000 / 60;
 /** Constraint passes per step. More is stiffer. */
 const ITERATIONS = 6;
+/** Bending stiffness, applied each constraint pass. */
+const STIFF = 0.2;
 /** Velocity kept per step. */
 const DAMP = 0.9;
 const GRAVITY = 0.07;
+/**
+ * Width, px, of the patch of outline a gripping bundle roots in. Each
+ * gripping strand slides its root to its own slot in this patch, facing
+ * the pointer, so the bundle leaves the button as one dense, thick mass.
+ */
+const ZONE = 30;
+/** Arc length, px, at which the webbing between roots meets the strands. */
+const NECK = 34;
+/** How far along the outline the outermost roots fillet into the edge. */
+const FILLET = 11;
+/** How hard a strand's first few nodes hold the direction it emerged in. */
+const ROOT_HOLD = 0.32;
+/** How far a gripping strand's middle trails behind the pointer's motion. */
+const BOW = 0.028;
 /** Roots sit this far inside the edge, hidden under the button. */
 const INSET = 5;
 /** Where the light comes from: up and to the left, as on the surface. */
@@ -75,8 +91,10 @@ const REST_HX = 30;
 const REST_HY = 18;
 
 const BODY = "#060607";
-const RIM = "rgba(232, 238, 252, 0.17)";
-const SHEEN = "rgba(236, 241, 252, 0.62)";
+const RIM = "rgba(232, 238, 252, 0.11)";
+/** The lit half of each strand: what gives it volume on a dark page. */
+const SHADE = "rgba(214, 222, 240, 0.17)";
+const SHEEN = "rgba(240, 244, 252, 0.42)";
 const SHADOW = "rgba(0, 0, 0, 0.2)";
 
 export type Pill = { x: number; y: number; w: number; h: number };
@@ -117,14 +135,32 @@ type Strand = {
   length: number;
   /** How roused by the pointer the area must be before this one joins. */
   threshold: number;
-  phase: number;
+  /** Offset into the noise field, so no two strands move alike. */
+  seed: number;
+  /** Noise speed, per ms. */
   freq: number;
-  /** Where the tip settles round the pointer, and which way it circles. */
+  /** Where the tip settles round the pointer. */
   ring: number;
   ringAngle: number;
-  spin: number;
+  /** How far the root has slid along the outline, and last step's grip. */
+  slide: number;
+  grip: number;
+  /** Its slot in the attachment zone, -0.5..0.5, and where its root is now. */
+  slot: number;
+  root: number;
+  /** Sample indices where the webbing and the fillet meet it. */
+  neck: number;
+  fillet: number;
+  /** The chain's rest length this step, to tell how stretched it is. */
+  restLen: number;
   /** Resting extension. Non-zero only for the drips under the button. */
   rest: number;
+  /** A drip: hangs from the lower rim at rest and ends in a bulb. */
+  drip: boolean;
+  /** How big that bulb is, as a share of the drip's width. */
+  bead: number;
+  /** Last step's grip, to catch the moment a stretched grip snaps. */
+  held: number;
   twitch: number;
   twitchUntil: number;
   threads: Thread[];
@@ -144,6 +180,28 @@ const smoothstep = (a: number, b: number, x: number) => {
   const t = clamp((x - a) / (b - a), 0, 1);
   return t * t * (3 - 2 * t);
 };
+
+/**
+ * 1D gradient noise, about -1..1 and smooth everywhere. Drives every
+ * wander, curl and ripple: unlike a sum of sines it never visibly
+ * repeats, which is most of the difference between alive and animated.
+ */
+function grad(i: number) {
+  let h = Math.imul(i ^ 0x27d4eb2d, 0x165667b1);
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  return ((h >>> 0) / 4294967296) * 2 - 1;
+}
+
+function noise(x: number) {
+  const i = Math.floor(x);
+  const f = x - i;
+  const u = f * f * f * (f * (f * 6 - 15) + 10);
+  const a = grad(i) * f;
+  const b = grad(i + 1) * (f - 1);
+  return (a + (b - a) * u) * 2;
+}
 
 /** Seeded, so the same button grows the same strands on every visit. */
 function seeded(seed: number) {
@@ -261,6 +319,8 @@ export class Symbiote {
   private pressed = false;
   private recoil = 0;
   private inside = 0;
+  private prox = 0;
+  private near = 0;
   private squash = 0;
   private squashV = 0;
   private tugX = 0;
@@ -268,6 +328,10 @@ export class Symbiote {
   private engage = 0;
   private hx = REST_HX;
   private hy = REST_HY;
+
+  // Droplets flung off a grip as it snaps: position, velocity, radius,
+  // and how long each has left, ms.
+  private drops: { x: number; y: number; vx: number; vy: number; r: number; life: number }[] = [];
 
   // The gripping bundle's mean line, from the previous step.
   private cx = new Float32Array(NODES);
@@ -424,16 +488,19 @@ export class Symbiote {
     const r = this.rand;
     const n = this.preset.strands;
     const strand = (i: number): Strand => {
-      // A third are fine hairs, the rest thicker cords.
-      const hair = r() < 0.32;
+      // Three tiers, weighted to the heavy end: thick structural cords
+      // that make the mass, medium strands, and a few fine filaments.
+      const tier = r();
+      const cord = tier < 0.55;
+      const hair = tier >= 0.85;
       const threads: Thread[] = [];
-      const count = hair ? 0 : r() < 0.55 ? 1 : 2;
+      const count = cord && r() < 0.4 ? 1 : 0;
       for (let t = 0; t < count; t++) {
-        const a = 0.1 + r() * 0.3;
+        const a = 0.08 + r() * 0.32;
         threads.push({
           a,
-          b: Math.min(a + 0.3 + r() * 0.4, 0.95),
-          amp: (2.5 + r() * 6) * (r() < 0.5 ? -1 : 1),
+          b: Math.min(a + 0.3 + r() * 0.45, 0.96),
+          amp: (3 + r() * 5) * (r() < 0.5 ? -1 : 1),
           freq: 0.002 + r() * 0.003,
           phase: r() * Math.PI * 2,
         });
@@ -446,19 +513,29 @@ export class Symbiote {
         py: new Float32Array(NODES),
         e: 0,
         ev: 0,
-        kE: 0.05 + r() * 0.05,
-        kTip: 0.05 + r() * 0.07,
-        width: hair ? 1.1 + r() * 0.9 : 2.6 + r() * 2.8,
-        slack: 0.06 + r() * 0.22,
+        kE: 0.04 + r() * 0.05,
+        kTip: 0.035 + r() * 0.05,
+        width: cord ? 7 + r() * 4 : hair ? 1.6 + r() * 0.8 : 3 + r() * 2,
+        slack: 0.06 + r() * 0.14,
         reach: 1.0 + r() * 0.25,
         length: 0.4 + r() * 1.2,
         threshold: 0.05 + Math.pow(r(), 1.2) * 0.65,
-        phase: r() * Math.PI * 2,
-        freq: 0.0016 + r() * 0.0022,
-        ring: 3 + r() * 10,
+        seed: r() * 1000,
+        freq: 0.0006 + r() * 0.0007,
+        ring: 4 + r() * 10,
         ringAngle: r() * Math.PI * 2,
-        spin: (r() < 0.5 ? -1 : 1) * (0.5 + r()),
+        slide: 0,
+        grip: 0,
+        // Cords pack the middle of the zone, filaments fan to its edges.
+        slot: (r() - 0.5) * (cord ? 0.7 : hair ? 1.25 : 1),
+        root: 0,
+        neck: 0,
+        fillet: 0,
+        restLen: 0,
         rest: 0,
+        drip: false,
+        bead: 0,
+        held: 0,
         twitch: 0,
         twitchUntil: 0,
         threads,
@@ -472,14 +549,23 @@ export class Symbiote {
     };
     this.strands = Array.from({ length: n }, (_, i) => strand(i));
 
-    // The resting drips: the strands nearest a few spots along the
-    // underside. On a 4:1 pill the bottom straight runs from s = 0.42 to
-    // 0.81 or so, so these land on it for any sensible proportions.
-    for (const at of [0.5, 0.6, 0.71]) {
+    // The drips hanging from the lower rim at rest: the strands nearest a
+    // few irregularly spaced spots along the underside, moved onto them
+    // and made into thick cords of varied length. On a 3.5:1 pill the
+    // underside, caps included, runs from s = 0.42 to 0.89 or so.
+    for (const at of [0.445, 0.52, 0.575, 0.655, 0.715, 0.79, 0.855]) {
       let best = this.strands[0];
       for (const st of this.strands)
-        if (Math.abs(st.s - at) < Math.abs(best.s - at)) best = st;
-      best.rest = 0.38 + r() * 0.16;
+        if (!st.drip && Math.abs(st.s - at) < Math.abs(best.s - at)) best = st;
+      best.s = at + (r() - 0.5) * 0.02;
+      best.drip = true;
+      best.rest = 0.45 + r() * 0.4;
+      // Mostly short, the odd long one.
+      best.length = 0.25 + r() * r() * 0.9;
+      best.width = 6.5 + r() * 4;
+      best.slack = 0.12 + r() * 0.12;
+      best.threads = [];
+      best.bead = 0.3 + r() * 0.4;
     }
   }
 
@@ -513,20 +599,24 @@ export class Symbiote {
 
     // Where the pointer is relative to the button.
     let edge = Infinity;
-    let near = 0;
     if (this.active) {
       const n = nearest(p, this.px, this.py);
       edge = n.dist;
-      near = n.s;
+      this.near = n.s;
     }
+    const near = this.near;
     const over = this.active && edge < 0;
     this.inside += ((over || this.focused ? 1 : 0) - this.inside) * 0.08;
     // How roused the strands are by the pointer's nearness. It decides
     // how many strands answer, not how far: each one that answers goes
     // the whole way.
-    const prox = this.active
+    // Smoothed, faster in than out: on the way out it sweeps down through
+    // every strand's threshold in turn, so they let go one after another.
+    const proxGoal = this.active
       ? 1 - smoothstep(reach * 0.55, reach, Math.max(edge, 0))
       : 0;
+    this.prox += (proxGoal - this.prox) * (proxGoal > this.prox ? 0.2 : 0.045);
+    const prox = this.prox < 0.002 ? 0 : this.prox;
     // The patch of outline that answers widens as the pointer closes in.
     const spread = 0.06 + 0.07 * prox;
 
@@ -566,8 +656,21 @@ export class Symbiote {
     const ncw = this.nw.fill(0);
     const last = NODES - 1;
 
+    const per = 2 * Math.max(p.w - p.h, 0) + Math.PI * p.h;
+    const zone = (ZONE * k) / per;
     for (const st of this.strands) {
-      outline(p, st.s);
+      // A gripping root slides along the outline to its slot in the
+      // attachment zone. It stays on the outline the whole way, so the
+      // strand never detaches.
+      let gather = 0;
+      if (st.grip > 0.01) {
+        let d = near + st.slot * zone - st.s;
+        d -= Math.round(d);
+        gather = d * st.grip;
+      }
+      st.slide += (gather - st.slide) * 0.07;
+      st.root = st.s + st.slide;
+      outline(p, st.root);
       const nx = pt.nx;
       const ny = pt.ny;
       const ax = pt.x - nx * INSET;
@@ -578,7 +681,7 @@ export class Symbiote {
       let gx = 0;
       let gy = 0;
       if (prox > 0) {
-        const ang = st.ringAngle + t * 0.0009 * st.spin;
+        const ang = st.ringAngle + noise(t * 0.0005 + st.seed) * 2.5;
         const tx = this.px + Math.cos(ang) * st.ring * k - ax;
         const ty = this.py + Math.sin(ang) * st.ring * k - ay;
         const dist = Math.hypot(tx, ty) || 1;
@@ -612,7 +715,8 @@ export class Symbiote {
       // Extension, through an underdamped spring: it overshoots going out
       // and recoils coming back.
       const goal = Math.max(grab, free) * (1 - 0.85 * this.recoil);
-      st.ev = (st.ev + (goal - st.e) * st.kE) * 0.8;
+      // Softer on the way in, so a strand reels back rather than crumpling.
+      st.ev = (st.ev + (goal - st.e) * st.kE * (goal < st.e ? 0.6 : 1)) * 0.8;
       st.e += st.ev;
       if (st.e < 0) {
         st.e = 0;
@@ -621,14 +725,26 @@ export class Symbiote {
 
       // Where a free strand points: its normal, curling slowly either way,
       // leaning toward the pointer and swept along by its motion.
-      const curl = Math.sin(t * st.freq * 0.6 + st.phase) * 0.9 * P.wobble;
+      // Drips mostly hang, swaying; everything else curls freely.
+      const curl =
+        noise(t * st.freq * 0.5 + st.seed + 7) * (st.drip ? 0.8 : 1.1) * P.wobble;
       const cc = Math.cos(curl);
       const cs = Math.sin(curl);
       const flen =
-        P.flare * st.length * k * (0.75 + 0.25 * Math.sin(t * st.freq + st.phase * 2));
+        P.flare * st.length * k * (0.8 + 0.3 * noise(t * st.freq + st.seed + 13));
       // Roused strands hang heavy: they droop as they reach.
-      let fx = ax + (nx * cc - ny * cs) * flen;
-      let fy = ay + (nx * cs + ny * cc) * flen + flen * 0.45 * this.inside;
+      let hangX = nx * cc - ny * cs;
+      let hangY = nx * cs + ny * cc;
+      // Drips hang toward gravity rather than standing out from the
+      // surface, so the ones near the ends droop instead of jutting.
+      if (st.drip) {
+        hangY += 1.3;
+        const l = Math.hypot(hangX, hangY);
+        hangX /= l;
+        hangY /= l;
+      }
+      let fx = ax + hangX * flen;
+      let fy = ay + hangY * flen + flen * 0.45 * this.inside;
       if (this.active) {
         fx += ((this.px - ax) * 0.12 + this.vx * 2) * this.inside;
         fy += ((this.py - ay) * 0.12 + this.vy * 2) * this.inside;
@@ -638,12 +754,29 @@ export class Symbiote {
       const dx = gx * wg + fx * (1 - wg) - ax;
       const dy = gy * wg + fy * (1 - wg) - ay;
       const L = Math.hypot(dx, dy);
-      const goalX = ax + dx * st.e;
-      const goalY = ay + dy * st.e;
+      // The spring's overshoot is let through only a little: a tip can't
+      // pass what it grips, so any more would pile up as coils of slack.
+      const reachE = Math.min(st.e, 1.08);
+      const goalX = ax + dx * reachE;
+      const goalY = ay + dy * reachE;
       // A grip goes taut, and so does anything being whipped about.
       const slack =
-        (st.slack + 0.25 * this.inside * (1 - wg)) * (1 - 0.75 * rush) * (1 - 0.4 * wg);
-      const seg = (st.e * L * (1 + slack)) / last;
+        (st.slack + 0.25 * this.inside * (1 - wg)) * (1 - 0.6 * rush) * (1 - 0.25 * wg);
+      const seg = (reachE * L * (1 + slack)) / last;
+      st.restLen = seg * last;
+      st.held = st.grip;
+      st.grip = grab;
+      // A long grip letting go snaps, and flings a droplet off its tip.
+      if (st.held > 0.6 && grab < 0.25 && st.restLen > 110 * k && this.drops.length < 12) {
+        this.drops.push({
+          x: st.x[last],
+          y: st.y[last],
+          vx: (st.x[last] - st.px[last]) * 0.6,
+          vy: (st.y[last] - st.py[last]) * 0.6,
+          r: (2.2 + this.rand() * 1.8) * k,
+          life: 700,
+        });
+      }
       // Across the strand, for the travelling wave.
       const qx = L > 0 ? -dy / L : -ny;
       const qy = L > 0 ? dx / L : nx;
@@ -652,23 +785,42 @@ export class Symbiote {
       const y = st.y;
       x[0] = st.px[0] = ax;
       y[0] = st.py[0] = ay;
-      const cohere = this.cw[last] > 0 ? 0.02 * wg : 0;
+      const cohere = this.cw[last] > 0 ? wg : 0;
       for (let j = 1; j < NODES; j++) {
         const u = j / last;
         const vx = (x[j] - st.px[j]) * DAMP;
         const vy = (y[j] - st.py[j]) * DAMP;
         st.px[j] = x[j];
         st.py[j] = y[j];
+        // A ripple that travels out along the strand, in two octaves.
         const wave =
-          Math.sin(t * st.freq - u * 4.5 + st.phase) +
-          0.45 * Math.sin(t * st.freq * 1.9 + u * 8 + st.phase * 1.7);
+          noise(t * st.freq - u * 1.6 + st.seed) +
+          0.3 * noise(t * st.freq * 2.1 + u * 3 + st.seed + 31);
+        // A grip is held taut by what it holds, so it ripples less.
         const amp =
-          P.wobble * (0.22 + 0.14 * this.inside) * Math.sin(Math.PI * u) * st.e * k;
-        let fx2 = qx * wave * amp + this.vx * 0.012 * u;
-        let fy2 = qy * wave * amp + this.vy * 0.012 * u + GRAVITY * (1 - 0.8 * wg) * k;
+          P.wobble * (0.28 + 0.14 * this.inside) * (1 - 0.45 * wg) *
+          Math.sin(Math.PI * u) * st.e * k;
+        const bend = Math.sin(Math.PI * u);
+        // The middle of a grip trails the pointer's motion, so a sideways
+        // sweep bows the whole strand, and it whips through when the
+        // pointer stops. Free strands are swept along with it instead.
+        let fx2 =
+          qx * wave * amp + this.vx * (0.012 * u * (1 - wg) - BOW * bend * wg);
+        let fy2 =
+          qy * wave * amp +
+          this.vy * (0.012 * u * (1 - wg) - BOW * bend * wg) +
+          GRAVITY * (1 - 0.8 * wg) * k;
+        // Packed tight where it leaves the button, loose through the
+        // middle where the strands separate, drawn in again at the grip.
+        // Only across the strand: pulling along it would bunch up strands
+        // of different lengths and buckle them.
         if (cohere && this.cw[j] > 0) {
-          fx2 += (this.cx[j] / this.cw[j] - x[j]) * cohere * u;
-          fy2 += (this.cy[j] / this.cw[j] - y[j]) * cohere * u;
+          const tight = cohere * (0.06 * Math.exp(-((u / 0.25) ** 2)) + 0.04 * u);
+          const across =
+            ((this.cx[j] / this.cw[j] - x[j]) * qx +
+              (this.cy[j] / this.cw[j] - y[j]) * qy) * tight;
+          fx2 += qx * across;
+          fy2 += qy * across;
         }
         if (j === last) {
           fx2 += (goalX - x[j]) * st.kTip;
@@ -676,6 +828,14 @@ export class Symbiote {
         }
         x[j] += vx + fx2;
         y[j] += vy + fy2;
+        // The first few nodes hold the direction the strand emerged in, so
+        // it leaves the button along the surface normal and only then
+        // curves toward its goal, like the first leg of a Bezier curve.
+        if (j <= 3) {
+          const hold = ROOT_HOLD * (1 - (j - 1) / 3);
+          x[j] += (ax + nx * seg * j - x[j]) * hold;
+          y[j] += (ay + ny * seg * j - y[j]) * hold;
+        }
       }
 
       // Hold the chain together, root pinned.
@@ -696,14 +856,22 @@ export class Symbiote {
             y[j] -= ddy * diff * 0.5;
           }
         }
+        // Bending stiffness: each pass eases every node toward the line
+        // through its neighbours, and the next pass restores the lengths.
+        // Spare length then goes into smooth arcs instead of folding at
+        // the nodes, which is what kinks a chain while it is whipped about.
+        for (let j = 1; j < last; j++) {
+          x[j] += ((x[j - 1] + x[j + 1]) / 2 - x[j]) * STIFF;
+          y[j] += ((y[j - 1] + y[j + 1]) / 2 - y[j]) * STIFF;
+        }
       }
 
-      // Ease out kinks, and keep the strand from cutting behind the
+      // A last smoothing, and keep the strand from cutting behind the
       // button: anything deeper than the roots slides back to that depth,
       // so a strand wraps round the outline instead of through it.
       for (let j = 1; j < last; j++) {
-        x[j] += ((x[j - 1] + x[j + 1]) / 2 - x[j]) * 0.12;
-        y[j] += ((y[j - 1] + y[j + 1]) / 2 - y[j]) * 0.12;
+        x[j] += ((x[j - 1] + x[j + 1]) / 2 - x[j]) * 0.3;
+        y[j] += ((y[j - 1] + y[j + 1]) / 2 - y[j]) * 0.3;
       }
       if (st.e > 0.02) {
         const r = p.h / 2;
@@ -737,6 +905,15 @@ export class Symbiote {
     [this.cx, this.nx] = [ncx, this.cx];
     [this.cy, this.ny] = [ncy, this.cy];
     [this.cw, this.nw] = [ncw, this.cw];
+
+    for (const d of this.drops) {
+      d.vy += 0.28 * k;
+      d.vx *= 0.98;
+      d.x += d.vx;
+      d.y += d.vy;
+      d.life -= STEP;
+    }
+    if (this.drops.length) this.drops = this.drops.filter((d) => d.life > 0);
 
     // The button is tugged a few px toward whatever is holding it.
     let tx = 0;
@@ -808,8 +985,21 @@ export class Symbiote {
     if (total < INSET + 1.5) return false;
 
     const k = this.k;
-    const base = st.width * k * Math.min(1, st.e * 2.2);
+    // Short strands stay slender, so a brief flare is a tendril and not a
+    // stub. And it keeps its volume: stretched it thins, slack it swells.
+    const stretch = st.restLen > 1 ? total / st.restLen : 1;
+    const base =
+      st.width * k * Math.min(1, st.e * 2.2) *
+      clamp(total / ((st.drip ? 30 : 60) * k), st.drip ? 0.7 : 0.5, 1) *
+      clamp(1 / Math.sqrt(stretch), 0.8, 1.15);
+    // Viscous: it narrows, but never to a needle. Drips stay columns.
+    const floor = st.drip ? 0.32 : st.width > 6 ? 0.3 : 0.2;
+    const fall = st.drip ? 1 : 1.3;
+    // A drip that is just hanging swells into a bead at its end.
+    const bulb = st.drip ? base * st.bead * (1 - st.grip) : 0;
     let arc = 0;
+    st.neck = 0;
+    st.fillet = 0;
     for (let j = 0; j < SAMPLES; j++) {
       const j0 = Math.max(j - 1, 0);
       const j1 = Math.min(j + 1, SAMPLES - 1);
@@ -821,13 +1011,17 @@ export class Symbiote {
       nx[j] = -ty;
       ny[j] = tx;
       if (j > 0) arc += Math.hypot(sx[j] - sx[j - 1], sy[j] - sy[j - 1]);
+      if (!st.neck && arc >= (NECK + INSET) * k) st.neck = j;
+      if (!st.fillet && arc >= (FILLET + INSET) * k) st.fillet = j;
       const u = arc / total;
-      // Tapering to a hair at the tip, with a swollen, gooey root where
-      // it leaves the button.
+      // Thickest where it leaves the button - a swelling over the first
+      // couple of strand-widths, measured in px so every strand roots as
+      // solidly - then a steep taper to a fine tip.
       w[j] =
         0.35 +
-        base * (0.18 + 0.82 * Math.pow(1 - u, 1.1)) +
-        base * 1.2 * Math.exp(-((arc / (7 * k)) ** 2));
+        base * (floor + (1 - floor) * Math.pow(1 - u, fall)) +
+        base * 1.25 * Math.exp(-((arc / (18 * k)) ** 2)) +
+        bulb * Math.exp(-(((total - arc - 3.5 * k) / (3.2 * k)) ** 2));
     }
     return true;
   }
@@ -848,17 +1042,21 @@ export class Symbiote {
     ctx.closePath();
   }
 
-  /** The wet highlight: a thin band riding the side that faces the light. */
-  private sheen(st: Strand) {
+  /**
+   * A band riding the side that faces the light, `off` of the width out
+   * from the centre and `half` of it wide: broad and faint for the lit
+   * half of the tube, narrow and bright for the wet highlight.
+   */
+  private sheen(st: Strand, off: number, half: number) {
     const { sx, sy, nx, ny, w } = st;
     const ctx = this.ctx;
     const band = (j: number, side: 1 | -1) => {
       // Continuous in the strand's angle: the band drifts across the
       // centre as the strand turns, instead of jumping sides.
       const lit = nx[j] * LIGHT_X + ny[j] * LIGHT_Y;
-      const off = lit * w[j] * 0.28;
-      const half = w[j] * 0.17 * (0.6 + 0.4 * Math.abs(lit)) * smoothstep(0.8, 2.2, w[j]);
-      ctx.lineTo(sx[j] + nx[j] * (off + side * half), sy[j] + ny[j] * (off + side * half));
+      const o = lit * w[j] * off;
+      const h = w[j] * half * (0.6 + 0.4 * Math.abs(lit)) * smoothstep(0.8, 2.2, w[j]);
+      ctx.lineTo(sx[j] + nx[j] * (o + side * h), sy[j] + ny[j] * (o + side * h));
     };
     ctx.moveTo(sx[0], sy[0]);
     for (let j = 0; j < SAMPLES; j++) band(j, 1);
@@ -866,10 +1064,7 @@ export class Symbiote {
     ctx.closePath();
   }
 
-  /**
-   * Hair-thin filaments that peel off a strand and rejoin it further out,
-   * plus the odd web strung between neighbours.
-   */
+  /** Fine filaments that peel off a cord and rejoin it further out. */
   private threads() {
     const ctx = this.ctx;
     const t = this.time;
@@ -886,29 +1081,157 @@ export class Symbiote {
           const u = (j - ia) / (ib - ia);
           const off =
             f.amp * k * Math.sin(Math.PI * u) *
-            (0.55 + 0.45 * Math.sin(t * f.freq + f.phase + u * 3)) * fade;
+            (0.55 + 0.45 * noise(t * f.freq * 0.5 + f.phase + u * 1.5)) * fade;
           ctx.lineTo(st.sx[j] + st.nx[j] * off, st.sy[j] + st.ny[j] * off);
         }
       }
     }
-    const m1 = Math.round(SAMPLES * 0.45);
-    const m2 = Math.round(SAMPLES * 0.6);
-    for (let i = 0; i < strands.length; i++) {
-      const a = strands[i];
-      const b = strands[(i + 1) % strands.length];
-      if (!a.live || !b.live || a.e < 0.35 || b.e < 0.35) continue;
-      const dx = b.sx[m2] - a.sx[m1];
-      const dy = b.sy[m2] - a.sy[m1];
-      const d = Math.hypot(dx, dy);
-      if (d < 3 || d > 30 * k) continue;
-      ctx.moveTo(a.sx[m1], a.sy[m1]);
-      ctx.quadraticCurveTo(
-        a.sx[m1] + dx / 2,
-        a.sy[m1] + dy / 2 + 3 + d * 0.15,
-        b.sx[m2],
-        b.sy[m2],
-      );
+  }
+
+  /**
+   * The attachment: concave webs of the button's own black spanning the
+   * gaps between neighbouring roots of a gripping bundle, out to where the
+   * strands part, and a fillet joining each outermost strand back into the
+   * edge. Together they read as the button stretching into the strands
+   * rather than strands stuck on to it.
+   */
+  private webs(ox: number, oy: number) {
+    const ctx = this.ctx;
+    const k = this.k;
+    const p = this.pill;
+    const near = this.near;
+    const per = 2 * Math.max(p.w - p.h, 0) + Math.PI * p.h;
+    const bundle = this.strands
+      .filter((st) => st.live && st.grip > 0.3 && st.e > 0.3 && st.neck > 0)
+      .map((st) => {
+        let d = st.root - near;
+        d -= Math.round(d);
+        return { st, d };
+      })
+      .sort((a, b) => a.d - b.d);
+    if (bundle.length === 0) return;
+
+    for (let i = 0; i + 1 < bundle.length; i++) {
+      const a = bundle[i].st;
+      const b = bundle[i + 1].st;
+      const nax = a.sx[a.neck];
+      const nay = a.sy[a.neck];
+      const nbx = b.sx[b.neck];
+      const nby = b.sy[b.neck];
+      if (Math.hypot(nbx - nax, nby - nay) > 30 * k) continue;
+      // Sagging back toward the button, so each web is a concave fold.
+      const cx = (nax + nbx + (a.x[0] + b.x[0] - nax - nbx) * 0.15) / 2;
+      const cy = (nay + nby + (a.y[0] + b.y[0] - nay - nby) * 0.15) / 2;
+      ctx.moveTo(a.x[0] + ox, a.y[0] + oy);
+      ctx.lineTo(nax + ox, nay + oy);
+      ctx.quadraticCurveTo(cx + ox, cy + oy, nbx + ox, nby + oy);
+      ctx.lineTo(b.x[0] + ox, b.y[0] + oy);
+      ctx.closePath();
     }
+
+    for (const [{ st }, side] of [
+      [bundle[0], -1],
+      [bundle[bundle.length - 1], 1],
+    ] as const) {
+      if (!st.fillet) continue;
+      const fx = st.sx[st.fillet];
+      const fy = st.sy[st.fillet];
+      // Only while the strand leaves the edge cleanly: one curled back on
+      // itself would stretch the fillet into a slab.
+      if (Math.hypot(fx - st.x[0], fy - st.y[0]) < FILLET * k) continue;
+      // From a point on the edge a little way along the outline, curving
+      // into the strand, with the corner tucked in against the edge.
+      outline(p, st.root + (side * FILLET * k) / per);
+      const ex = pt.x;
+      const ey = pt.y;
+      const hx = pt.x - pt.nx * INSET;
+      const hy = pt.y - pt.ny * INSET;
+      outline(p, st.root);
+      const cx = pt.x + pt.nx * 2;
+      const cy = pt.y + pt.ny * 2;
+      ctx.moveTo(hx + ox, hy + oy);
+      ctx.lineTo(ex + ox, ey + oy);
+      ctx.quadraticCurveTo(cx + ox, cy + oy, fx + ox, fy + oy);
+      ctx.lineTo(st.x[0] + ox, st.y[0] + oy);
+      ctx.closePath();
+    }
+  }
+
+  /**
+   * The heavy lower rim: a band of the button's own black running along
+   * the whole underside, caps included, with an irregular, slowly
+   * breathing edge that swells into a fillet round every drip and where
+   * a bundle pulls. Its inner edge is tucked under the button, so the
+   * pill's underside simply carries on into it.
+   */
+  private skirt(ox: number, oy: number, grow: number) {
+    const ctx = this.ctx;
+    const p = this.pill;
+    const k = this.k;
+    const t = this.time;
+    const r = p.h / 2;
+    const a = Math.max(p.w - p.h, 0);
+    const per = 2 * a + 2 * Math.PI * r;
+    const s0 = (a + Math.PI * r * 0.42) / per;
+    const s1 = (2 * a + Math.PI * r * 1.58) / per;
+    const N = 72;
+    const pull = this.strands.reduce((m, st) => Math.max(m, st.grip * st.e), 0);
+    const off = (s: number) => {
+      const v = (s - s0) / (s1 - s0);
+      let o = (3 + 2 * noise(s * 11 + t * 0.00018)) * k;
+      for (const st of this.strands) {
+        if (!st.drip) continue;
+        const d = ((s - st.root) * per) / (9 * k);
+        o += 6 * k * Math.min(1, st.e * 1.6) * Math.exp(-d * d);
+      }
+      if (pull > 0.05) {
+        let d = s - this.near;
+        d -= Math.round(d);
+        d = (d * per) / (20 * k);
+        o += 5 * k * pull * Math.exp(-d * d);
+      }
+      return o * smoothstep(0, 0.16, v) * smoothstep(0, 0.16, 1 - v) + grow;
+    };
+    for (let i = 0; i <= N; i++) {
+      const s = s0 + ((s1 - s0) * i) / N;
+      outline(p, s);
+      const o = off(s);
+      const x = pt.x + pt.nx * o + ox;
+      const y = pt.y + pt.ny * o + oy;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    for (let i = N; i >= 0; i--) {
+      outline(p, s0 + ((s1 - s0) * i) / N);
+      ctx.lineTo(pt.x - pt.nx * INSET + ox, pt.y - pt.ny * INSET + oy);
+    }
+    ctx.closePath();
+  }
+
+  /** The beads on the drips' ends, and droplets in flight. */
+  private beads(ox: number, oy: number, grow: number, sheen = false) {
+    const ctx = this.ctx;
+    const k = this.k;
+    const bead = (x: number, y: number, rad: number) => {
+      if (rad < 0.8) return;
+      const cx = sheen ? x + LIGHT_X * rad * 0.38 : x;
+      const cy = sheen ? y + LIGHT_Y * rad * 0.38 : y;
+      const rr = sheen ? rad * 0.28 : rad + grow;
+      ctx.moveTo(cx + ox + rr, cy + oy);
+      ctx.arc(cx + ox, cy + oy, rr, 0, Math.PI * 2);
+    };
+    for (const st of this.strands) {
+      if (!st.drip || !st.live || st.grip > 0.5) continue;
+      // Sits where the width profile's bulb peaks, just short of the end.
+      let arc = 0;
+      let j = SAMPLES - 1;
+      while (j > 1 && arc < 3.5 * k) {
+        arc += Math.hypot(st.sx[j] - st.sx[j - 1], st.sy[j] - st.sy[j - 1]);
+        j--;
+      }
+      bead(st.sx[j], st.sy[j], st.w[j] * 0.48);
+    }
+    for (const d of this.drops) bead(d.x, d.y, d.r * Math.min(1, d.life / 250));
   }
 
   private draw() {
@@ -916,12 +1239,7 @@ export class Symbiote {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, this.width, this.height);
 
-    let any = false;
-    for (const st of this.strands) {
-      st.live = this.sample(st);
-      any ||= st.live;
-    }
-    if (!any) return;
+    for (const st of this.strands) st.live = this.sample(st);
     const live = this.strands.filter((st) => st.live);
 
     // Each pass covers every strand before the next begins, so strands
@@ -931,10 +1249,25 @@ export class Symbiote {
     ctx.beginPath();
     for (const st of live) this.ribbon(st, 1.5, 3.5, 0);
     ctx.fill();
+    ctx.beginPath();
+    this.webs(1.5, 3.5);
+    ctx.fill();
+    ctx.beginPath();
+    this.skirt(1.5, 3.5, 0);
+    ctx.fill();
+    ctx.beginPath();
+    this.beads(1.5, 3.5, 0);
+    ctx.fill();
 
     ctx.fillStyle = RIM;
     ctx.beginPath();
     for (const st of live) this.ribbon(st, 0, 0, 0.75);
+    ctx.fill();
+    ctx.beginPath();
+    this.skirt(0, 0, 0.75);
+    ctx.fill();
+    ctx.beginPath();
+    this.beads(0, 0, 0.75);
     ctx.fill();
     ctx.strokeStyle = RIM;
     ctx.lineWidth = 2.2;
@@ -942,20 +1275,43 @@ export class Symbiote {
     ctx.beginPath();
     this.threads();
     ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    this.webs(0, 0);
+    ctx.stroke();
 
+    // Webs filled on their own: their winding can run against the
+    // ribbons', and sharing a path would punch holes where they overlap.
     ctx.fillStyle = BODY;
+    ctx.beginPath();
+    this.skirt(0, 0, 0);
+    ctx.fill();
+    ctx.beginPath();
+    this.beads(0, 0, 0);
+    ctx.fill();
+    ctx.beginPath();
+    this.webs(0, 0);
+    ctx.fill();
     ctx.beginPath();
     for (const st of live) this.ribbon(st, 0, 0, 0);
     ctx.fill();
     ctx.strokeStyle = BODY;
-    ctx.lineWidth = 0.8;
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
     this.threads();
     ctx.stroke();
 
+    ctx.fillStyle = SHADE;
+    ctx.beginPath();
+    for (const st of live) this.sheen(st, 0.17, 0.33);
+    ctx.fill();
+
     ctx.fillStyle = SHEEN;
     ctx.beginPath();
-    for (const st of live) this.sheen(st);
+    for (const st of live) this.sheen(st, 0.3, 0.09);
+    ctx.fill();
+    ctx.beginPath();
+    this.beads(0, 0, 0, true);
     ctx.fill();
   }
 }

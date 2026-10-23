@@ -16,9 +16,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 3.75rem;
-  padding: 0 2.5rem;
-  border-radius: 9999px;
+  height: 4rem;
+  padding: 0 2.6rem;
+  /* Slightly uneven ends - fuller on the left - so it reads as grown
+     rather than drawn with a compass. Within a few px of a true stadium,
+     which is the outline the tendrils root along. */
+  border-radius: 2.3rem 2rem 2.1rem 2.4rem / 2rem;
+  /* The rim is a gradient border, bright along the top and gone by the
+     underside, so the bottom has no edge line and runs straight on into
+     the symbiote's black below it. */
+  border: 1.5px solid transparent;
   /* Keeps the reflections inside the pill. The focus outline is drawn
      outside the box, so it is unaffected. */
   overflow: hidden;
@@ -34,25 +41,35 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
   background:
     radial-gradient(
-      70% 140% at var(--vb-hx) var(--vb-hy),
-      rgba(255, 255, 255, 0.13),
-      transparent 60%
-    ),
+        70% 140% at var(--vb-hx) var(--vb-hy),
+        rgba(255, 255, 255, 0.13),
+        transparent 60%
+      )
+      padding-box,
+    /* A convex body: lit shoulder, a quick turn through the middle, and
+       an underside that ends in the tendrils' own black. */
     linear-gradient(
-      180deg,
-      #303034 0%,
-      #151517 44%,
-      #050506 56%,
-      #0c0c0d 100%
-    );
+        180deg,
+        #36363b 0%,
+        #1b1b1e 30%,
+        #0b0b0c 52%,
+        #060607 100%
+      )
+      padding-box,
+    linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.24) 0%,
+        rgba(255, 255, 255, 0.08) 30%,
+        rgba(255, 255, 255, 0) 58%
+      )
+      border-box;
   box-shadow:
-    /* The lip of light along the top edge, and a fainter one underneath. */
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.07),
-    /* The belly, turning away from the light. */
-    inset 0 -12px 18px -8px rgba(0, 0, 0, 0.9),
-    /* A hairline rim, so the silhouette holds on a black page. */
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    /* The raised top contour, thickened just inside the rim. */
+    inset 0 2px 1px -1px rgba(255, 255, 255, 0.16),
+    /* Rounding away at the ends and underneath. */
+    inset 10px 0 14px -10px rgba(0, 0, 0, 0.7),
+    inset -10px 0 14px -10px rgba(0, 0, 0, 0.7),
+    inset 0 -14px 20px -8px rgba(0, 0, 0, 0.95),
     /* Raised off the page: a tight contact shadow and a soft long one. */
     0 1px 1px rgba(0, 0, 0, 0.5),
     0 10px 22px -10px rgba(0, 0, 0, 0.75),
@@ -125,8 +142,9 @@
 
 @media (max-width: 640px) {
   .venom-surface {
-    height: 3.375rem;
+    height: 3.5rem;
     padding: 0 2.1rem;
+    border-radius: 2rem 1.75rem 1.85rem 2.1rem / 1.75rem;
     font-size: 1rem;
   }
 }

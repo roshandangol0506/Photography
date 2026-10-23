@@ -15,6 +15,8 @@ import { ScrollExpansion } from "@/components/public/sections/ScrollExpansion";
 import { CinematicSliderSection } from "@/components/public/sections/CinematicSliderSection";
 import { FlowPanel } from "@/components/public/sections/FlowPanel";
 import { HeroDemo1 as HeroGallery } from "@/components/public/sections/HeroGallery";
+import { ZoomParallaxSection } from "@/components/public/sections/ZoomParallaxSection";
+import { UnfurlingGallerySection } from "@/components/public/sections/UnfurlingGallerySection";
 import { SmoothScrollHero } from "@/components/ui/modern-hero";
 import { Skiper31 as TextScroll } from "@/components/ui/text-scroll-animation";
 import { AboutSection } from "@/components/public/sections/AboutSection";
@@ -86,7 +88,10 @@ export default async function HomePage() {
       <FlowPanel>
         <HeroGallery />
       </FlowPanel>
-      <SmoothScrollHero />
+      {/* Both transparent, so the site's blackBg.jpg backdrop shows behind. */}
+      <ZoomParallaxSection />
+      <UnfurlingGallerySection />
+      {/* <SmoothScrollHero /> */}
       {/* `relative` anchors the section's "Scroll to see more" hint to it.
           No Lenis here: it would take over scrolling for the whole page. */}
       <div className="relative">
