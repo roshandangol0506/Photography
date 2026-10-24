@@ -3,7 +3,7 @@ import {
   ImageStreamHero,
   type StreamImage,
 } from "@/components/ui/image-stream-hero";
-import { VenomButton } from "@/components/ui/venom-button";
+import { VenomButton } from "@/components/venom-button";
 
 // The photos in /public are numbered 1.jpg, 2.jpg, ... Several are full-size
 // camera originals (up to ~23 MB), so each goes through the Next image
@@ -47,14 +47,21 @@ export function StreamHero() {
             front and centre.
           </h1>
         </div>
-        <div className="flex flex-col items-center gap-10">
-          <VenomButton href="/contact" />
-          <p className="max-w-md text-balance px-6 text-sm text-md-light/80">
-            A hero that leads with the images instead of describing them. Swap
-            in your own and the corridor rebuilds around them.
-          </p>
-        </div>
+        {/* A fixed-height box, so the button above it can be placed at a
+            known distance from the bottom however many lines the text wraps
+            to. */}
+        <p className="h-24 max-w-md text-balance px-6 text-sm text-md-light/80">
+          A hero that leads with the images instead of describing them. Swap in
+          your own and the corridor rebuilds around them.
+        </p>
       </div>
+      {/* The venom stage covers the whole hero, so its tendrils can reach over
+          the text and the photos. Its button sits 1.5rem above the paragraph:
+          pb-16 (4rem) + the paragraph's h-24 (6rem) + 1.5rem = 11.5rem. */}
+      <VenomButton
+        height="100%"
+        className="absolute inset-0 z-20 items-end rounded-none pb-[11.5rem]"
+      />
     </ImageStreamHero>
   );
 }
