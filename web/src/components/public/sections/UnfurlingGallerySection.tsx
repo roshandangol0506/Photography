@@ -14,7 +14,14 @@ const photo = (n: number): UnfurlingGalleryImage => ({
 
 const IMAGES = Array.from({ length: 14 }, (_, i) => photo(9 + i));
 
-/** The 3D unfurling gallery with photos 9-22. */
-export function UnfurlingGallerySection() {
-  return <ParallaxUnfurlingGallery images={IMAGES} />;
+/**
+ * The 3D unfurling gallery with photos 9-22. With `holdUnderNext`, its last
+ * screen stays in place for the next section to slide up over.
+ */
+export function UnfurlingGallerySection({
+  holdUnderNext = false,
+}: {
+  holdUnderNext?: boolean;
+}) {
+  return <ParallaxUnfurlingGallery images={IMAGES} holdUnderNext={holdUnderNext} />;
 }

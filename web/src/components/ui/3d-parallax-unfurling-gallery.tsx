@@ -50,6 +50,14 @@ export interface UnfurlingGalleryImage {
 interface ParallaxUnfurlingGalleryProps {
   /** Dealt round-robin into four columns; 12-16 fills them well. */
   images: UnfurlingGalleryImage[];
+  /**
+   * Hold the last screen in place once the section has finished, so the
+   * section after it slides up over it instead of the two scrolling past
+   * each other. Give that next section a higher z-index and its own
+   * background, and wrap both in one parent: the hold lasts until the
+   * parent ends.
+   */
+  holdUnderNext?: boolean;
 }
 
 const ImageCard = ({ src, alt }: UnfurlingGalleryImage) => (
@@ -85,6 +93,7 @@ const Column = ({
 
 export function ParallaxUnfurlingGallery({
   images,
+  holdUnderNext = false,
 }: ParallaxUnfurlingGalleryProps) {
   const containerRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
@@ -141,7 +150,10 @@ export function ParallaxUnfurlingGallery({
   return (
     <section
       ref={containerRef}
-      className={`relative w-full ${reduced ? "h-screen" : "h-[600vh]"}`}
+      className={`${holdUnderNext ? "sticky" : "relative"} w-full ${reduced ? "h-screen" : "h-[600vh]"}`}
+      // Sticky with its bottom edge at the bottom of the screen: the section
+      // scrolls normally until its last screen is showing, then stays put.
+      style={holdUnderNext ? { top: reduced ? 0 : "-500vh" } : undefined}
     >
       <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
         <div className="relative mx-auto flex h-full w-full max-w-[1920px] items-center justify-center overflow-hidden backface-hidden transform-3d">

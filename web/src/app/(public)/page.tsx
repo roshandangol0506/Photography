@@ -17,6 +17,8 @@ import { FlowPanel } from "@/components/public/sections/FlowPanel";
 import { HeroDemo1 as HeroGallery } from "@/components/public/sections/HeroGallery";
 import { ZoomParallaxSection } from "@/components/public/sections/ZoomParallaxSection";
 import { UnfurlingGallerySection } from "@/components/public/sections/UnfurlingGallerySection";
+import { OrbitShowcaseSection } from "@/components/public/sections/OrbitShowcaseSection";
+import { ProjectsLocation } from "@/components/public/sections/ProjectsLocation";
 import { SmoothScrollHero } from "@/components/ui/modern-hero";
 import { Skiper31 as TextScroll } from "@/components/ui/text-scroll-animation";
 import { AboutSection } from "@/components/public/sections/AboutSection";
@@ -90,7 +92,16 @@ export default async function HomePage() {
       </FlowPanel>
       {/* Both transparent, so the site's blackBg.jpg backdrop shows behind. */}
       <ZoomParallaxSection />
-      <UnfurlingGallerySection />
+      {/* The gallery's last screen holds still while the orbit section
+          slides up over it, as on the reference. One wrapper, so the hold
+          ends with the orbit section. */}
+      <div className="relative">
+        <UnfurlingGallerySection holdUnderNext />
+        <div className="relative z-10">
+          <OrbitShowcaseSection />
+        </div>
+      </div>
+      <ProjectsLocation />
       {/* <SmoothScrollHero /> */}
       {/* `relative` anchors the section's "Scroll to see more" hint to it.
           No Lenis here: it would take over scrolling for the whole page. */}
