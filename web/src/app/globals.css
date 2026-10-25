@@ -595,6 +595,31 @@ body {
   text-decoration: none;
 }
 
+/* The public site's default type, after the Projects location title:
+   headings h1-h2 in the script of "Projects", h3-h6 in the serif of
+   "LOCATION", paragraphs in Archivo, the body face of the sections.
+
+   Defaults only: in the base layer and wrapped in :where(), so they carry
+   no weight at all - any font a component sets on the element itself, a
+   Tailwind class or its own CSS, wins. Sections that set their own face on
+   a wrapper (the cinematic slider, the story, data-own-font) are left out:
+   a rule on the element would otherwise beat what they hand down. The
+   script has a single weight, so no faux bold is drawn for it. */
+@layer base {
+  :where(.modernist)
+    :where(h1, h2):not(:where(.cine, .story, [data-own-font]) *) {
+    font-family: var(--font-script), var(--font-gilda), Georgia, serif;
+    font-synthesis: none;
+  }
+  :where(.modernist)
+    :where(h3, h4, h5, h6):not(:where(.cine, .story, [data-own-font]) *) {
+    font-family: var(--font-gilda), Georgia, serif;
+  }
+  :where(.modernist) :where(p):not(:where(.cine, .story, [data-own-font]) *) {
+    font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
 /* The public site's backdrop (blackBg.jpg, set as --site-bg by the public
    layout). A fixed layer rather than background-attachment: fixed, which
    repaints on every scroll and is ignored on iOS. Sections leave their own

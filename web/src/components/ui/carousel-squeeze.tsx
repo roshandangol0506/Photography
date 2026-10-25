@@ -372,6 +372,8 @@ export function SqueezeCarousel({
     return (
         <div
             className={cn("flex w-full flex-col", className)}
+            // Sets its own face (Geist) for everything inside.
+            data-own-font=""
             // The breakpoints and widths below read the width this carousel is
             // given, not the width of the window.
             style={{

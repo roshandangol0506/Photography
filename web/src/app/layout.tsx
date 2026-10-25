@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Gilda_Display } from "next/font/google";
+import { scriptFont } from "@/lib/fonts";
 import "./globals.css";
 
 // Self-hosted at build time rather than fetched from Google at runtime: one
@@ -35,7 +36,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${gilda.variable} ${archivo.variable}`}>
+    <html
+      lang="en"
+      className={`${gilda.variable} ${archivo.variable} ${scriptFont.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

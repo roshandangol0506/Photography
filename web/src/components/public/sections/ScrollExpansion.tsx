@@ -4,7 +4,6 @@ import "./scroll-expansion.css";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Pinyon_Script } from "next/font/google";
 import {
   motion,
   useMotionValue,
@@ -13,6 +12,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { scriptFont } from "@/lib/fonts";
 import {
   hflowBusy,
   hflowNeighbour,
@@ -20,9 +20,8 @@ import {
   type HflowEnterDetail,
 } from "@/lib/hflow";
 
-// The calligraphic "Expansive". Only this section uses it, so it is loaded
-// here rather than with the site's fonts.
-const script = Pinyon_Script({ weight: "400", subsets: ["latin"] });
+// The calligraphic "Expansive": the site's shared script (lib/fonts).
+const script = scriptFont;
 
 // Photos from /public, both through next/image so the full-size originals
 // are resized by the optimizer on the way out.

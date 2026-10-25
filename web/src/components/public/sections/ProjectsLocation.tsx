@@ -324,7 +324,7 @@ function Title({
               ? { opacity: titleOpacity }
               : { opacity: titleOpacity, y: titleY }
           }
-          className="block text-[clamp(2.75rem,5.6vw,7rem)] leading-none font-normal tracking-[0.02em] uppercase"
+          className="block font-(family-name:--font-gilda) text-[clamp(2.75rem,5.6vw,7rem)] leading-none font-normal tracking-[0.02em] uppercase"
         >
           location
         </motion.span>
