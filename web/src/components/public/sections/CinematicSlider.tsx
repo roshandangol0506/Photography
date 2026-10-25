@@ -5,7 +5,6 @@ import "./cinematic.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import Image, { getImageProps } from "next/image";
-import { MoveLeft, MoveRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface CinematicSlide {
@@ -76,13 +75,10 @@ const BACKGROUND = `url("${
     .props.src
 }")`;
 
-// The arrow's lean inside the 200px cursor ring: at most 28px off centre (the
-// 22px arrow stays well inside), reached at 24px of pointer travel per event;
-// eased 18% of the way each frame, and released after 80ms without movement.
-const ARROW_MAX_PX = 28;
-const ARROW_FULL_SPEED = 24;
-const ARROW_EASE = 0.18;
-const ARROW_IDLE_MS = 80;
+// The cursor moves like the site's own (components/public/cursor): the arrow
+// sits on the pointer, as the red dot does, and the ring trails it with the
+// same time constant, ms, so shaking the mouse swings the arrow about inside.
+const RING_FOLLOW_MS = 95;
 
 const SWIPE_MIN_PX = 50;
 // A swipe can still end in a click on the zone under the finger.
@@ -167,17 +163,15 @@ export function CinematicSlider({
   const rootRef = useRef<HTMLElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLDivElement>(null);
-  // Arrow drift inside the ring: last pointer position, the offset the
-  // movement asks for (target) and the offset currently drawn, all in px.
+  // The cursor's motion, in px within the slider: the pointer (the arrow's
+  // place) and the ring trailing it, eased toward it once a frame.
   const drift = useRef({
-    lastX: 0,
-    lastY: 0,
     tracking: false,
-    lastMove: 0,
     tx: 0,
     ty: 0,
     x: 0,
     y: 0,
+    t: 0,
     raf: 0,
   });
   const busy = useRef(animate);
@@ -301,9 +295,11 @@ export function CinematicSlider({
   // scroll. Past the first or last slide, onEdge decides (see step): slide
   // on to a neighbouring section, or let the page scroll on.
   const gesture = useRef({ lastT: 0, lastAbs: 0, used: false });
-  const touchNav = useRef<{ y: number; engaged: boolean; used: boolean } | null>(
-    null,
-  );
+  const touchNav = useRef<{
+    y: number;
+    engaged: boolean;
+    used: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (motion !== "full") return;
@@ -429,28 +425,28 @@ export function CinematicSlider({
     return () => flow.removeEventListener("hflow:enter", onEnter);
   }, [count, settle]);
 
-  // The arrow inside the cursor ring leans the way the mouse is moving and
-  // settles back to the centre when it stops. Eased once a frame, and only
-  // while there is something to animate.
+  // The ring eases after the pointer; the arrow is drawn on the pointer, so
+  // inside the ring it is offset by however far the ring lags. Only while
+  // there is something to animate.
   const stepDrift = useCallback(() => {
     const d = drift.current;
-    // No movement for a moment: the mouse has stopped, so let go of the lean.
-    if (performance.now() - d.lastMove > ARROW_IDLE_MS) {
-      d.tx = 0;
-      d.ty = 0;
-    }
-    d.x += (d.tx - d.x) * ARROW_EASE;
-    d.y += (d.ty - d.y) * ARROW_EASE;
-    const settled =
-      d.tx === 0 && d.ty === 0 && Math.abs(d.x) < 0.1 && Math.abs(d.y) < 0.1;
+    const now = performance.now();
+    const dt = Math.min(64, now - (d.t || now));
+    d.t = now;
+    const k = reduced ? 1 : 1 - Math.exp(-dt / RING_FOLLOW_MS);
+    d.x += (d.tx - d.x) * k;
+    d.y += (d.ty - d.y) * k;
+    const settled = Math.abs(d.tx - d.x) < 0.1 && Math.abs(d.ty - d.y) < 0.1;
     if (settled) {
-      d.x = 0;
-      d.y = 0;
+      d.x = d.tx;
+      d.y = d.ty;
     }
+    if (cursorRef.current)
+      cursorRef.current.style.transform = `translate3d(${d.x.toFixed(2)}px, ${d.y.toFixed(2)}px, 0)`;
     if (arrowRef.current)
-      arrowRef.current.style.transform = `translate3d(${d.x.toFixed(2)}px, ${d.y.toFixed(2)}px, 0)`;
+      arrowRef.current.style.transform = `translate3d(${(d.tx - d.x).toFixed(2)}px, ${(d.ty - d.y).toFixed(2)}px, 0)`;
     d.raf = settled ? 0 : requestAnimationFrame(stepDrift);
-  }, []);
+  }, [reduced]);
 
   useEffect(() => {
     const d = drift.current;
@@ -467,25 +463,21 @@ export function CinematicSlider({
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Direction of travel since the last event. Normalised, so a diagonal
-    // leans no further than a straight move; scaled by speed and capped, so
-    // the arrow never leaves the ring.
+    // The pointer is the arrow's place; the ring eases after it. Coming in
+    // afresh, both start on the pointer rather than gliding in from where
+    // the mouse last left.
     const d = drift.current;
-    if (d.tracking && !reduced) {
-      const dx = event.clientX - d.lastX;
-      const dy = event.clientY - d.lastY;
-      const speed = Math.hypot(dx, dy);
-      if (speed > 0.5) {
-        const lean = Math.min(speed / ARROW_FULL_SPEED, 1) * ARROW_MAX_PX;
-        d.tx = (dx / speed) * lean;
-        d.ty = (dy / speed) * lean;
-        d.lastMove = performance.now();
-        if (!d.raf) d.raf = requestAnimationFrame(stepDrift);
-      }
+    d.tx = x;
+    d.ty = y;
+    if (!d.tracking) {
+      d.x = x;
+      d.y = y;
     }
-    d.lastX = event.clientX;
-    d.lastY = event.clientY;
     d.tracking = true;
+    if (!d.raf) {
+      d.t = 0;
+      d.raf = requestAnimationFrame(stepDrift);
+    }
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
       root.dataset.cursor = "on";
@@ -498,8 +490,6 @@ export function CinematicSlider({
         "--cine-my",
         ((y / rect.height - 0.5) * 2).toFixed(3),
       );
-      if (cursorRef.current)
-        cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     });
   };
 
@@ -507,13 +497,8 @@ export function CinematicSlider({
     const root = rootRef.current;
     if (!root) return;
     cancelAnimationFrame(frame.current);
-    // Re-centre the arrow, and measure afresh next time the mouse comes in
-    // rather than from wherever it left.
-    const d = drift.current;
-    d.tracking = false;
-    d.tx = 0;
-    d.ty = 0;
-    if (!d.raf) d.raf = requestAnimationFrame(stepDrift);
+    // Start afresh next time the mouse comes in, not from where it left.
+    drift.current.tracking = false;
     root.dataset.cursor = "off";
     root.style.setProperty("--cine-mx", "0");
     root.style.setProperty("--cine-my", "0");
@@ -681,10 +666,10 @@ export function CinematicSlider({
               any scaling, so a size change can never move the position. */}
           <div ref={cursorRef} className="cine-cursor" aria-hidden="true">
             <div className="cine-cursor-ring">
-              {/* Only this moves: it leans with the mouse inside the ring. */}
+              {/* Only this moves: it stays on the pointer inside the ring. */}
               <div ref={arrowRef} className="cine-cursor-arrow">
-                <MoveLeft className="cine-cursor-prev" strokeWidth={1.5} />
-                <MoveRight className="cine-cursor-next" strokeWidth={1.5} />
+                <LongArrow className="cine-cursor-prev" dir={-1} />
+                <LongArrow className="cine-cursor-next" dir={1} />
               </div>
             </div>
           </div>
@@ -740,3 +725,27 @@ const depth = (k: number) => ({ "--k": k }) as CSSProperties;
 
 /** Stagger slot for a line of copy. */
 const line = (i: number) => ({ "--i": i }) as CSSProperties;
+
+/**
+ * The cursor's arrow: a long, thin shaft with a small head, in place of a
+ * square icon - stretched, not thickened. Drawn pointing right; dir -1
+ * mirrors it.
+ */
+function LongArrow({ dir, className }: { dir: Direction; className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="72"
+      height="28"
+      viewBox="0 0 72 28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={dir === -1 ? { transform: "scaleX(-1)" } : undefined}
+    >
+      <path d="M2 14H70M57 2l13 12-13 12" />
+    </svg>
+  );
+}

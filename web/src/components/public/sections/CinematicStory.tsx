@@ -473,6 +473,8 @@ export function CinematicStory({
                       key={p}
                       className="story-panel"
                       style={{ "--i": p } as CSSProperties}
+                      // The cursor opens into "View project" over it.
+                      data-pointer="view"
                     >
                       <div className="story-pic">
                         <Image

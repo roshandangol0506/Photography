@@ -6,6 +6,8 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { HomeNavbar } from "@/components/public/HomeNavbar";
 import { Footer } from "@/components/public/Footer";
 import { WhatsAppWidget } from "@/components/public/WhatsAppWidget";
+import { AwardBadge } from "@/components/public/AwardBadge";
+import { CustomCursor } from "@/components/public/cursor/CustomCursor";
 
 // The site's backdrop, behind every public page. The original is a ~17MB
 // camera file, so it goes through the image optimizer - at the same size as
@@ -50,7 +52,9 @@ export default async function PublicLayout({
         >
           <HomeNavbar overHero />
           <main className="flex-1">{children}</main>
+          <AwardBadge />
           <WhatsAppWidget />
+          <CustomCursor />
           <Footer settings={settings} categories={categories ?? []} />
         </div>
       </SiteProvider>

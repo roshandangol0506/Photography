@@ -378,17 +378,17 @@
       scale 0.4s var(--cine-ease-out);
   }
   /* Holds the two arrows, stacked. CinematicSlider moves it with
-     transform: translate3d() so the arrow leans with the mouse inside the
-     ring; the ring itself never moves for this. */
+     transform: translate3d() so the arrow stays on the pointer while the
+     ring trails behind. */
   .cine-cursor-arrow {
     display: grid;
     place-items: center;
     will-change: transform;
   }
+  /* Red, like the site cursor's centre dot, and large in the ring. */
   .cine-cursor svg {
     grid-area: 1 / 1;
-    width: 22px;
-    height: 22px;
+    color: #ec3013;
     transition: opacity 0.2s ease;
   }
   .cine[data-cursor="on"] .cine-cursor-ring {

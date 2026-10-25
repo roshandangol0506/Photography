@@ -351,6 +351,19 @@
   animation: story-fade-out 0.3s ease both;
 }
 
+/* Hovering a photo, after the reference: its caption rises up the frame -
+   the title and line together, on the caption's wrapper, since their own
+   transforms belong to the scene entrance. The photo keeps its colours.
+   Leaving reverses it. Only for a real mouse. */
+@media (hover: hover) and (pointer: fine) {
+  .story-cap {
+    transition: transform 0.7s var(--story-ease);
+  }
+  .story-panel:not(.story-panel--link):hover .story-cap {
+    transform: translate3d(0, -14svh, 0);
+  }
+}
+
 /* ------------------------------------------------------------ responsive */
 
 @media (max-width: 900px) {

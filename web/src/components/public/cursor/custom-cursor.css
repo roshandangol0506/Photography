@@ -1,0 +1,146 @@
+/* =========================================================================
+   The site's custom cursor (CustomCursor.tsx).
+
+   Two pieces, each on its own positioned wrapper that the component moves
+   with transform: translate3d(x, y). Only the children below scale, so a
+   scale never multiplies the translation.
+
+     .cc-ring   the thin white ring; trails the pointer a little
+     .cc-dot    the red centre. Drawn at the expanded circle's full size and
+                scaled down to a dot, so growing into the "View project"
+                circle is a pure transform
+
+   States, on [data-mode]: default, link (a wider ring), view / click (the
+   dot opens into the labelled circle while the ring expands and fades),
+   hide. --tone (0-1) darkens the ring toward black (the Venom button).
+   ========================================================================= */
+
+/* Only while the custom cursor is running: hide the system one everywhere,
+   except where typing needs the caret. */
+html.cc-on,
+html.cc-on * {
+  cursor: none !important;
+}
+html.cc-on :is(input, textarea, select, [contenteditable="true"]) {
+  cursor: auto !important;
+}
+
+.cc {
+  --cc-ring: 180px;
+  --cc-circle: 180px;
+  --cc-red: #ec3013;
+  --cc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tone: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.cc-pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.cc-ring,
+.cc-dot {
+  position: absolute;
+  border-radius: 50%;
+  transition:
+    transform 0.55s var(--cc-ease),
+    opacity 0.35s ease;
+}
+
+.cc-ring {
+  width: var(--cc-ring);
+  height: var(--cc-ring);
+  margin: calc(var(--cc-ring) / -2) 0 0 calc(var(--cc-ring) / -2);
+  /* White, darkening to black with the tone - the outline and the inside. */
+  border: 1.5px solid
+    color-mix(in srgb, #0a0a0b calc(var(--tone) * 100%), rgb(255 255 255 / 0.9));
+  background: rgb(10 10 11 / calc(var(--tone) * 0.92));
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / calc(0.25 - var(--tone) * 0.25));
+}
+
+.cc-dot {
+  width: var(--cc-circle);
+  height: var(--cc-circle);
+  margin: calc(var(--cc-circle) / -2) 0 0 calc(var(--cc-circle) / -2);
+  background: var(--cc-red);
+  /* A 10px dot. */
+  transform: scale(calc(10 / 112));
+}
+
+.cc-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  color: #fff;
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+  /* Centred on the circle's middle - the -50%s - and resting 6px low until
+     it rises in. One transform, so nothing else can drop the centring. */
+  transform: translate3d(-50%, calc(-50% + 6px), 0);
+  transition:
+    transform 0.4s var(--cc-ease),
+    opacity 0.2s ease;
+}
+
+/* Hidden until the pointer is in the window, and while pressed a touch
+   smaller. */
+.cc[data-shown="false"] .cc-ring,
+.cc[data-shown="false"] .cc-dot,
+.cc[data-shown="false"] .cc-label {
+  opacity: 0;
+}
+
+/* Over links and buttons. The ring's number multiplies --cc-ring (1.3 of
+   180px is 234px); the dot's is its size in px over --cc-circle's (6px). */
+.cc[data-mode="link"] .cc-ring {
+  transform: scale(1.3);
+}
+.cc[data-mode="link"] .cc-dot {
+  transform: scale(calc(6 / 180));
+}
+
+/* Opening into the labelled circle: the ring swells outward and fades as
+   the dot fills, and the label rises in once the circle is mostly there. */
+.cc[data-mode="view"] .cc-ring,
+.cc[data-mode="click"] .cc-ring {
+  transform: scale(2);
+  opacity: 0;
+}
+.cc[data-mode="view"] .cc-dot,
+.cc[data-mode="click"] .cc-dot {
+  transform: scale(1);
+}
+.cc[data-mode="view"] .cc-label,
+.cc[data-mode="click"] .cc-label {
+  opacity: 1;
+  transform: translate3d(-50%, -50%, 0);
+  transition:
+    transform 0.45s var(--cc-ease) 0.08s,
+    opacity 0.3s ease 0.1s;
+}
+
+.cc[data-mode="hide"] .cc-ring,
+.cc[data-mode="hide"] .cc-dot {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.cc[data-pressed="true"][data-mode="default"] .cc-ring,
+.cc[data-pressed="true"][data-mode="link"] .cc-ring {
+  transform: scale(0.72);
+}
+.cc[data-pressed="true"][data-mode="view"] .cc-dot,
+.cc[data-pressed="true"][data-mode="click"] .cc-dot {
+  transform: scale(0.92);
+}

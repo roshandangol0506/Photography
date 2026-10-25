@@ -42,6 +42,8 @@ const HeroDemo1 = () => {
             // (FlowPanel); --i staggers the cells.
             className="flow-item overflow-hidden rounded-xl shadow-xl"
             style={{ "--i": index } as CSSProperties}
+            // The cursor opens into "View project" over each photo.
+            data-pointer="view"
           >
             <img
               className="size-full object-cover object-center"

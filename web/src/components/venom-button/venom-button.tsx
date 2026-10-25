@@ -215,6 +215,12 @@ export type VenomButtonProps = {
    * Off by default: the button only reacts to the visitor's own cursor or finger.
    */
   autoplay?: boolean;
+  /**
+   * Called every animation frame with how far the goo has the pointer, 0 to 1: rising as it
+   * reaches for it, all the way once it has grabbed hold and its black skin has crept over. A
+   * custom cursor can darken by it, as the glove does.
+   */
+  onReach?: (amount: number) => void;
   className?: string;
 };
 
@@ -228,6 +234,7 @@ export function VenomButton({
   cursor = "glove",
   height = 420,
   autoplay,
+  onReach,
   className,
 }: VenomButtonProps) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -237,6 +244,11 @@ export function VenomButton({
   const handRef = useRef<HTMLCanvasElement>(null);
   const [fallback, setFallback] = useState(false);
   const reduced = !!useReducedMotion();
+  // read through a ref so a new callback never restarts the simulation
+  const onReachRef = useRef(onReach);
+  useEffect(() => {
+    onReachRef.current = onReach;
+  });
 
   useEffect(() => {
     const stage = stageRef.current!, btn = btnRef.current!;
@@ -769,6 +781,12 @@ export function VenomButton({
         const caught = holding && list.some((st) => st.gi === g && Math.hypot(st.ex - gripAt(st.grip).x, st.ey - gripAt(st.grip).y) < 6);
         // it spreads slowly while it holds on, and slides off quickly when it lets go
         coat[g] = caught ? Math.min(1, coat[g] + dt * 0.5) : Math.max(0, coat[g] - dt * 1.4);
+      }
+      // reaching takes it halfway; the skin creeping over the hand does the rest
+      if (onReachRef.current) {
+        let coated = 0;
+        for (let g = 0; g < coat.length; g++) coated = Math.max(coated, coat[g]);
+        onReachRef.current(Math.min(1, (live && !ghost ? seekF : 0) * 0.55 + coated * 0.45));
       }
 
       // ---- the glove, always on top, then the goo wrapped round each finger it has caught ----

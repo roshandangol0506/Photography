@@ -416,6 +416,9 @@ export default function InkBlotCarousel({
       onKeyDown={onKey}
       onPointerDown={onDown}
       onPointerUp={onUp}
+      // A click anywhere moves it on: the site cursor reads "Click me" here
+      // (its own prev / next buttons get the button state instead).
+      data-pointer="click"
     >
       <style>{IB_CSS}</style>
       <div className="ib-base">

@@ -23,5 +23,12 @@ export function UnfurlingGallerySection({
 }: {
   holdUnderNext?: boolean;
 }) {
-  return <ParallaxUnfurlingGallery images={IMAGES} holdUnderNext={holdUnderNext} />;
+  // Over a card the cursor opens into its "Click me" circle.
+  return (
+    <ParallaxUnfurlingGallery
+      images={IMAGES}
+      holdUnderNext={holdUnderNext}
+      cardPointer="click"
+    />
+  );
 }

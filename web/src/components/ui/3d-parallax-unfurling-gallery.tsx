@@ -58,10 +58,21 @@ interface ParallaxUnfurlingGalleryProps {
    * parent ends.
    */
   holdUnderNext?: boolean;
+  /**
+   * The site cursor's state over each card (data-pointer, see lib/cursor),
+   * e.g. "click" for the "Click me" circle.
+   */
+  cardPointer?: string;
 }
 
-const ImageCard = ({ src, alt }: UnfurlingGalleryImage) => (
-  <div className="relative h-[200px] w-full shrink-0 bg-[#111] transition-transform duration-300 will-change-transform backface-hidden transform-3d hover:scale-[1.02] sm:h-[300px] md:h-[400px]">
+const ImageCard = ({
+  src,
+  alt,
+  pointer,
+}: UnfurlingGalleryImage & { pointer?: string }) => (
+  <div
+    data-pointer={pointer}
+    className="relative h-[200px] w-full shrink-0 bg-[#111] transition-transform duration-300 will-change-transform backface-hidden transform-3d hover:scale-[1.02] sm:h-[300px] md:h-[400px]">
     <img
       src={src}
       alt={alt ?? ""}
@@ -76,17 +87,19 @@ const Column = ({
   images,
   column,
   y,
+  pointer,
 }: {
   images: UnfurlingGalleryImage[];
   column: number;
   y?: MotionValue<string>;
+  pointer?: string;
 }) => (
   <motion.div
     style={y ? { y } : undefined}
     className="pointer-events-auto flex w-[22vw] min-w-[200px] flex-col gap-4 md:gap-6"
   >
     {images.map((image, index) => (
-      <ImageCard key={`col${column}-${index}`} {...image} />
+      <ImageCard key={`col${column}-${index}`} {...image} pointer={pointer} />
     ))}
   </motion.div>
 );
@@ -94,6 +107,7 @@ const Column = ({
 export function ParallaxUnfurlingGallery({
   images,
   holdUnderNext = false,
+  cardPointer,
 }: ParallaxUnfurlingGalleryProps) {
   const containerRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
@@ -221,6 +235,7 @@ export function ParallaxUnfurlingGallery({
                   column={c}
                   images={column}
                   y={reduced ? undefined : columnY[c]}
+                  pointer={cardPointer}
                 />
               ))}
             </motion.div>

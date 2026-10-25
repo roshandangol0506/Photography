@@ -199,6 +199,12 @@ export type ImageStreamHeroProps = {
    * @default true
    */
   intro?: boolean;
+  /**
+   * Starts the entrance from outside, so it can run in step with other
+   * motion (a preloader, a heading). Left undefined, the entrance starts by
+   * itself once the photos are decoded.
+   */
+  play?: boolean;
   /** Content rendered above the corridor. */
   children?: React.ReactNode;
   className?: string;
@@ -213,6 +219,7 @@ export function ImageStreamHero({
   axis = 55,
   path,
   intro = true,
+  play,
   children,
   className,
   ...props
@@ -258,16 +265,18 @@ export function ImageStreamHero({
 
   // Hold the entrance (cards hidden, offsets paused) until the photos are
   // decoded, so it never plays out over empty cards - capped, so a slow
-  // network never holds the hero back.
+  // network never holds the hero back. A `play` from outside replaces this.
   const stageRef = React.useRef<HTMLDivElement>(null);
-  const [ready, setReady] = React.useState(!intro);
+  const [decoded, setDecoded] = React.useState(!intro);
+  const ready = !intro || (play ?? decoded);
+  const controlled = play !== undefined;
   React.useEffect(() => {
-    if (!intro) return;
+    if (!intro || controlled) return;
     let settled = false;
     const start = () => {
       if (settled) return;
       settled = true;
-      setReady(true);
+      setDecoded(true);
     };
     const cap = window.setTimeout(start, INTRO_WAIT_MS);
     const imgs = [...(stageRef.current?.querySelectorAll("img") ?? [])];
@@ -276,7 +285,7 @@ export function ImageStreamHero({
       settled = true;
       window.clearTimeout(cap);
     };
-  }, [intro]);
+  }, [intro, controlled]);
 
   const css = React.useMemo(
     () =>
