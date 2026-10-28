@@ -295,7 +295,7 @@ export function ImageStreamHero({
       // already dropped mid-flight by its negative delay, so it freezes as a
       // finished still instead of collapsing onto the axis. The entrance is
       // skipped outright: the cards are simply in place, shown at once.
-      `@media(prefers-reduced-motion:reduce){.${card}{animation-play-state:paused;opacity:1!important}.${gather}{animation:none!important}}`,
+      `@media(prefers-reduced-motion:reduce){.${card}{animation-play-state:paused!important;opacity:1!important}.${gather}{animation:none!important}}`,
     [right, left, card, gather, scatter, p],
   );
 
@@ -371,6 +371,14 @@ export function ImageStreamHero({
                     // Negative delay drops each card mid-flight, so the
                     // corridor is already full on the first frame.
                     animationDelay: `${-(i * speed) / cards}s`,
+                    // Held on that first frame until the entrance starts:
+                    // the entrance offsets are solved for exactly this
+                    // spot, and a card left running behind a long preloader
+                    // drifts - the outermost ones even wrap round to birth,
+                    // across the axis - so they'd scatter from the wrong side.
+                    ...(intro && {
+                      animationPlayState: ready ? "running" : "paused",
+                    }),
                     backfaceVisibility: "hidden",
                     // Hidden until the entrance can start. On the card, not
                     // the wrapper: opacity on a preserve-3d wrapper would

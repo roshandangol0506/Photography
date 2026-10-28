@@ -58,8 +58,8 @@ const END_DWELL_MS = 450;
 const SWIPE_PX = 8;
 
 /* ── the sequence ────────────────────────────────────────────────
- * After the reference's Tenets → Expansive Spaces card. One white card,
- * the full width of the screen and taller than it, holds everything:
+ * After the reference's Tenets → Expansive Spaces card. One card, the
+ * full width of the screen and taller than it, holds everything:
  * TENETS along its top, the photo's frame in its middle, the intro along
  * its bottom. The frame carries "Expansive SPACES" hanging off its left
  * edge and the description beside its right edge.
@@ -68,12 +68,18 @@ const SWIPE_PX = 8;
  *   rise     the card, at a third of its size, rides up from below the
  *            fold at scrolling speed until it is centred
  *   expand   pinned there, it grows to full size (easeInOutQuad), so its
- *            white takes over the screen and TENETS and the intro leave
+ *            surface takes over the screen and TENETS and the intro leave
  *            past the edges. The intro counter-scales so its type keeps
  *            one size on screen. The photo opens from a portrait strip
  *            to the full landscape frame, settling from a slight zoom,
  *            and the frame's title and text fade up over the second half
  *   hold     the finished composition rests before the page moves on
+ *
+ * The card's surface is the site's backdrop texture (blackBg.jpg), held
+ * still on screen: a screen-sized layer inside the card is counter-scaled
+ * and counter-moved against it, so the card opens like a window onto the
+ * site's own background instead of carrying a stretching copy of it, and
+ * at full size it is that background, seamless with the sections around.
  *
  * The scale, counter-scale, strip and zoom values are the reference's
  * own (its landingExpansiveCard* parallax patterns), and lengths are in
@@ -199,6 +205,9 @@ export function ScrollExpansion() {
 
   const cardY = useScene(progress, at, (s) => s.y);
   const cardScale = useScene(progress, at, (s) => s.scale);
+  // The backdrop layer undoes the card's move and scale, so it stays put.
+  const surfaceY = useScene(progress, at, (s) => -s.y / s.scale);
+  const surfaceScale = useScene(progress, at, (s) => 1 / s.scale);
   const introScale = useScene(progress, at, (s) => s.introScale);
   const intro = useScene(progress, at, (s) => s.intro);
   const clipPath = useScene(
@@ -498,7 +507,7 @@ export function ScrollExpansion() {
           {/* The card. Laid out at full size - the stage's width, centred -
               and scaled; its children measure in cqw of it. */}
           <motion.div
-            className="sx-card absolute inset-x-0 bg-white text-[#1a1919]"
+            className="sx-card absolute inset-x-0 overflow-hidden bg-[#0d0d0c] text-[#f5f5f5] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.7)]"
             style={{
               top: (size.h - at.cardH) / 2,
               height: at.cardH,
@@ -507,6 +516,21 @@ export function ScrollExpansion() {
               containerType: "inline-size",
             }}
           >
+            {/* Its surface: the site's backdrop (--site-bg, set by the public
+                layout), one screen in size and centred on the screen - its
+                move and scale are the card's own, undone. */}
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute left-0 w-full"
+              style={{
+                top: (at.cardH - size.h) / 2,
+                height: size.h,
+                y: surfaceY,
+                scale: surfaceScale,
+                background:
+                  "var(--site-bg, none) center / cover no-repeat, #0d0d0c",
+              }}
+            />
             <motion.h2
               className="absolute inset-x-[1.4cqw] top-[1.4cqw] m-0"
               style={{ opacity: intro }}
@@ -531,8 +555,8 @@ export function ScrollExpansion() {
             <motion.p
               className={
                 wide
-                  ? "absolute inset-x-[8.3cqw] bottom-[4.2cqw] m-0 text-center text-[2.4cqw] font-medium leading-[1.25]"
-                  : "absolute inset-x-[7cqw] bottom-[6cqw] m-0 text-center text-[20px] font-medium leading-[1.25]"
+                  ? "absolute inset-x-[8.3cqw] bottom-[4.2cqw] m-0 text-center text-[2.4cqw] font-medium leading-[1.25] text-[#b4b4b4]"
+                  : "absolute inset-x-[7cqw] bottom-[6cqw] m-0 text-center text-[20px] font-medium leading-[1.25] text-[#b4b4b4]"
               }
               style={{
                 scale: introScale,
@@ -577,7 +601,7 @@ export function ScrollExpansion() {
                 style={{ opacity: content }}
               >
                 <span
-                  className={`${script.className} relative -mt-[0.55em] block text-[0.87em] leading-none text-[#717170]`}
+                  className={`${script.className} relative -mt-[0.55em] block text-[0.87em] leading-none text-[#9a9a9a]`}
                 >
                   {COPY.subtitle}
                 </span>{" "}
@@ -597,8 +621,8 @@ export function ScrollExpansion() {
               <motion.p
                 className={
                   wide
-                    ? "absolute bottom-0 left-[calc(100%+1.6cqw)] m-0 w-[10.6cqw] min-w-[140px] text-[clamp(11px,0.8cqw,16px)] leading-[1.35]"
-                    : "absolute left-0 right-0 top-[calc(100%+4cqw)] m-0 text-[clamp(13px,3.6cqw,17px)] leading-[1.45]"
+                    ? "absolute bottom-0 left-[calc(100%+1.6cqw)] m-0 w-[10.6cqw] min-w-[140px] text-[clamp(11px,0.8cqw,16px)] leading-[1.35] text-[#bdbdbd]"
+                    : "absolute left-0 right-0 top-[calc(100%+4cqw)] m-0 text-[clamp(13px,3.6cqw,17px)] leading-[1.45] text-[#bdbdbd]"
                 }
                 style={{
                   opacity: content,

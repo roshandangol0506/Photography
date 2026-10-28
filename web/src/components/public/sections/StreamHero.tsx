@@ -154,36 +154,36 @@ function useFinePointer() {
   return fine;
 }
 
-// Set once the loader has run, so navigating back to the page inside the app
-// replays the entrance without the loader. Only ever set in the browser.
-let loaderShown = false;
-
 /**
  * The landing page hero: the image-stream corridor, left rail 1-10 and right
  * rail 11-20, behind a preloader that hands over to one synchronised entrance.
+ * The preloader runs every time the hero mounts - a reload, or coming back to
+ * the page inside the app - so the page always opens the same way.
  * Carries id="top" for the navbar logo link.
  */
 export function StreamHero() {
-  const [withLoader] = useState(() => !loaderShown);
   const [play, setPlay] = useState(false);
   const finePointer = useFinePointer();
 
-  const reveal = useCallback(() => {
-    loaderShown = true;
-    setPlay(true);
-  }, []);
+  const reveal = useCallback(() => setPlay(true), []);
 
-  // No loader this time: the photos are already cached, so start on the next
-  // frame, once the hidden state has painted.
+  // The page opens on the loader, so it opens at the top too: left to the
+  // browser, a reload mid-page restores the scroll and the entrance plays
+  // out of sight. Reduced motion has no entrance to miss, so it keeps its
+  // place.
   useEffect(() => {
-    if (withLoader) return;
-    const raf = requestAnimationFrame(() => setPlay(true));
-    return () => cancelAnimationFrame(raf);
-  }, [withLoader]);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const prev = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+    return () => {
+      history.scrollRestoration = prev;
+    };
+  }, []);
 
   return (
     <>
-      {withLoader && <HeroLoader assets={ASSETS} onReveal={reveal} />}
+      <HeroLoader assets={ASSETS} onReveal={reveal} />
       {/* Without JavaScript nothing would ever lift the loader or the
           reveal, so both stand down. */}
       <noscript>
