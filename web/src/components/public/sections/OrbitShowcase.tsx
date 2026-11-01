@@ -15,7 +15,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 // The demo's original quote, laid out in the reference's four slots.
 const COPY = {
-  lead: "The cosmos is within us. We are made of star-stuff.",
+  lead: "The process of making the Privy Collection began through exclusion: only a select number of properties can make the cut, the rarest jewels of all. Hand picked in every aspect, these residences are placed uniquely above and away from the rest.",
   title: "Cosmos",
   subtitle: "Carl Sagan",
   close: "We are a way for the universe to know itself.",
@@ -28,33 +28,53 @@ type Range = [number, number];
 // closing paragraph. The closing block is short, so when the pin lets go the
 // paragraph is still in the lower third, level with where the Cosmos title
 // sat, under the ring rather than across it.
+//
+// The gap is the section's pace. The choreography below was designed on a
+// 215svh gap (the whole section scrolling through in 430svh); at 645 it takes
+// twice the scrolling, 860svh, like the reference, with the frame pinned the
+// whole extra way.
 const LEAD_BLOCK = 80;
-const GAP = 215;
+const GAP = 645;
 const CLOSE_BLOCK = 35;
 const SECTION = LEAD_BLOCK + GAP + CLOSE_BLOCK;
+// Where the closing paragraph comes up from the bottom of the screen.
+const CLOSE_AT = LEAD_BLOCK + GAP;
 
 // One timeline for everything, placed in svh of scrolling. 0 is the
-// section's top edge entering at the bottom of the screen; at 100 it reaches
+// section's top edge entering at the bottom of the screen; at PIN it reaches
 // the top and the frame pins; at SECTION the section's bottom edge reaches
 // the bottom of the screen and the pin lets go.
-const at = (svh: number) => svh / SECTION;
+const PIN = 100;
+// The timings below are written on the original design's timeline, where
+// the closing paragraph arrived at 295svh. `paced` stretches the pinned part
+// of it - from the pin to the closing paragraph - over the longer gap, so
+// every beat keeps its place relative to the others and the paragraphs that
+// scroll past. Before the pin nothing changes: the section still arrives at
+// the speed of the page.
+const DESIGN_CLOSE_AT = 295;
+const paced = (svh: number) =>
+  svh <= PIN
+    ? svh
+    : PIN + ((svh - PIN) * (CLOSE_AT - PIN)) / (DESIGN_CLOSE_AT - PIN);
+const at = (svh: number) => paced(svh) / SECTION;
 // The ring straightens out from its arrival pose as the pin takes hold.
 const SETTLE: Range = [at(82), at(155)];
 // Title: rises 20svh into place once the lead paragraph has mostly gone...
 const TITLE_IN: Range = [at(132), at(155)];
 // ...holds, then drifts up 9svh and dims, and is gone just as the closing
-// paragraph comes up from the bottom (at LEAD_BLOCK + GAP = 295svh).
+// paragraph comes up from the bottom (at DESIGN_CLOSE_AT).
 const TITLE_LIFT: Range = [at(238), at(277)];
 const TITLE_GONE = at(290);
 const titleFade = interpolate(
   [TITLE_IN[0], TITLE_IN[1], TITLE_LIFT[0], TITLE_LIFT[1], TITLE_GONE],
   [0, 1, 1, 0.5, 0],
 );
-// How fast the ring turns, in radians per svh of scrolling. It turns for as
-// long as any of the section is on screen, including the final screen as the
-// section scrolls away, so it never stops dead when the pin lets go.
-const TURN_PER_SVH = (Math.PI * 0.85) / 330;
-const TURN = TURN_PER_SVH * (SECTION + 100);
+// How far the ring turns over the whole timeline: the same as in the
+// original design (0.85π per 330svh, over its 430svh), now spread evenly over
+// the longer one. It turns for as long as any of the section is on screen,
+// including the final screen as the section scrolls away, so it never stops
+// dead when the pin lets go.
+const TURN = ((Math.PI * 0.85) / 330) * (DESIGN_CLOSE_AT + CLOSE_BLOCK + 100);
 // The ring also rocks in the screen plane as it turns: right side down and
 // left up, back through level to left down and right up, and so on. One
 // continuous angle on the same timeline as the turn, so it runs both ways
@@ -198,6 +218,12 @@ export function OrbitShowcase({ images }: { images: string[] }) {
  * A large uppercase paragraph, uncovered character by character as it scrolls
  * up the screen. Each character fades over a long, overlapping stretch, so the
  * reveal reads as a soft edge sweeping through the text rather than typing.
+ *
+ * Set after the reference: a light serif in capitals, open leading (1.25)
+ * and tracking (0.02em) in a narrow column, so the lead runs tall - a dozen
+ * or so lines of two or three words. From md up the size follows the column
+ * (1.875vw against its 25vw, 36px at 1920 like the reference), so the
+ * composition holds at every desktop width instead of wrapping taller.
  */
 function Paragraph({ text, reduced }: { text: string; reduced: boolean }) {
   const ref = useRef<HTMLParagraphElement>(null);
@@ -218,7 +244,7 @@ function Paragraph({ text, reduced }: { text: string; reduced: boolean }) {
       ref={ref}
       style={reduced ? undefined : { y }}
       aria-label={text}
-      className="w-full text-title-3 leading-[1.07] tracking-[0.01em] uppercase md:w-[26vw] md:min-w-[18rem]"
+      className="w-full font-title text-title-3 leading-tight font-normal tracking-[0.02em] uppercase md:w-[25vw] md:min-w-[18rem] md:text-[clamp(1.5rem,1.875vw,2.25rem)]"
     >
       {words.map((word, w) => (
         // Words stay whole when the line wraps.

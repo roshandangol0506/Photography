@@ -58,24 +58,27 @@ const MAP_FOCUS = { x: 0.5, y: 0.55 };
 // frame pins; at SECTION the pin lets go. Every stage is placed on this one
 // scale, so they always run in this order and scroll back in reverse.
 // ---------------------------------------------------------------------------
-const SECTION = 560;
+const SECTION = 800;
 
 // Stage 1: the heading rises in as the section arrives ("location" a beat
 // behind "Projects"). The map is held dim and slightly enlarged.
 const SUBTITLE_IN = svh(60, 88);
 const TITLE_IN = svh(68, 100);
-// Stage 2: the heading holds. 130svh of scrolling with nothing changing but
+// Stage 2: the heading holds. 200svh of scrolling with nothing changing but
 // the page, so it takes several deliberate scrolls to move on.
 // Stage 3: the camera pulls back. The map zooms out and brightens while the
 // heading fades where it stands.
-const ZOOM_OUT = svh(230, 330);
-const TITLE_OUT = svh(240, 310);
-// Stage 4: once the zoom-out has finished, the pins come in one by one.
-const PINS_AT = 335 / SECTION;
-// Stage 5: the panel rises from below the screen, then holds while its
-// progress line fills until the pin lets go.
-const PANEL_IN = svh(360, 450);
-const PANEL_HOLD = svh(450, SECTION);
+const ZOOM_OUT = svh(300, 440);
+const TITLE_OUT = svh(310, 410);
+// Stage 4: once the zoom-out has finished, the pins come in one by one, and
+// the map holds on them alone. Their entrance runs on the clock (about 1.6s
+// for the set), so this stretch - more than a screen of scrolling with
+// nothing else moving - is what lets them land before the panel stirs.
+const PINS_AT = 450 / SECTION;
+// Stage 5: only then does the panel rise from below the screen, then hold
+// while its progress line fills until the pin lets go.
+const PANEL_IN = svh(580, 700);
+const PANEL_HOLD = svh(700, SECTION);
 
 // The map behind the heading: dimmed (as on the reference, a black layer over
 // it) and enlarged, so the zoom-out reads as the camera pulling back.
