@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { getImageProps } from "next/image";
 import { MotionConfig, motion, type Variants } from "framer-motion";
 import {
   ImageStreamHero,
+  INTRO_SPLIT,
   type StreamImage,
 } from "@/components/ui/image-stream-hero";
 import { VenomButton } from "@/components/venom-button";
@@ -33,11 +34,16 @@ const RIGHT = range(11, 20);
 const ASSETS = [...LEFT, ...RIGHT].map((p) => p.src);
 
 /* ── the entrance ────────────────────────────────────────────────
- * One cue, `play`, starts all three at once as the loader fades: the
- * photos scatter out from the centre, the heading rises out of its
- * line masks, and the paragraph lifts out of its own. Timings follow
- * the reference: 1.4s on a long soft curve, characters 20ms apart.
+ * One cue, `play`, as the loader fades: the corridor's black bow tie
+ * grows at the centre and breaks open into the cards. The text waits
+ * for the break, as on the reference, then the heading rises out of
+ * its line masks and the paragraph lifts out of its own. Timings
+ * follow the reference: 1.4s on a long soft curve, characters 20ms
+ * apart.
  * ─────────────────────────────────────────────────────────────── */
+
+/** Seconds from the cue to the text: just after the bow tie breaks open. */
+const TEXT_AT = INTRO_SPLIT + 0.45;
 
 /** The reference's title curve: brisk start, very long settle. */
 const EASE = [0.29, 0.52, 0.5, 1] as const;
@@ -46,7 +52,17 @@ const DURATION = 1.4;
 const CHAR_STAGGER = 0.02;
 const LINE_STAGGER = 0.12;
 
-const HEADING = ["Your work,", "front and centre."];
+const HEADING = ["The art", "OF AJAY MAHARJAN"];
+// The first line keeps the headings' script; the second is set in the Tenets
+// title's face, Gilda Display, upright. It has a single weight, so 400 rather
+// than a drawn-in bold.
+const LINE_FONT: (CSSProperties | undefined)[] = [
+  undefined,
+  { fontFamily: "var(--font-gilda), Georgia, serif", fontWeight: 400 },
+];
+// Each line's size: the script large, the capitals below it smaller. Full
+// size from `sm` up; a phone gets them stepped down to fit its width.
+const LINE_SIZE = ["text-5xl sm:text-8xl", "text-3xl sm:text-6xl"];
 
 // Each line starts a line-height and more below its mask, slightly
 // enlarged, and settles from its top-left corner.
@@ -84,7 +100,7 @@ const rise: Variants = {
   shown: {
     y: 0,
     opacity: 1,
-    // In step with the photos, which leave the centre 0.1s in.
+    // Just behind the heading's first line.
     transition: { duration: DURATION, ease: EASE, delay: 0.1 },
   },
 };
@@ -102,7 +118,8 @@ function RevealHeading() {
           <span
             key={text}
             aria-hidden
-            className="-my-[0.12em] block overflow-hidden py-[0.12em]"
+            className={`-my-[0.12em] block overflow-hidden py-[0.12em] ${LINE_SIZE[l]}`}
+            style={LINE_FONT[l]}
           >
             <motion.span
               data-hero-reveal
@@ -156,16 +173,32 @@ function useFinePointer() {
 
 /**
  * The landing page hero: the image-stream corridor, left rail 1-10 and right
- * rail 11-20, behind a preloader that hands over to one synchronised entrance.
+ * rail 11-20 (each rail's cards cycle through all ten), behind a preloader
+ * that hands over to one synchronised entrance.
  * The preloader runs every time the hero mounts - a reload, or coming back to
  * the page inside the app - so the page always opens the same way.
  * Carries id="top" for the navbar logo link.
  */
 export function StreamHero() {
   const [play, setPlay] = useState(false);
+  const [textIn, setTextIn] = useState(false);
   const finePointer = useFinePointer();
 
   const reveal = useCallback(() => setPlay(true), []);
+
+  // The text follows the corridor's break. Reduced motion has no entrance to
+  // wait for, so it comes in with the cue.
+  useEffect(() => {
+    if (!play) return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const t = window.setTimeout(
+      () => setTextIn(true),
+      reduce ? 0 : TEXT_AT * 1000,
+    );
+    return () => window.clearTimeout(t);
+  }, [play]);
 
   // The page opens on the loader, so it opens at the top too: left to the
   // browser, a reload mid-page restores the scroll and the entrance plays
@@ -197,8 +230,6 @@ export function StreamHero() {
         id="top"
         leftImages={LEFT}
         rightImages={RIGHT}
-        // One card per photo, so every photo on each side is on screen.
-        cards={10}
         play={play}
         className="h-screen min-h-[620px] w-full"
       >
@@ -207,7 +238,7 @@ export function StreamHero() {
         <MotionConfig reducedMotion="user">
           <motion.div
             initial="hidden"
-            animate={play ? "shown" : "hidden"}
+            animate={textIn ? "shown" : "hidden"}
             className="relative z-10 flex h-full flex-col items-center justify-between pt-32 pb-16 text-center text-md-light"
           >
             <div className="px-6">

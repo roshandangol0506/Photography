@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   interpolate,
@@ -75,6 +75,27 @@ const TILT_CYCLES = 1;
 export function OrbitShowcase({ images }: { images: string[] }) {
   const reduced = useReducedMotion();
   const section = useRef<HTMLElement>(null);
+
+  // The canvas mounts once the section is within a screen and a half. Its
+  // photos are large GPU textures, and uploading them blocks the page for
+  // seconds at a time: done at load, it froze the hero's preloader and
+  // entrance, screens above. This far ahead, they are in well before the
+  // ring is seen.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = section.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setNear(true);
+        io.disconnect();
+      },
+      { rootMargin: "150% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   const { scrollYProgress: progress } = useScroll({
     target: section,
     offset: ["start end", "end end"],
@@ -113,23 +134,25 @@ export function OrbitShowcase({ images }: { images: string[] }) {
           up over the section before it, it covers it rather than showing it
           through. Once pinned it lines up exactly with the site backdrop. */}
       <div className="sticky top-0 h-svh w-full overflow-hidden bg-(image:--site-bg) bg-cover bg-center">
-        <Canvas
-          frameloop="demand"
-          dpr={[1, 2]}
-          camera={{ fov: 50, near: 0.1, far: 100 }}
-          // Nothing in the scene is interactive, so the canvas lets every
-          // pointer and touch through to the page: no drag, no wheel zoom.
-          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-        >
-          <Suspense fallback={null}>
-            <OrbitGallery
-              images={images}
-              turn={reduced ? stillTurn : turn}
-              settle={reduced ? settled : settle}
-              roll={reduced ? undefined : roll}
-            />
-          </Suspense>
-        </Canvas>
+        {near && (
+          <Canvas
+            frameloop="demand"
+            dpr={[1, 2]}
+            camera={{ fov: 50, near: 0.1, far: 100 }}
+            // Nothing in the scene is interactive, so the canvas lets every
+            // pointer and touch through to the page: no drag, no wheel zoom.
+            style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+          >
+            <Suspense fallback={null}>
+              <OrbitGallery
+                images={images}
+                turn={reduced ? stillTurn : turn}
+                settle={reduced ? settled : settle}
+                roll={reduced ? undefined : roll}
+              />
+            </Suspense>
+          </Canvas>
+        )}
 
         <motion.div
           style={

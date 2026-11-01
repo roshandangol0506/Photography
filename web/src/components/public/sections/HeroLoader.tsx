@@ -114,17 +114,27 @@ export function HeroLoader({ assets, onReveal }: HeroLoaderProps) {
     let raf = 0;
     let hold = 0;
     let shown = 0;
-    let last = performance.now();
-    const t0 = last;
+    let t0 = -1;
+    let last = 0;
     const frame = (now: number) => {
+      // Timed from the first frame, on the frames' own clock. A frame's
+      // timestamp is when it began, which can be earlier than any clock read
+      // here; timed from such a read, the first step ran backwards, and the
+      // ease below turned that into a leap past 100% - the loader would
+      // vanish on its first frame without ever sweeping.
+      if (t0 < 0) t0 = last = now;
       const elapsed = now - t0;
       const real = elapsed >= MAX_WAIT_MS ? 1 : loaded / total;
       const target = Math.min(real, elapsed / SWEEP_MS, 1);
       // Frame-rate independent ease toward the target: quick on a big
-      // jump, soft as it closes in.
-      const dt = (now - last) / 1000;
+      // jump, soft as it closes in. It never overshoots the target, and
+      // never goes back.
+      const dt = Math.max(0, now - last) / 1000;
       last = now;
-      shown += (target - shown) * (1 - Math.exp(-dt / SMOOTHING));
+      shown = Math.max(
+        shown,
+        shown + (target - shown) * (1 - Math.exp(-dt / SMOOTHING)),
+      );
       if (target === 1 && shown > 0.998) shown = 1;
 
       const pct = Math.round(shown * 100);
