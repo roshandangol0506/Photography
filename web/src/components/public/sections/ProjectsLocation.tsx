@@ -258,7 +258,7 @@ function Pin({
         {office ? (
           <Building2 strokeWidth={1.5} className="size-[55%]" />
         ) : (
-          <span className="size-0.75 rounded-full bg-md-light" />
+          <span className="size-0.75 rounded-full bg-md-red" />
         )}
       </span>
       <span

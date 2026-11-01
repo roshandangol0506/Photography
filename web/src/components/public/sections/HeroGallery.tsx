@@ -7,8 +7,8 @@ import {
 
 import type { CSSProperties } from "react";
 import { getImageProps } from "next/image";
-
-import { Button } from "@/components/ui/Button";
+import Link from "next/link";
+import { ArrowDownRight } from "lucide-react";
 
 /**
  * A photo from /public, sent through the Next image optimizer: some originals
@@ -30,6 +30,27 @@ const IMAGES = [
   photo(1, 720), // woman working in a green rice field
   photo(9, 720), // girl with eyes closed, orange powder in her hair
 ];
+
+/**
+ * The hero's one call to action, set like the story section's "Selected
+ * work": sentence-case body text at lead size, a red down-right arrow, and
+ * the text turning red on hover. The hover colours are `!`: `.modernist a`
+ * (globals.css) sets every link's colour outside the layers, which outranks
+ * a plain utility.
+ */
+const LearnMore = () => (
+  <Link
+    href="/about"
+    className="inline-flex items-center gap-3.5 text-lead text-md-light transition-colors duration-200 hover:text-md-red! focus-visible:text-md-red!"
+  >
+    Learn more
+    <ArrowDownRight
+      aria-hidden="true"
+      strokeWidth={1.5}
+      className="size-[1.2em] text-md-red"
+    />
+  </Link>
+);
 
 const HeroDemo1 = () => {
   return (
@@ -62,17 +83,7 @@ const HeroDemo1 = () => {
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Button className="bg-md-red-deep px-4 py-2 text-label font-medium text-md-light uppercase hover:bg-md-light hover:text-md-ink">
-            Get Started
-          </Button>
-          <Button
-            variant="link"
-            className="bg-transparent px-4 py-2 text-label font-medium text-md-light uppercase"
-          >
-            Learn more
-          </Button>
-        </div>
+        <LearnMore />
       </ContainerScale>
     </ContainerScroll>
   );
@@ -106,17 +117,7 @@ const HeroDemo2 = () => {
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Button className="bg-md-red-deep px-4 py-2 text-label font-medium text-md-light uppercase hover:bg-md-light hover:text-md-ink">
-            Get Started
-          </Button>
-          <Button
-            variant={"link"}
-            className="bg-transparent px-4 py-2 text-label font-medium text-md-fg uppercase"
-          >
-            Learn more
-          </Button>
-        </div>
+        <LearnMore />
       </ContainerScale>
     </ContainerScroll>
   );
@@ -150,17 +151,7 @@ const HeroDemo3 = () => {
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Button className="bg-md-red-deep px-4 py-2 text-label font-medium text-md-light uppercase hover:bg-md-light hover:text-md-ink">
-            Get Started
-          </Button>
-          <Button
-            variant={"link"}
-            className="bg-transparent px-4 py-2 text-label font-medium text-md-light uppercase"
-          >
-            Learn more
-          </Button>
-        </div>
+        <LearnMore />
       </ContainerScale>
     </ContainerScroll>
   );

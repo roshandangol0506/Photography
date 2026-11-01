@@ -71,8 +71,8 @@ const VERT = `attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
  * (tapered capsules), spikes and droplets, all joined with a smooth minimum so every join melts
  * into the next. The field also carries a "thickness" so each part is shaded with its own round
  * profile: a pillow for the pill, a tube for a strand. Normals come from that height, and the
- * colour is a near-black lacquer reflecting a simple studio: a softbox above, a window on the left,
- * the pale floor below, plus two sharp glints.
+ * colour is a near-black lacquer softly reflecting a warm studio: a softbox above, a window on
+ * the left, the floor below, plus one small glint.
  */
 const FRAG = `precision highp float;
 uniform vec2 uRes;      // canvas px
@@ -197,9 +197,10 @@ void main(){
     vec3 n = normalize(vec3(g * slope, 1.0));
     vec3 R = reflect(vec3(0.0, 0.0, -1.0), n);
     float fres = 0.05 + 0.95 * pow(1.0 - max(n.z, 0.0), 3.0);
-    col = vec3(0.008, 0.008, 0.01) + min(env(R) * fres, 1.0) * vec3(0.93, 0.94, 0.97);
-    col += pow(max(dot(R, normalize(vec3(-0.35, -0.75, 0.56))), 0.0), 70.0) * 1.2;
-    col += pow(max(dot(R, normalize(vec3(0.55, -0.35, 0.76))), 0.0), 140.0) * 0.55;
+    // the studio is kept soft and warm: the edges catch a gentle sheen and there is one small,
+    // quiet glint, rather than a bright white rim
+    col = vec3(0.008, 0.008, 0.01) + min(env(R) * fres, 1.0) * 0.38 * vec3(0.95, 0.937, 0.918);
+    col += pow(max(dot(R, normalize(vec3(-0.35, -0.75, 0.56))), 0.0), 70.0) * 0.35;
   }
   float alpha = aa + (1.0 - aa) * sh;
   gl_FragColor = vec4(col * aa, alpha);
@@ -1302,11 +1303,8 @@ export function VenomButton({
           background: fallback
             ? "linear-gradient(180deg,#1c1c1e 0%,#0a0a0a 42%,#020202 100%)"
             : "transparent",
-          boxShadow: fallback
-            ? "inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1.5px 0 rgba(255,255,255,.22), 0 18px 28px -14px rgba(0,0,0,.55)"
-            : "none",
-          textShadow:
-            "0 1px 0 rgba(0,0,0,.75), 0 -0.5px 0 rgba(255,255,255,.25)",
+          boxShadow: fallback ? "0 18px 28px -14px rgba(0,0,0,.55)" : "none",
+          textShadow: "0 1px 0 rgba(0,0,0,.75)",
         }}
       >
         {label}

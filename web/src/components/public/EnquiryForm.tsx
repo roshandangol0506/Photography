@@ -100,7 +100,7 @@ export function EnquiryForm({
       <button
         type="submit"
         disabled={createMessage.isPending}
-        className="group/button mt-2 flex w-full cursor-pointer items-center justify-between border border-md-light/60 bg-transparent px-5 py-4 text-label font-medium text-md-light uppercase transition-colors duration-300 hover:border-md-light hover:bg-md-light hover:text-md-ink disabled:cursor-wait disabled:opacity-60"
+        className="group/button mt-2 flex w-full cursor-pointer items-center justify-between border border-md-light/60 bg-transparent px-5 py-4 text-label font-medium text-md-light uppercase transition-colors duration-300 hover:border-md-red-deep hover:bg-md-red-deep hover:text-md-light disabled:cursor-wait disabled:opacity-60"
       >
         {createMessage.isPending ? "Sending…" : "Send enquiry"}
         <ArrowRight
