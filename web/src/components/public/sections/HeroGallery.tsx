@@ -55,20 +55,20 @@ const HeroDemo1 = () => {
       </BentoGrid>
 
       <ContainerScale className="relative z-10 text-center">
-        <h2 className="max-w-xl text-5xl font-bold tracking-tighter text-md-light">
+        <h2 className="max-w-xl text-title-2 text-md-light">
           Your Animated Hero
         </h2>
-        <p className="my-6 max-w-xl text-sm text-md-light/75 md:text-base">
+        <p className="my-6 max-w-xl text-body text-md-light/75">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Button className="bg-indigo-500 px-4 py-2 font-medium hover:bg-indigo-400">
+          <Button className="bg-md-red-deep px-4 py-2 text-label font-medium text-md-light uppercase hover:bg-md-light hover:text-md-ink">
             Get Started
           </Button>
           <Button
             variant="link"
-            className="bg-transparent px-4 py-2 font-medium"
+            className="bg-transparent px-4 py-2 text-label font-medium text-md-light uppercase"
           >
             Learn more
           </Button>
@@ -99,20 +99,20 @@ const HeroDemo2 = () => {
         ))}
       </BentoGrid>
       <ContainerScale className="text-center">
-        <h2 className="max-w-xl text-5xl font-bold tracking-tighter">
+        <h2 className="max-w-xl text-title-2">
           Your Animated Hero
         </h2>
-        <p className="my-6 max-w-xl text-sm text-stone-500 md:text-base">
+        <p className="my-6 max-w-xl text-body text-md-600">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Button className="bg-indigo-700 px-4 py-2 font-medium   hover:bg-indigo-200">
+          <Button className="bg-md-red-deep px-4 py-2 text-label font-medium text-md-light uppercase hover:bg-md-light hover:text-md-ink">
             Get Started
           </Button>
           <Button
             variant={"link"}
-            className="bg-transparent px-4 py-2 font-medium  "
+            className="bg-transparent px-4 py-2 text-label font-medium text-md-fg uppercase"
           >
             Learn more
           </Button>
@@ -124,7 +124,7 @@ const HeroDemo2 = () => {
 
 const HeroDemo3 = () => {
   return (
-    <ContainerScroll className="h-[350vh] bg-slate-900 text-slate-100">
+    <ContainerScroll className="h-[350vh] bg-md-ink text-md-light">
       <BentoGrid
         variant={"threeCells"}
         className="sticky left-0 top-0 h-svh w-full p-4"
@@ -143,20 +143,20 @@ const HeroDemo3 = () => {
         ))}
       </BentoGrid>
       <ContainerScale className="text-center">
-        <h2 className="max-w-xl text-5xl font-bold tracking-tighter ">
+        <h2 className="max-w-xl text-title-2">
           Your Animated Hero
         </h2>
-        <p className="my-6 max-w-xl text-sm opacity-80 md:text-base">
+        <p className="my-6 max-w-xl text-body opacity-80">
           Yet another hero section, this time with scroll trigger animations,
           animating the hero content with motion.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Button className="bg-indigo-700 px-4 py-2 font-medium   hover:bg-indigo-400">
+          <Button className="bg-md-red-deep px-4 py-2 text-label font-medium text-md-light uppercase hover:bg-md-light hover:text-md-ink">
             Get Started
           </Button>
           <Button
             variant={"link"}
-            className="bg-transparent px-4 py-2 font-medium text-white  "
+            className="bg-transparent px-4 py-2 text-label font-medium text-md-light uppercase"
           >
             Learn more
           </Button>

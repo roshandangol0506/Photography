@@ -12,7 +12,6 @@ import {
 } from "framer-motion";
 import { OrbitGallery } from "@/components/ui/cosmos-3d-orbit-gallery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { scriptFont as script } from "@/lib/fonts";
 
 // The demo's original quote, laid out in the reference's four slots.
 const COPY = {
@@ -68,7 +67,7 @@ const TILT_CYCLES = 1;
 
 /**
  * "Cosmos": a pinned, scroll-driven ring of photographs, with a lead
- * paragraph, a script title and a closing paragraph carried over it. The
+ * paragraph, an italic title and a closing paragraph carried over it. The
  * ring turns and rocks with the scroll and keeps orbiting as the section
  * scrolls away.
  */
@@ -127,7 +126,7 @@ export function OrbitShowcase({ images }: { images: string[] }) {
   );
 
   return (
-    <section ref={section} className="relative text-[#989898]">
+    <section ref={section} className="relative text-md-600">
       {/* Pinned layers: the ring and the title. */}
       {/* The frame carries the site's blackBg.jpg itself (the layout sets
           --site-bg), so the section is opaque where it shows: when it slides
@@ -162,9 +161,7 @@ export function OrbitShowcase({ images }: { images: string[] }) {
           }
           className="pointer-events-none absolute inset-x-0 bottom-[6svh] flex flex-col items-center px-6 text-center"
         >
-          <h2
-            className={`${script.className} text-[clamp(3.75rem,8vw,10rem)] leading-[1.15] text-white`}
-          >
+          <h2 className="font-title text-display font-medium text-md-light italic">
             {COPY.title}
           </h2>
           <Words
@@ -172,7 +169,7 @@ export function OrbitShowcase({ images }: { images: string[] }) {
             // Follows the title in, a beat behind.
             range={[TITLE_IN[1] - 0.02, TITLE_IN[1] + 0.03]}
             progress={progress}
-            className="mt-1 max-w-[18rem] font-(family-name:--font-archivo) text-[12px] leading-normal font-medium tracking-[0.12em] text-[#969696] uppercase"
+            className="subtitle mt-1 max-w-[18rem] text-md-600"
           />
         </motion.div>
       </div>
@@ -221,7 +218,7 @@ function Paragraph({ text, reduced }: { text: string; reduced: boolean }) {
       ref={ref}
       style={reduced ? undefined : { y }}
       aria-label={text}
-      className="w-full text-[clamp(1.5rem,2.2vw,2.75rem)] leading-[1.07] tracking-[0.01em] uppercase md:w-[26vw] md:min-w-[18rem]"
+      className="w-full text-title-3 leading-[1.07] tracking-[0.01em] uppercase md:w-[26vw] md:min-w-[18rem]"
     >
       {words.map((word, w) => (
         // Words stay whole when the line wraps.

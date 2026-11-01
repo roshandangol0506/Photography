@@ -55,7 +55,7 @@ export function RecentWorks({
       <SectionHeading kicker="04 — Recent works" title="The archive">
         <Link
           href="/gallery"
-          className="mt-6 inline-block border-b border-md-500 pb-1.5 text-[11px] tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red"
+          className="mt-6 inline-block border-b border-md-500 pb-1.5 text-label font-medium uppercase transition-colors duration-200 hover:text-md-red"
         >
           All {total} photographs &rarr;
         </Link>
@@ -82,7 +82,7 @@ export function RecentWorks({
                 className="absolute inset-0 z-[2]"
               />
 
-              <span className="md-cap pointer-events-none absolute bottom-3 left-3 z-[2] bg-md-ink px-[10px] py-[7px] text-[10px] tracking-[0.14em] text-md-light uppercase">
+              <span className="md-cap pointer-events-none absolute bottom-3 left-3 z-[2] bg-md-ink px-[10px] py-[7px] subtitle text-md-light">
                 {photo.location || photo.title}
               </span>
 
@@ -91,12 +91,12 @@ export function RecentWorks({
                   photoId={photo._id}
                   likeCount={photo.likeCount}
                   size="sm"
-                  className="cursor-pointer text-[10px] tracking-[0.14em] text-md-light uppercase"
+                  className="cursor-pointer text-label text-md-light uppercase"
                 />
                 <CommentCount
                   slug={photo.slug}
                   count={photo.commentCount}
-                  className="text-[10px] tracking-[0.14em] text-md-light uppercase"
+                  className="text-label text-md-light uppercase"
                 />
               </div>
             </PhotoFrame>

@@ -131,21 +131,21 @@ function fillStyle(
   if (bar < active) {
     return {
       inset: "0 0 0 0",
-      background: "rgba(248,244,244,.55)",
+      background: "color-mix(in srgb, var(--color-md-light) 55%, transparent)",
       transition: "inset .5s ease",
     };
   }
   if (bar > active) {
     return {
       inset: "0 100% 0 0",
-      background: "#f8f4f4",
+      background: "var(--color-md-light)",
       transition: "inset .5s ease",
     };
   }
-  if (!animate) return { inset: "0 0 0 0", background: "#ec3013" };
+  if (!animate) return { inset: "0 0 0 0", background: "var(--md-red)" };
   const keyframes = restart % 2 === 0 ? "md-hero-fill-a" : "md-hero-fill-b";
   return {
-    background: "#ec3013",
+    background: "var(--md-red)",
     animation: `${keyframes} ${speed}ms linear forwards`,
   };
 }
@@ -252,19 +252,14 @@ export function Hero({ photos }: { photos: Photo[] }) {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 px-9 pb-[82px] text-md-light">
         <div className="mb-[22px] flex items-center gap-[14px]">
           <span className="h-[2px] w-[52px] bg-md-red" />
-          <span className="text-[11px] tracking-[0.2em] uppercase">
+          <span className="subtitle">
             {heroSettings?.eyebrow || DEFAULT_EYEBROW}
           </span>
         </div>
 
         <h1
-          className="m-0 font-extrabold"
-          style={{
-            fontSize: "clamp(44px,8.4vw,132px)",
-            lineHeight: 0.88,
-            letterSpacing: "-.035em",
-            maxWidth: "min(14em,calc(100% - 150px))",
-          }}
+          className="m-0 text-display"
+          style={{ maxWidth: "min(14em,calc(100% - 150px))" }}
         >
           {headline.map((line) => (
             <span key={line} className="block">
@@ -274,22 +269,19 @@ export function Hero({ photos }: { photos: Photo[] }) {
         </h1>
 
         <div className="mt-[38px] flex flex-wrap items-end justify-between gap-10">
-          <p
-            className="m-0 max-w-[440px] text-[14px]"
-            style={{ lineHeight: 1.7, color: "rgba(248,244,244,.8)" }}
-          >
+          <p className="m-0 max-w-[440px] text-small text-md-light/80">
             {tagline}
           </p>
           <div className="pointer-events-auto flex items-end gap-9">
             <a
               href="#archive"
-              className="inline-flex items-center gap-[18px] bg-md-light px-[22px] py-[17px] text-[12px] font-semibold tracking-[0.18em] text-md-ink! uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light!"
+              className="inline-flex items-center gap-[18px] bg-md-light px-[22px] py-[17px] text-label font-medium text-md-ink! uppercase transition-colors duration-200 hover:bg-md-red hover:text-md-light!"
             >
               {heroSettings?.ctaLabel || DEFAULT_CTA} <span>&rarr;</span>
             </a>
             {count > 0 && (
               <div className="flex items-center gap-[14px] max-[900px]:hidden">
-                <span className="text-[12px] font-semibold tracking-[0.16em]">
+                <span className="subtitle">
                   {pad(active + 1)} / {pad(count)}
                 </span>
               </div>
@@ -311,7 +303,10 @@ export function Hero({ photos }: { photos: Photo[] }) {
             >
               <span
                 className="relative block h-[3px] overflow-hidden"
-                style={{ background: "rgba(248,244,244,.32)" }}
+                style={{
+                  background:
+                    "color-mix(in srgb, var(--color-md-light) 32%, transparent)",
+                }}
               >
                 <span
                   className="absolute"
@@ -324,8 +319,7 @@ export function Hero({ photos }: { photos: Photo[] }) {
       )}
 
       <div
-        className="absolute top-1/2 right-9 origin-center -translate-y-1/2 rotate-90 text-[10px] tracking-[0.3em] uppercase max-[900px]:hidden"
-        style={{ color: "rgba(248,244,244,.6)" }}
+        className="subtitle absolute top-1/2 right-9 origin-center -translate-y-1/2 rotate-90 text-md-light/70 max-[900px]:hidden"
       >
         Scroll
       </div>

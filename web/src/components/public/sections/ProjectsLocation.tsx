@@ -10,7 +10,6 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { scriptFont } from "@/lib/fonts";
 import { EnquiryForm } from "@/components/public/EnquiryForm";
 import { Building2 } from "lucide-react";
 
@@ -32,7 +31,7 @@ export const LOCATION_PINS = [
 ];
 
 // The enquiry panel that rises in after the pins: two small labels across
-// its top, a heading in the section's script-over-capitals style, a line of
+// its top, a heading in the section's italic-over-capitals style, a line of
 // introduction, then the contact form.
 const PANEL = {
   label: "Contact",
@@ -250,16 +249,16 @@ function Pin({
           opacity: shown ? 1 : 0,
           scale: shown || reduced ? 1 : 0.3,
         }}
-        className={`absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[0.7px] border-[#f5f5f5] transition-[opacity,scale] ${
+        className={`absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[0.7px] border-md-light transition-[opacity,scale] ${
           office
-            ? "size-[clamp(1.9rem,2.2vw,2.5rem)] bg-[#f5f5f5] text-[#191919] shadow-[0_0_0_6px_rgba(245,245,245,0.12)]"
+            ? "size-[clamp(1.9rem,2.2vw,2.5rem)] bg-md-light text-md-ink shadow-[0_0_0_6px_color-mix(in_srgb,var(--color-md-light)_12%,transparent)]"
             : "size-[clamp(1.25rem,1.5vw,1.75rem)] bg-black/50"
         }`}
       >
         {office ? (
           <Building2 strokeWidth={1.5} className="size-[55%]" />
         ) : (
-          <span className="size-0.75 rounded-full bg-[#f5f5f5]" />
+          <span className="size-0.75 rounded-full bg-md-light" />
         )}
       </span>
       <span
@@ -268,10 +267,10 @@ function Pin({
           opacity: shown ? 1 : 0,
           translate: shown || reduced ? "0 -50%" : "0 calc(-50% + 8px)",
         }}
-        className={`absolute font-(family-name:--font-archivo) text-[13px] leading-none tracking-[0.02em] whitespace-nowrap transition-[opacity,translate] ${
+        className={`absolute text-caption whitespace-nowrap transition-[opacity,translate] ${
           office
-            ? "left-[clamp(1.4rem,1.6vw,1.9rem)] font-medium text-[#f5f5f5]"
-            : "left-[clamp(1rem,1.2vw,1.4rem)] text-[#a8a8a8]"
+            ? "left-[clamp(1.4rem,1.6vw,1.9rem)] font-medium text-md-light"
+            : "left-[clamp(1rem,1.2vw,1.4rem)] text-md-600"
         }`}
       >
         {name}
@@ -302,7 +301,7 @@ function Title({
     <motion.h2
       id="projects-location-title"
       style={{ opacity }}
-      className="pointer-events-none absolute inset-x-0 top-[45%] flex -translate-y-1/2 flex-col items-center px-6 text-center text-[#f5f5f5]"
+      className="pointer-events-none absolute inset-x-0 top-[45%] flex -translate-y-1/2 flex-col items-center px-6 text-center text-md-light"
     >
       <motion.span
         style={
@@ -310,9 +309,9 @@ function Title({
             ? { opacity: subtitleOpacity }
             : { opacity: subtitleOpacity, y: subtitleY }
         }
-        // The script's long tail tucks down over the capitals, as on the
+        // The italic's descender tucks just over the capitals, as on the
         // reference.
-        className={`${scriptFont.className} relative z-10 mb-[-0.32em] block text-[clamp(3.25rem,6.4vw,8rem)] leading-[1.2]`}
+        className="relative z-10 mb-[-0.12em] block font-title text-display font-medium italic"
       >
         Projects
       </motion.span>
@@ -324,7 +323,7 @@ function Title({
               ? { opacity: titleOpacity }
               : { opacity: titleOpacity, y: titleY }
           }
-          className="block font-(family-name:--font-gilda) text-[clamp(2.75rem,5.6vw,7rem)] leading-none font-normal tracking-[0.02em] uppercase"
+          className="block font-title text-title-1 leading-none tracking-[0.02em] not-italic uppercase"
         >
           location
         </motion.span>
@@ -364,28 +363,28 @@ function Panel({
     <motion.aside
       aria-label="Send an enquiry"
       style={reduced ? { opacity } : { opacity, y }}
-      className="absolute inset-x-4 bottom-4 flex flex-col justify-between bg-[#191919] p-5 pb-10 text-[#f5f5f5] md:inset-x-auto md:top-26 md:right-[1.6vw] md:bottom-[4svh] md:w-[29vw] md:min-w-[18rem] md:pb-[clamp(3.5rem,8svh,5rem)]"
+      className="absolute inset-x-4 bottom-4 flex flex-col justify-between bg-md-ink p-5 pb-10 text-md-light md:inset-x-auto md:top-26 md:right-[1.6vw] md:bottom-[4svh] md:w-[29vw] md:min-w-[18rem] md:pb-[clamp(3.5rem,8svh,5rem)]"
     >
-      <div className="flex justify-between font-(family-name:--font-archivo) text-[11px] leading-none font-medium tracking-[0.12em] text-[#767676] uppercase md:text-[12px]">
+      <div className="subtitle flex justify-between text-md-600">
         <p>{PANEL.label}</p>
         <p>{PANEL.tag}</p>
       </div>
 
-      {/* The section's own heading style, script over capitals, scaled to
+      {/* The section's own heading style, italic over capitals, scaled to
           the panel. Left out on phones, where the sheet has to stay below
           the pins. */}
       <div className="my-8 hidden flex-col items-center text-center md:flex">
         <h3 className="flex flex-col items-center">
           <span
-            className={`${scriptFont.className} relative z-10 mb-[-0.3em] block text-[clamp(2.4rem,3.4vw,4rem)] leading-[1.2]`}
+            className="relative z-10 mb-[-0.1em] block font-title text-title-2 font-medium italic"
           >
             {PANEL.script}
           </span>
-          <span className="block text-[clamp(1.9rem,2.7vw,3.2rem)] leading-none font-normal tracking-[0.06em] uppercase">
+          <span className="block font-title text-title-3 leading-none tracking-[0.06em] uppercase">
             {PANEL.title}
           </span>
         </h3>
-        <p className="mt-4 max-w-76 font-(family-name:--font-archivo) text-[13px] leading-normal text-[#a8a8a8]">
+        <p className="mt-4 max-w-76 text-small text-md-600">
           {PANEL.intro}
         </p>
       </div>
@@ -394,10 +393,10 @@ function Panel({
       <EnquiryForm className="mt-5 max-md:gap-3.5 md:mt-0 md:px-[clamp(0rem,1.6vw,2rem)]" />
 
       {/* Fills as the reader scrolls through the panel's stage. */}
-      <div className="absolute inset-x-5 bottom-5 h-px bg-white/20">
+      <div className="absolute inset-x-5 bottom-5 h-px bg-md-light/20">
         <motion.div
           style={{ scaleX: line }}
-          className="h-px origin-left bg-[#f5f5f5]"
+          className="h-px origin-left bg-md-light"
         />
       </div>
     </motion.aside>

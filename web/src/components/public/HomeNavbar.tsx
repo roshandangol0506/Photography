@@ -21,7 +21,7 @@ const SOLID_OFFSET = 90;
 const MOBILE_QUERY = "(max-width: 900px)";
 
 const LINK_CLASS =
-  "md-navlink text-[11px] font-medium tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red";
+  "md-navlink text-label font-medium text-inherit uppercase transition-colors duration-200 hover:text-md-red";
 
 interface HomeNavbarProps {
   overHero?: boolean;
@@ -80,7 +80,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
             style={{ width: "auto" }}
           />
         ) : (
-          <span className="text-[14px] font-bold tracking-[0.26em] uppercase max-[900px]:text-[12px]">
+          <span className="text-small font-bold tracking-[0.26em] uppercase max-[900px]:text-label">
             {settings.siteTitle || "Ajay Maharjan"}
           </span>
         )}
@@ -117,7 +117,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
 
         <Link
           href="/contact"
-          className="border border-current hover:border-md-red px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] text-inherit uppercase transition-colors duration-200 hover:text-md-red! max-[900px]:px-3 max-[900px]:py-2 max-[900px]:text-[10px]"
+          className="border border-current hover:border-md-red px-4 py-[10px] text-label font-semibold text-inherit uppercase transition-colors duration-200 hover:text-md-red! max-[900px]:px-3 max-[900px]:py-2"
         >
           Get in touch
         </Link>
@@ -127,7 +127,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
         <div className="absolute inset-x-0 top-full hidden flex-col border-b-2 border-md-divider bg-md-ground text-md-fg max-[900px]:flex">
           {LINKS.map((link) => {
             const panelClass =
-              "border-t-2 border-md-divider px-5 py-4 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200 hover:text-md-red";
+              "border-t-2 border-md-divider px-5 py-4 text-label font-medium uppercase transition-colors duration-200 hover:text-md-red";
             return link.route ? (
               <Link
                 key={link.label}

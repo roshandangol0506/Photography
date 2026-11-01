@@ -4,8 +4,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --primary-color: #c5161d;
-  --secondary-color: #044189;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -49,364 +47,82 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
-body {
-  font-family: "Lato", sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
-.entire-form {
-  position: absolute;
-  top: 0px;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  max-width: 400px;
-  right: 0;
-  margin: 0 auto;
-  border-radius: 12px;
-  z-index: 9999991;
+/* ─── Type system ──────────────────────────────────────────────────────
+   Three faces for the whole site (loaded in src/lib/fonts.ts), one job each:
+     font-title     Cormorant Garamond - headings and display type
+     font-subtitle  DM Mono            - eyebrows, kickers, metadata
+     font-body      Archivo            - paragraphs, buttons, links, UI
+   Tailwind's stock sans/serif/mono point at the same three, so nothing can
+   pull in a fourth. `static` emits every variable on :root, so the plain
+   section stylesheets and inline styles can use them too.
+
+   One size scale, smallest last. Each size carries its own line height (and
+   tracking where it has one), so `text-title-2` alone is a finished heading
+   size. Nothing on the public site goes below text-label (12px). */
+@theme static {
+  --font-title: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-subtitle:
+    var(--font-dm-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-title);
+  --font-mono: var(--font-subtitle);
+
+  /* Hero and full-screen section titles. */
+  --text-display: clamp(3.25rem, 7vw, 8.5rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.015em;
+  /* Page titles: About, Gallery, Contact, a photo's title. */
+  --text-title-1: clamp(2.5rem, 5vw, 5.5rem);
+  --text-title-1--line-height: 1.05;
+  --text-title-1--letter-spacing: -0.01em;
+  /* Section headings. */
+  --text-title-2: clamp(2rem, 3.6vw, 3.75rem);
+  --text-title-2--line-height: 1.1;
+  --text-title-2--letter-spacing: -0.005em;
+  /* Sub-section headings, large quotes. */
+  --text-title-3: clamp(1.5rem, 2.4vw, 2.25rem);
+  --text-title-3--line-height: 1.2;
+  /* Card, list and panel titles. */
+  --text-title-4: 1.375rem;
+  --text-title-4--line-height: 1.3;
+  /* Intro paragraph under a title. */
+  --text-lead: clamp(1.0625rem, 1.3vw, 1.25rem);
+  --text-lead--line-height: 1.6;
+  /* Paragraphs, form fields. */
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  /* Secondary copy, nav links, captions under photos. */
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.55;
+  /* Dates, counts, credits, fine print. */
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.45;
+  /* Eyebrows and kickers (with .subtitle). */
+  --text-subtitle: 1.1rem;
+  --text-subtitle--line-height: 1.4;
+  --text-subtitle--letter-spacing: 0.18em;
+  /* Uppercase buttons, form labels, small nav: the floor of the scale. */
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.16em;
 }
 
-/* Form Dialog Overlay */
-.form-dialog-overlay {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 1000;
-  animation: slideUpOverlay 0.3s ease-out;
-  width: 95%;
-  margin: auto;
-}
-
-@keyframes slideUpOverlay {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Form Dialog Content */
-.form-dialog-content {
-  background: white;
-  border-radius: 16px 16px 0 0;
-  max-height: 80vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-/* Header */
-.form-dialog-header {
-  background: linear-gradient(135deg, #4a7ba7 0%, #6b8db5 100%);
-  color: white;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 16px 16px 0 0;
-}
-
-.form-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.form-bot-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.form-header-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.form-close-btn {
-  background: none;
-  border: none;
-  color: blue;
-  cursor: pointer;
-  font-size: 24px;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-  border-radius: 4px;
-}
-
-.form-close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Bot Message */
-.form-bot-message {
-  background: #808080;
-  color: white;
-  padding: 16px;
-  margin: 0;
-}
-
-.form-message-time {
-  font-size: 12px;
-  opacity: 0.8;
-  margin-bottom: 8px;
-}
-
-.form-message-text {
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Form Section */
-.form-section {
-  background: white;
-  padding: 36px 36px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.form-logo-icon {
-  width: 40px;
-  height: 40px;
-}
-
-.form-title {
-  font-size: 16px;
-  font-weight: 600;
-  padding: 10px 0px;
-  color: #1e293b;
-  margin: 0;
-}
-
-/* Form Fields */
-.form-fields {
-  width: 100%;
-  max-width: 280px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.form-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  border: 2px solid var(--primary-color);
-  border-radius: 16px;
-  background: white;
-  transition: all 0.2s;
-}
-
-.form-input-wrapper:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.form-input-icon {
-  color: var(--primary-color);
-  flex-shrink: 0;
-}
-
-.form-input-icon-error {
-  color: #dc2626;
-  flex-shrink: 0;
-}
-
-.form-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 10px 0;
-  font-size: 14px;
-  font-family: inherit;
-  background: transparent;
-  color: #1e293b;
-}
-
-.form-input-error {
-  border-color: #dc2626;
-}
-
-.shake {
-  animation: shake 0.4s ease-in-out;
-}
-
-/* Vibrate animation keyframes */
-@keyframes shake {
-  0% {
-    transform: translate(1px, 1px) rotate(0deg);
-  }
-  10% {
-    transform: translate(-1px, -2px) rotate(-1deg);
-  }
-  20% {
-    transform: translate(-3px, 0px) rotate(1deg);
-  }
-  30% {
-    transform: translate(3px, 2px) rotate(0deg);
-  }
-  40% {
-    transform: translate(1px, -1px) rotate(1deg);
-  }
-  50% {
-    transform: translate(-1px, 2px) rotate(-1deg);
-  }
-  60% {
-    transform: translate(-3px, 1px) rotate(0deg);
-  }
-  70% {
-    transform: translate(3px, 1px) rotate(-1deg);
-  }
-  80% {
-    transform: translate(-1px, -1px) rotate(1deg);
-  }
-  90% {
-    transform: translate(1px, 2px) rotate(0deg);
-  }
-  100% {
-    transform: translate(1px, -2px) rotate(-1deg);
-  }
-}
-
-.form-input::placeholder {
-  color: #94a3b8;
+/* The subtitle role in one class: DM Mono, uppercase, tracked. Colour and
+   spacing stay with the component. */
+@utility subtitle {
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   font-weight: 400;
-  font-size: 13px;
-}
-
-.form-error-text {
-  font-size: 12px;
-  color: #dc2626;
-  padding: 0 16px;
-}
-
-/* Buttons */
-.form-proceed-btn {
-  width: 50%;
-  padding: 8px 24px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-}
-
-.form-proceed-btn:hover {
-  background: var(--secondary-color);
-}
-
-/* Divider */
-.form-divider {
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Google Sign In Button */
-.form-google-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.google-icon {
-  width: 20px;
-  height: 20px;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .form-fields {
-    max-width: 100%;
-  }
-
-  .form-dialog-content {
-    max-height: 90vh;
-  }
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-}
-
-#mobileNumber::-webkit-outer-spin-button,
-#mobileNumber::-webkit-inner-spin-button {
-  /* display: none; <- Crashes Chrome on hover */
-  -webkit-appearance: none;
-  margin: 0;
-  /* <-- Apparently some margin are still there even though it's hidden */
-}
-
-#mobileNumber {
-  appearance: textfield;
-  /* Firefox */
-}
-
-.no-spinner::-webkit-outer-spin-button,
-.no-spinner::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.no-spinner {
-  -moz-appearance: textfield;
+  text-transform: uppercase;
 }
 
 @theme inline {
@@ -512,47 +228,49 @@ body {
 
 /* ─── Modernist home redesign ──────────────────────────────────────────
    Tokens ported from the design handoff. Scoped to `.modernist` so the
-   admin dashboard keeps its own palette and type. */
+   admin dashboard keeps its own palette (the type is shared, above). */
 
-/* Light values are the handoff's tokens verbatim - the default look is
-   unchanged. Dark mode re-points the same variables. */
+/* Warm neutrals and one accent: the photographs carry the colour, so the
+   page stays out of their way. Light is used only outside the public site
+   (admin login, previews); the public site is always dark. */
 :root {
-  --md-ground: #f3f2f2;
-  --md-fg: #201e1d;
-  --md-red: #ec3013;
-  --md-divider: rgba(32, 30, 29, 0.4);
+  --md-ground: #f5f2ed;
+  --md-fg: #141210;
+  /* The deep accent on light grounds: the bright one fails as text there. */
+  --md-red: #c72e12;
+  --md-divider: rgba(20, 18, 16, 0.3);
 
-  --md-100: #f8f4f4;
-  --md-200: #eae7e7;
-  --md-300: #d7d3d3;
-  --md-400: #bab6b6;
-  --md-500: #9b9797;
-  --md-600: #7d7979;
-  --md-700: #605d5d;
-  --md-800: #444141;
-  --md-900: #2d2b2b;
+  --md-100: #faf8f5;
+  --md-200: #ede8e1;
+  --md-300: #dcd6cd;
+  --md-400: #bfb8ae;
+  --md-500: #9a938a;
+  --md-600: #736c64;
+  --md-700: #5c5650;
+  --md-800: #3d3833;
+  --md-900: #24201d;
 }
 
 .dark {
   /* Ground sits below the ink bands so the footer and marquee still read as
      bands rather than merging into the page. */
-  --md-ground: #161514;
-  --md-fg: #f3f2f2;
-  /* Restated so the dark palette wins even when the dashboard has themed the
-     light one - ThemeProvider clears its inline overrides in dark mode. */
+  --md-ground: #0e0d0c;
+  --md-fg: #f3efea;
   --md-red: #ec3013;
-  --md-divider: rgba(248, 244, 244, 0.28);
+  --md-divider: rgba(243, 239, 234, 0.2);
 
-  /* The ramp inverts: low steps stay the surfaces, high steps stay the text. */
-  --md-100: #201e1d;
-  --md-200: #2d2b2b;
-  --md-300: #383535;
-  --md-400: #4a4747;
-  --md-500: #7d7979;
-  --md-600: #9b9797;
-  --md-700: #bab6b6;
-  --md-800: #d7d3d3;
-  --md-900: #f3f2f2;
+  /* The ramp inverts: low steps stay the surfaces, high steps stay the text.
+     600 is the lowest step that passes as small text on the ground (7.3:1);
+     500 is for rules, icons and disabled states only. */
+  --md-100: #1c1a18;
+  --md-200: #2a2724;
+  --md-300: #36322e;
+  --md-400: #4a4540;
+  --md-500: #7a746c;
+  --md-600: #a39e97;
+  --md-700: #bdb7af;
+  --md-800: #d9d3cb;
+  --md-900: #f3efea;
 }
 
 /* `inline` keeps the utilities pointing at the variables, so they resolve per
@@ -575,18 +293,18 @@ body {
 }
 
 /* Fixed in both themes: the ink bands, the text that sits on them and over
-   photography, and the red accent. */
-@theme {
-  --color-md-ink: #201e1d;
-  --color-md-light: #f8f4f4;
-  --color-md-poster: #fff2ef;
+   photography, and the deep accent - the fill for buttons with light text on
+   them (5.5:1 with white, where the bright accent manages only 4.2:1).
+   `static` so the section stylesheets can read them as --color-md-*. */
+@theme static {
+  --color-md-ink: #1c1a18;
+  --color-md-light: #f3efea;
+  --color-md-poster: #fbf1ea;
+  --color-md-red-deep: #c72e12;
 }
 
 .modernist {
-  /* Gilda Display ships a single 400 weight, so Archivo stays in the stack as
-     the fallback and the browser has something real to lean on. */
-  font-family:
-    var(--font-gilda), var(--font-archivo), Georgia, serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -595,28 +313,24 @@ body {
   text-decoration: none;
 }
 
-/* The public site's default type, after the Projects location title:
-   headings h1-h2 in the script of "Projects", h3-h6 in the serif of
-   "LOCATION", paragraphs in Archivo, the body face of the sections.
+/* The public site's default type: every heading in the title face, h1 and h2
+   in its italic, paragraphs in the body face. Everything else - buttons,
+   links, labels - inherits the body face from .modernist.
 
    Defaults only: in the base layer and wrapped in :where(), so they carry
    no weight at all - any font a component sets on the element itself, a
-   Tailwind class or its own CSS, wins. Sections that set their own face on
-   a wrapper (the cinematic slider, the story, data-own-font) are left out:
-   a rule on the element would otherwise beat what they hand down. The
-   script has a single weight, so no faux bold is drawn for it. */
+   Tailwind class or its own CSS, wins. `not-italic` turns the slant off for
+   an h1/h2 that wants it upright. */
 @layer base {
-  :where(.modernist)
-    :where(h1, h2):not(:where(.cine, .story, [data-own-font]) *) {
-    font-family: var(--font-script), var(--font-gilda), Georgia, serif;
-    font-synthesis: none;
+  :where(.modernist) :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-title);
+    font-weight: 500;
   }
-  :where(.modernist)
-    :where(h3, h4, h5, h6):not(:where(.cine, .story, [data-own-font]) *) {
-    font-family: var(--font-gilda), Georgia, serif;
+  :where(.modernist) :where(h1, h2) {
+    font-style: italic;
   }
-  :where(.modernist) :where(p):not(:where(.cine, .story, [data-own-font]) *) {
-    font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  :where(.modernist) :where(p) {
+    font-family: var(--font-body);
   }
 }
 
@@ -627,7 +341,7 @@ body {
 .site-backdrop {
   position: relative;
   isolation: isolate;
-  background-color: #0d0d0c;
+  background-color: #0e0d0c;
 }
 .site-backdrop::before {
   content: "";

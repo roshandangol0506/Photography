@@ -23,15 +23,15 @@ export function AwardsTimeline({ awards }: { awards: Award[] }) {
               "max-[900px]:col-start-1",
             )}
           >
-            <p className="m-0 text-[11px] tracking-[0.16em] text-md-red uppercase">
+            <p className="subtitle m-0 text-md-red">
               {award.year}
               {award.organization && ` — ${award.organization}`}
             </p>
-            <h3 className="mt-3 mb-0 font-bold tracking-[-0.02em] text-[clamp(20px,2.2vw,30px)] leading-[1.2]">
+            <h3 className="mt-3 mb-0 font-title text-title-3">
               {award.title}
             </h3>
             {award.description && (
-              <p className="mt-3 mb-0 max-w-[420px] text-[14px] leading-[1.7] text-md-700">
+              <p className="mt-3 mb-0 max-w-[420px] text-small text-md-700">
                 {award.description}
               </p>
             )}

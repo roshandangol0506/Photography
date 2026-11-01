@@ -21,8 +21,9 @@
   --story-ease: cubic-bezier(0.22, 1, 0.36, 1);
   /* Slow off the mark, then gone - the reference's exit. */
   --story-exit-ease: cubic-bezier(0.55, 0, 0.78, 0.2);
-  --story-light: #f8f4f4; /* md-light */
-  --story-accent: #ec3013; /* md-red */
+  /* Text over the photographs; text on the backdrop takes --md-fg. */
+  --story-light: var(--color-md-light);
+  --story-accent: var(--md-red);
   /* The fixed navbar is ~70px once solid; scenes start below it. */
   --story-top: 72px;
   --g: clamp(6px, 0.7vw, 12px);
@@ -39,8 +40,8 @@
   position: relative;
   height: calc(var(--story-n) * 100vh);
   height: calc(var(--story-n) * 100svh);
-  color: var(--story-light);
-  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  color: var(--md-fg);
+  font-family: var(--font-body);
 }
 .story[data-dir="up"] {
   --s-out: 100%;
@@ -132,6 +133,7 @@
 
 .story-cap {
   position: absolute;
+  color: var(--story-light);
   left: clamp(16px, 2.2vw, 34px);
   right: clamp(16px, 2.2vw, 34px);
   bottom: clamp(14px, 2.2vw, 30px);
@@ -143,20 +145,27 @@
   /* Room for descenders inside the mask. */
   padding-bottom: 0.06em;
 }
+/* Uppercase, so the title face upright, and leading tighter than the
+   token's: capitals have no descenders to make room for. */
 .story-title {
   display: block;
-  font-size: clamp(24px, 3.4vw, 60px);
-  font-weight: 900;
+  font-family: var(--font-title);
+  font-size: var(--text-title-2);
+  font-style: normal;
+  font-weight: 600;
   line-height: 0.95;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--text-title-2--letter-spacing);
   text-transform: uppercase;
   text-shadow: 0 2px 24px rgb(0 0 0 / 0.3);
 }
 .story-sub {
   display: block;
   margin-top: 8px;
-  font-size: 11px;
-  letter-spacing: 0.24em;
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 400;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-transform: uppercase;
   opacity: 0.8;
 }
@@ -170,10 +179,11 @@
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  color: var(--story-light);
-  font-size: clamp(13px, 1vw, 16px);
-  font-weight: 600;
-  letter-spacing: 0.22em;
+  color: var(--md-fg);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: var(--text-body--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
   text-transform: uppercase;
   text-decoration: none;
   transition: color 0.2s ease;
@@ -203,16 +213,18 @@
 }
 .story-eyebrow {
   color: var(--story-accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 800;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-transform: uppercase;
 }
 .story-lede {
   margin: 0;
-  font-size: clamp(18px, 1.55vw, 27px);
-  line-height: 1.6;
-  color: rgb(248 244 244 / 0.86);
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
+  color: color-mix(in srgb, var(--md-fg) 86%, transparent);
 }
 .story-cta {
   display: inline-flex;
@@ -222,9 +234,10 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--story-light);
+  color: var(--md-fg);
   font: inherit;
-  font-size: clamp(18px, 1.6vw, 26px);
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -248,9 +261,11 @@
   margin: 0;
   translate: 0 -50%;
   writing-mode: vertical-rl;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3em;
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 400;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
   pointer-events: none;
 }
@@ -264,10 +279,13 @@
   z-index: 5;
   writing-mode: vertical-rl;
   rotate: 180deg;
-  font-size: 10px;
-  letter-spacing: 0.3em;
+  color: var(--md-600);
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 400;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-transform: uppercase;
-  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -384,12 +402,9 @@
     grid-row: auto;
     grid-column: 1 / -1;
   }
-  .story-lede {
-    font-size: clamp(16px, 4.3vw, 19px);
-    line-height: 1.55;
-  }
   /* Half-width phone panels are ~185px: titles size to the screen so a
-     two-word title fits on its lines without being cut. */
+     two-word title fits on its lines without being cut. Off the scale on
+     purpose - it is a fit, not a step. */
   .story-title {
     font-size: clamp(15px, 4.6vw, 22px);
     line-height: 1.05;

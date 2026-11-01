@@ -52,17 +52,16 @@ const DURATION = 1.4;
 const CHAR_STAGGER = 0.02;
 const LINE_STAGGER = 0.12;
 
-const HEADING = ["The art", "OF AJAY MAHARJAN"];
-// The first line keeps the headings' script; the second is set in the Tenets
-// title's face, Gilda Display, upright. It has a single weight, so 400 rather
-// than a drawn-in bold.
+const HEADING = ["The Art", "OF AJAY MAHARJAN"];
+// The first line keeps the headings' italic; the second is the same title
+// face set upright, as the Tenets title's capitals are.
 const LINE_FONT: (CSSProperties | undefined)[] = [
   undefined,
-  { fontFamily: "var(--font-gilda), Georgia, serif", fontWeight: 400 },
+  { fontFamily: "var(--font-title)", fontStyle: "normal" },
 ];
-// Each line's size: the script large, the capitals below it smaller. Full
-// size from `sm` up; a phone gets them stepped down to fit its width.
-const LINE_SIZE = ["text-5xl sm:text-8xl", "text-3xl sm:text-6xl"];
+// Each line's size: the italic large, the capitals below it smaller. Both
+// sizes are fluid, so a phone gets them stepped down to fit its width.
+const LINE_SIZE = ["text-display", "text-title-2"];
 
 // Each line starts a line-height and more below its mask, slightly
 // enlarged, and settles from its top-left corner.
@@ -108,7 +107,7 @@ const rise: Variants = {
 /** The heading, split into masked lines of characters for the reveal. */
 function RevealHeading() {
   return (
-    <h1 className="text-balance text-4xl font-medium tracking-tight sm:text-6xl">
+    <h1 className="text-balance font-medium">
       <span className="sr-only">{HEADING.join(" ")}</span>
       {HEADING.map((text, l) => {
         let i = 0;
@@ -247,7 +246,7 @@ export function StreamHero() {
             {/* A fixed-height box, so the button above it can be placed at a
                 known distance from the bottom however many lines the text
                 wraps to. The inner span is the mask the text rises out of. */}
-            <p className="h-24 max-w-md text-balance px-6 text-sm text-md-light/80">
+            <p className="h-24 max-w-xl text-balance px-6 text-lg text-md-light/80">
               <span className="block overflow-hidden pb-1">
                 <motion.span data-hero-reveal variants={rise} className="block">
                   A hero that leads with the images instead of describing them.

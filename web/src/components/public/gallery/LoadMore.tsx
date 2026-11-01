@@ -57,7 +57,7 @@ export function LoadMore({ params, perpage, totalPages }: LoadMoreProps) {
           type="button"
           onClick={loadNext}
           disabled={loading}
-          className="mt-8 cursor-pointer border-2 border-md-divider bg-transparent px-6 py-3 text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red disabled:opacity-60"
+          className="mt-8 cursor-pointer border-2 border-md-divider bg-transparent px-6 py-3 text-label font-semibold uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red disabled:opacity-60"
         >
           {loading ? "Loading…" : "Load more"}
         </button>

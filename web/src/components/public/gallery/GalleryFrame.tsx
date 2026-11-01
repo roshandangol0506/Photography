@@ -45,7 +45,7 @@ export function GalleryFrame({
           className="absolute inset-0 z-[2]"
         />
 
-        <span className="md-cap pointer-events-none absolute bottom-3 left-3 z-[2] bg-md-ink px-[10px] py-[7px] text-[10px] tracking-[0.14em] text-md-light uppercase">
+        <span className="md-cap pointer-events-none absolute bottom-3 left-3 z-[2] subtitle bg-md-ink px-[10px] py-[7px] text-md-light">
           {photo.location || photo.title}
         </span>
 
@@ -54,17 +54,17 @@ export function GalleryFrame({
             photoId={photo._id}
             likeCount={photo.likeCount}
             size="sm"
-            className="cursor-pointer text-[10px] tracking-[0.14em] text-md-light uppercase"
+            className="cursor-pointer text-caption text-md-light"
           />
           <CommentCount
             slug={photo.slug}
             count={photo.commentCount}
-            className="text-[10px] tracking-[0.14em] text-md-light uppercase"
+            className="text-caption text-md-light"
           />
         </div>
       </PhotoFrame>
 
-      <p className="mt-3 mb-0 text-[11px] tracking-[0.08em] uppercase">
+      <p className="mt-3 mb-0 text-label tracking-[0.08em] uppercase">
         {photo.title}
       </p>
     </div>

@@ -1,22 +1,6 @@
 import type { Metadata } from "next";
-import { Archivo, Gilda_Display } from "next/font/google";
-import { scriptFont } from "@/lib/fonts";
+import { bodyFont, subtitleFont, titleFont } from "@/lib/fonts";
 import "./globals.css";
-
-// Self-hosted at build time rather than fetched from Google at runtime: one
-// less render-blocking request and no layout shift from a late font swap.
-const gilda = Gilda_Display({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-gilda",
-});
-
-const archivo = Archivo({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-archivo",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -38,7 +22,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${gilda.variable} ${archivo.variable} ${scriptFont.variable}`}
+      className={`${titleFont.variable} ${subtitleFont.variable} ${bodyFont.variable}`}
     >
       <body>{children}</body>
     </html>

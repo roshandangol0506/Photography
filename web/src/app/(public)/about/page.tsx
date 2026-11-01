@@ -13,9 +13,8 @@ const SECTION_CLASS = "px-9 max-[900px]:px-5";
 // photograph sharing the right column.
 const RAIL_CLASS =
   "grid grid-cols-[220px_1fr] gap-x-14 gap-y-12 max-[900px]:grid-cols-1 max-[900px]:gap-y-6";
-const RAIL_TITLE_CLASS =
-  "m-0 text-[clamp(22px,2.4vw,30px)] font-normal tracking-[-0.01em] leading-tight";
-const BODY_CLASS = "m-0 max-w-[640px] text-[14px] leading-[1.75] text-md-700";
+const RAIL_TITLE_CLASS = "m-0 text-title-3 font-normal";
+const BODY_CLASS = "m-0 max-w-[640px] text-body text-md-700";
 
 const HERO_LEAD =
   "I'm Ajay Maharjan, a Kathmandu-based photographer with over a decade of experience capturing the human spirit through portraiture, travel, and documentary photography.";
@@ -89,11 +88,11 @@ export default async function AboutPage() {
         />
 
         <div className="relative flex h-full items-center justify-center px-9 text-md-light max-[900px]:flex-col max-[900px]:gap-8 max-[900px]:px-5">
-          <h1 className="m-0 text-center font-normal tracking-[-0.02em] text-[clamp(52px,9vw,132px)] leading-none">
+          <h1 className="m-0 text-center text-display font-normal">
             About
           </h1>
           {/* Sits to the right of the wordmark on desktop, beneath it below. */}
-          <p className="absolute right-9 m-0 max-w-[290px] text-[13px] leading-[1.65] max-[900px]:static max-[900px]:max-w-[420px] max-[900px]:text-center">
+          <p className="absolute right-9 m-0 max-w-[290px] text-small max-[900px]:static max-[900px]:max-w-[420px] max-[900px]:text-center">
             {HERO_LEAD}
           </p>
         </div>
@@ -142,16 +141,16 @@ export default async function AboutPage() {
       </div>
 
       <section className={`${SECTION_CLASS} pt-[90px] pb-[110px] text-center`}>
-        <h2 className="m-0 font-normal tracking-[-0.02em] text-[clamp(30px,4.4vw,58px)] leading-none">
+        <h2 className="m-0 text-title-2 font-normal">
           Let's work together
         </h2>
-        <p className="mx-auto mt-6 mb-0 max-w-[520px] text-[14px] leading-[1.75] text-md-700">
+        <p className="mx-auto mt-6 mb-0 max-w-[520px] text-lead text-md-700">
           Commissions, prints, workshops and photo tours — tell me what you have
           in mind and I will come back to you personally.
         </p>
         <Link
           href="/contact"
-          className="mt-9 inline-flex items-center gap-4 border-2 border-md-divider px-6 py-4 text-[12px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red"
+          className="mt-9 inline-flex items-center gap-4 border-2 border-md-divider px-6 py-4 text-label font-semibold uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red"
         >
           Get in touch <span aria-hidden="true">&rarr;</span>
         </Link>

@@ -28,7 +28,7 @@ html.cc-on :is(input, textarea, select, [contenteditable="true"]) {
 .cc {
   --cc-ring: 180px;
   --cc-circle: 180px;
-  --cc-red: #ec3013;
+  --cc-red: var(--md-red);
   --cc-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --tone: 0;
   position: fixed;
@@ -78,11 +78,12 @@ html.cc-on :is(input, textarea, select, [contenteditable="true"]) {
   top: 0;
   left: 0;
   white-space: nowrap;
-  color: #fff;
-  font-family: var(--font-archivo), sans-serif;
-  font-size: 10px;
+  color: var(--color-md-light);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--text-label--letter-spacing);
   text-transform: uppercase;
   opacity: 0;
   /* Centred on the circle's middle - the -50%s - and resting 6px low until

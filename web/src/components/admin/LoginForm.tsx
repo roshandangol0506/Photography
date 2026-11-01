@@ -46,27 +46,27 @@ function Form() {
   };
 
   const field =
-    "w-full border-2 border-md-divider bg-transparent px-4 py-3 font-[inherit] text-[14px] text-md-fg outline-none focus:border-md-red";
+    "w-full border-2 border-md-divider bg-transparent px-4 py-3 font-[inherit] text-body text-md-fg outline-none focus:border-md-red";
 
   return (
     <div className="modernist flex min-h-screen items-center justify-center bg-md-ground px-5 text-md-fg">
       <form onSubmit={submit} className="w-full max-w-[380px]">
-        <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
+        <span className="subtitle text-md-red">
           Dashboard
         </span>
-        <h1 className="mt-[14px] mb-8 font-bold tracking-[-0.025em] text-[clamp(28px,4vw,44px)] leading-none">
+        <h1 className="mt-[14px] mb-8 text-title-2">
           {otpStage ? "Enter your code" : "Sign in"}
         </h1>
 
         {forbidden && (
-          <p className="mb-6 border-2 border-md-red px-4 py-3 text-[13px] text-md-red">
+          <p className="mb-6 border-2 border-md-red px-4 py-3 text-caption text-md-red">
             That account does not have dashboard access.
           </p>
         )}
 
         {otpStage ? (
           <label className="flex flex-col gap-2">
-            <span className="text-[10px] tracking-[0.2em] text-md-600 uppercase">
+            <span className="text-label font-medium text-md-600 uppercase">
               One-time code
             </span>
             <input
@@ -80,7 +80,7 @@ function Form() {
         ) : (
           <div className="flex flex-col gap-5">
             <label className="flex flex-col gap-2">
-              <span className="text-[10px] tracking-[0.2em] text-md-600 uppercase">
+              <span className="text-label font-medium text-md-600 uppercase">
                 Email
               </span>
               <input
@@ -93,7 +93,7 @@ function Form() {
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-[10px] tracking-[0.2em] text-md-600 uppercase">
+              <span className="text-label font-medium text-md-600 uppercase">
                 Password
               </span>
               <input
@@ -111,7 +111,7 @@ function Form() {
         <button
           type="submit"
           disabled={pending}
-          className="mt-8 w-full cursor-pointer border-0 bg-md-ink px-6 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-light uppercase transition-colors duration-200 hover:bg-md-red disabled:opacity-60"
+          className="mt-8 w-full cursor-pointer border-0 bg-md-ink px-6 py-4 text-label font-semibold text-md-light uppercase transition-colors duration-200 hover:bg-md-red disabled:opacity-60"
         >
           {pending ? "Please wait…" : otpStage ? "Verify" : "Sign in"}
         </button>

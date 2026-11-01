@@ -71,10 +71,10 @@ function SeriesBand({ group, last }: { group: CountryGroup; last: boolean }) {
       )}
     >
       <div>
-        <p className="m-0 text-[18px] font-bold tracking-[-0.02em]">
+        <p className="m-0 font-title text-title-4 font-medium">
           {group.country}
         </p>
-        <p className="mt-[3px] mb-0 text-[10px] tracking-[0.16em] text-md-600 uppercase">
+        <p className="subtitle mt-[3px] mb-0 text-md-600">
           {group.frames} frames
         </p>
       </div>
@@ -87,7 +87,7 @@ function SeriesBand({ group, last }: { group: CountryGroup; last: boolean }) {
           <Preview src={trail?.coverImage} alt={trail?.name ?? group.country} />
         )}
 
-        <div className="flex-1 text-[10px] leading-[1.7] text-md-700">
+        <div className="flex-1 text-caption text-md-700">
           {group.series.map((series) => (
             <Link
               key={series._id}

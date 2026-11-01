@@ -43,8 +43,8 @@ export function LikeButton({
       disabled={!visitorId || isPending}
       className={cn(
         "flex items-center gap-1.5 transition-colors disabled:opacity-60",
-        size === "sm" ? "text-xs" : "text-sm",
-        liked ? "text-red-500" : "text-current hover:text-red-500",
+        size === "sm" ? "text-caption" : "text-small",
+        liked ? "text-md-red" : "text-current hover:text-md-red",
         className,
       )}
       aria-label={liked ? "Unlike photo" : "Like photo"}

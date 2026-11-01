@@ -12,16 +12,12 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { scriptFont } from "@/lib/fonts";
 import {
   hflowBusy,
   hflowNeighbour,
   hflowSlide,
   type HflowEnterDetail,
 } from "@/lib/hflow";
-
-// The calligraphic "Expansive": the site's shared script (lib/fonts).
-const script = scriptFont;
 
 // Photos from /public, both through next/image so the full-size originals
 // are resized by the optimizer on the way out.
@@ -44,10 +40,11 @@ const ENTRANCE_MS = 1300;
 /**
  * TENETS fills the card's width (less its 1.4cqw insets) at the reference
  * artwork's proportions: a font size of 112/440 of that width, widened to
- * fit. "TENETS" in Gilda Display is 3.795em wide.
+ * fit. "TENETS" in the title face (Cormorant Garamond, upright, weight
+ * 500) is 3.63em wide.
  */
 const TITLE_EM = (97.2 * 112) / 440;
-const TITLE_STRETCH = 97.2 / (TITLE_EM * 3.795);
+const TITLE_STRETCH = 97.2 / (TITLE_EM * 3.63);
 /** A pause this long between wheel events ends one gesture. */
 const GESTURE_GAP_MS = 180;
 /** Time constant of the wheel's glide through the track, ms. */
@@ -507,7 +504,7 @@ export function ScrollExpansion() {
           {/* The card. Laid out at full size - the stage's width, centred -
               and scaled; its children measure in cqw of it. */}
           <motion.div
-            className="sx-card absolute inset-x-0 overflow-hidden bg-[#0d0d0c] text-[#f5f5f5] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.7)]"
+            className="sx-card absolute inset-x-0 overflow-hidden bg-md-ground text-md-fg shadow-[0_30px_90px_-20px_rgba(0,0,0,0.7)]"
             style={{
               top: (size.h - at.cardH) / 2,
               height: at.cardH,
@@ -528,7 +525,7 @@ export function ScrollExpansion() {
                 y: surfaceY,
                 scale: surfaceScale,
                 background:
-                  "var(--site-bg, none) center / cover no-repeat, #0d0d0c",
+                  "var(--site-bg, none) center / cover no-repeat, var(--md-ground)",
               }}
             />
             <motion.h2
@@ -541,9 +538,9 @@ export function ScrollExpansion() {
                   wide), then widened to fill. */}
               <span
                 aria-hidden
-                className="block origin-left whitespace-nowrap uppercase leading-[0.9]"
+                className="block origin-left whitespace-nowrap uppercase not-italic leading-[0.9]"
                 style={{
-                  fontFamily: "var(--font-gilda), Georgia, serif",
+                  fontFamily: "var(--font-title)",
                   fontSize: `${TITLE_EM}cqw`,
                   transform: `scaleX(${TITLE_STRETCH})`,
                 }}
@@ -555,14 +552,14 @@ export function ScrollExpansion() {
             <motion.p
               className={
                 wide
-                  ? "absolute inset-x-[8.3cqw] bottom-[4.2cqw] m-0 text-center text-[2.4cqw] font-medium leading-[1.25] text-[#b4b4b4]"
-                  : "absolute inset-x-[7cqw] bottom-[6cqw] m-0 text-center text-[20px] font-medium leading-[1.25] text-[#b4b4b4]"
+                  ? "absolute inset-x-[8.3cqw] bottom-[4.2cqw] m-0 text-center text-[2.4cqw] font-medium leading-[1.25] text-md-700"
+                  : "absolute inset-x-[7cqw] bottom-[6cqw] m-0 text-center text-lead font-medium leading-[1.25] text-md-700"
               }
               style={{
                 scale: introScale,
                 opacity: intro,
                 transformOrigin: "50% 100%",
-                fontFamily: "var(--font-archivo), sans-serif",
+                fontFamily: "var(--font-body)",
               }}
             >
               {COPY.intro}
@@ -595,20 +592,20 @@ export function ScrollExpansion() {
               <motion.h3
                 className={
                   wide
-                    ? "absolute right-[calc(100%-1em)] top-0 m-0 whitespace-nowrap text-[7.6cqw] font-normal"
-                    : "absolute bottom-[calc(100%+2cqw)] left-0 m-0 whitespace-nowrap text-[clamp(40px,12cqw,84px)] font-normal"
+                    ? "absolute right-[calc(100%-1em)] top-0 m-0 whitespace-nowrap text-[7.6cqw]"
+                    : "absolute bottom-[calc(100%+2cqw)] left-0 m-0 whitespace-nowrap text-[clamp(40px,12cqw,84px)]"
                 }
                 style={{ opacity: content }}
               >
                 <span
-                  className={`${script.className} relative -mt-[0.55em] block text-[0.87em] leading-none text-[#9a9a9a]`}
+                  className="relative -mt-[0.55em] block font-title text-[0.87em] leading-none font-medium text-md-600 italic"
                 >
                   {COPY.subtitle}
                 </span>{" "}
                 <span
                   className="block pl-[0.7em] text-[0.72em] uppercase leading-none tracking-[0.02em]"
                   style={{
-                    fontFamily: "var(--font-gilda), Georgia, serif",
+                    fontFamily: "var(--font-title)",
                     paddingTop: wide ? "0.4cqw" : "0.5cqw",
                   }}
                 >
@@ -621,12 +618,12 @@ export function ScrollExpansion() {
               <motion.p
                 className={
                   wide
-                    ? "absolute bottom-0 left-[calc(100%+1.6cqw)] m-0 w-[10.6cqw] min-w-[140px] text-[clamp(11px,0.8cqw,16px)] leading-[1.35] text-[#bdbdbd]"
-                    : "absolute left-0 right-0 top-[calc(100%+4cqw)] m-0 text-[clamp(13px,3.6cqw,17px)] leading-[1.45] text-[#bdbdbd]"
+                    ? "absolute bottom-0 left-[calc(100%+1.6cqw)] m-0 w-[10.6cqw] min-w-[140px] text-[clamp(12px,0.8cqw,16px)] leading-[1.35] text-md-700"
+                    : "absolute left-0 right-0 top-[calc(100%+4cqw)] m-0 text-[clamp(13px,3.6cqw,17px)] leading-[1.45] text-md-700"
                 }
                 style={{
                   opacity: content,
-                  fontFamily: "var(--font-archivo), sans-serif",
+                  fontFamily: "var(--font-body)",
                 }}
               >
                 {COPY.text}

@@ -15,20 +15,20 @@ const contactSchema = z.object({
 
 type ContactForm = z.infer<typeof contactSchema>;
 
-// Styled for the dark Projects location panel: hairline underlines that
-// brighten on focus, small tracked labels in the panel's grey, and text in
-// the same soft white as the rest of the section.
+// Styled for the ink Projects location panel: hairline underlines that
+// brighten on focus, small tracked labels in the muted grey, and text in
+// the same warm light as the rest of the section.
 const LABEL_CLASS =
-  "font-(family-name:--font-archivo) text-[10px] leading-none font-medium tracking-[0.18em] text-[#767676] uppercase transition-colors duration-300 group-focus-within:text-[#f5f5f5]";
+  "text-label font-medium text-md-600 uppercase transition-colors duration-300 group-focus-within:text-md-light";
 const FIELD_CLASS = [
-  "w-full border-0 border-b border-white/20 bg-transparent px-0 py-2",
-  "font-(family-name:--font-archivo) text-[15px] text-[#f5f5f5] outline-none",
-  "transition-colors duration-300 focus:border-[#f5f5f5]",
+  "w-full border-0 border-b border-md-light/20 bg-transparent px-0 py-2",
+  "text-body text-md-light outline-none",
+  "transition-colors duration-300 focus:border-md-light",
   // Keep browser autofill from painting the field white or yellow.
-  "[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#191919] [&:-webkit-autofill]:[-webkit-text-fill-color:#f5f5f5]",
+  "[&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_var(--color-md-ink)] [&:-webkit-autofill]:[-webkit-text-fill-color:var(--color-md-light)]",
 ].join(" ");
 const ERROR_CLASS =
-  "font-(family-name:--font-archivo) text-[11px] leading-none text-[#e0796b]";
+  "text-caption text-[#e0796b]";
 
 /** Name, email and message, sent to the studio's inbox. */
 export function EnquiryForm({
@@ -95,12 +95,12 @@ export function EnquiryForm({
         )}
       </label>
 
-      {/* A hairline outline that fills with white on hover, the arrow
+      {/* A hairline outline that fills with light on hover, the arrow
           nudging forward. */}
       <button
         type="submit"
         disabled={createMessage.isPending}
-        className="group/button mt-2 flex w-full cursor-pointer items-center justify-between border border-[#f5f5f5]/60 bg-transparent px-5 py-4 font-(family-name:--font-archivo) text-[11px] font-medium tracking-[0.22em] text-[#f5f5f5] uppercase transition-colors duration-300 hover:border-[#f5f5f5] hover:bg-[#f5f5f5] hover:text-[#191919] disabled:cursor-wait disabled:opacity-60"
+        className="group/button mt-2 flex w-full cursor-pointer items-center justify-between border border-md-light/60 bg-transparent px-5 py-4 text-label font-medium text-md-light uppercase transition-colors duration-300 hover:border-md-light hover:bg-md-light hover:text-md-ink disabled:cursor-wait disabled:opacity-60"
       >
         {createMessage.isPending ? "Sending…" : "Send enquiry"}
         <ArrowRight

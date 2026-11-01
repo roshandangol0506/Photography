@@ -28,12 +28,12 @@ export function SectionHeading({
 
   return (
     <div className={cn(centred && "text-center", className)}>
-      <span className="text-[14px] font-bold tracking-[0.2em] uppercase">
+      <span className="subtitle">
         {kicker}
       </span>
 
       {title && (
-        <h2 className="mt-[14px] mb-0 tracking-[2px] text-[clamp(30px,4.4vw,62px)] text-md-red leading-none uppercase">
+        <h2 className="mt-[14px] mb-0 font-title text-title-2 tracking-[2px] text-md-red not-italic uppercase">
           {title}
         </h2>
       )}
@@ -41,7 +41,7 @@ export function SectionHeading({
       {lead && (
         <p
           className={cn(
-            "mt-5 mb-0 max-w-[520px] text-[13px] leading-[1.65] text-md-700",
+            "mt-5 mb-0 max-w-[520px] text-lead text-md-700",
             centred && "mx-auto",
           )}
         >

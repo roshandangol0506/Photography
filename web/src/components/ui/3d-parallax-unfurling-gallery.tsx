@@ -9,7 +9,6 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { scriptFont } from "@/lib/fonts";
 
 // Adapted from the 21st.dev "3D parallax unfurling gallery":
 // - The component was its own h-screen scroll box. On a page that traps the
@@ -72,7 +71,7 @@ const ImageCard = ({
 }: UnfurlingGalleryImage & { pointer?: string }) => (
   <div
     data-pointer={pointer}
-    className="relative h-[200px] w-full shrink-0 bg-[#111] transition-transform duration-300 will-change-transform backface-hidden transform-3d hover:scale-[1.02] sm:h-[300px] md:h-[400px]">
+    className="relative h-[200px] w-full shrink-0 bg-md-ink transition-transform duration-300 will-change-transform backface-hidden transform-3d hover:scale-[1.02] sm:h-[300px] md:h-[400px]">
     <img
       src={src}
       alt={alt ?? ""}
@@ -173,15 +172,16 @@ export function ParallaxUnfurlingGallery({
         <div className="relative mx-auto flex h-full w-full max-w-[1920px] items-center justify-center overflow-hidden backface-hidden transform-3d">
           {/* Behind the photo grid, so the cards pass over it as they
               unfurl. Inset past the edge shadows so they do not dim it. */}
-          <h2 className="pointer-events-none absolute top-1/2 left-[max(9vw,10rem)] flex -translate-y-1/2 flex-col items-start text-[#f5f5f5] max-sm:left-6">
+          <h2 className="pointer-events-none absolute top-1/2 left-[max(9vw,10rem)] flex -translate-y-1/2 flex-col items-start text-md-fg max-sm:left-6">
             <motion.span
               style={
                 reduced
                   ? { opacity: subtitleOpacity }
                   : { opacity: subtitleOpacity, y: subtitleY }
               }
-              // The script's tail tucks down over the capitals.
-              className={`${scriptFont.className} relative z-10 mb-[-0.32em] block text-[clamp(3.25rem,6.4vw,8rem)] leading-[1.2]`}
+              // The italic sits just over the capitals, close enough to read
+              // as one title.
+              className="relative z-10 mb-[-0.15em] block font-title text-display font-medium italic"
             >
               Stories
             </motion.span>
@@ -193,7 +193,7 @@ export function ParallaxUnfurlingGallery({
                     ? { opacity: titleOpacity }
                     : { opacity: titleOpacity, y: titleY }
                 }
-                className="block font-(family-name:--font-gilda) text-[clamp(2.75rem,5.6vw,7rem)] leading-none font-normal tracking-[0.02em] uppercase"
+                className="block font-title text-title-1 leading-none font-medium tracking-[0.02em] not-italic uppercase"
               >
                 unfolding
               </motion.span>

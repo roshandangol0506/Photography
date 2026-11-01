@@ -89,13 +89,12 @@ export function SideScrollStrip({ photos }: { photos: Photo[] }) {
 
   return (
     <section className="mt-[90px] py-10">
-      <div className="flex items-baseline justify-between px-9 py-10 text-md-light">
-        <span className="text-[11px] tracking-[0.2em] uppercase">
+      <div className="flex items-baseline justify-between px-9 py-10 text-md-fg">
+        <span className="subtitle">
           06 &mdash; On the road
         </span>
         <span
-          className="text-[11px] tracking-[0.14em] uppercase max-[900px]:hidden"
-          style={{ color: "rgba(248,244,244,.6)" }}
+          className="subtitle text-md-600 max-[900px]:hidden"
         >
           Drag to explore
         </span>

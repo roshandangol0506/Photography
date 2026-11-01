@@ -36,27 +36,26 @@
 
 /* ---- type ------------------------------------------------------------- */
 
-.tenets__title {
-  margin: 0;
-  font-size: clamp(34px, 6vw, 78px);
-  font-weight: 400;
-  line-height: 0.96;
-  letter-spacing: -0.03em;
-}
-
+/* The section title and each panel's one-word display (h3s) share a step and
+   the title face's italic: they are the same kind of display word. */
+.tenets__title,
 .panel__display {
   margin: 0;
-  font-size: clamp(30px, 5.2vw, 70px);
-  font-weight: 400;
-  line-height: 0.98;
-  letter-spacing: -0.03em;
+  font-family: var(--font-title);
+  font-size: var(--text-title-1);
+  font-style: italic;
+  font-weight: 500;
+  line-height: var(--text-title-1--line-height);
+  letter-spacing: var(--text-title-1--letter-spacing);
 }
 
 .panel__kicker {
   margin: 0 0 14px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 400;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-transform: uppercase;
   color: var(--md-red);
 }
@@ -65,13 +64,16 @@
 .panel__lede {
   margin: 0;
   max-width: 46ch;
-  font-size: clamp(13px, 1.05vw, 15px);
-  line-height: 1.75;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
   color: var(--md-700);
 }
 
 .panel__lede {
   margin-top: 20px;
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
 }
 
 .tenets__sr-only {
@@ -112,10 +114,12 @@
   left: clamp(14px, 2vw, 28px);
   bottom: clamp(14px, 2vw, 28px);
   margin: 0;
-  font-size: clamp(20px, 2.6vw, 40px);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: #f3f2f2;
+  font-family: var(--font-title);
+  font-size: var(--text-title-3);
+  font-style: italic;
+  font-weight: 500;
+  line-height: var(--text-title-3--line-height);
+  color: var(--color-md-light);
   text-shadow: 0 1px 24px rgba(0, 0, 0, 0.55);
 }
 
@@ -225,7 +229,7 @@
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  color: #f3f2f2;
+  color: var(--color-md-light);
 }
 
 .panel__closing-bg {
@@ -252,7 +256,7 @@
 }
 
 .panel--closing .panel__body {
-  color: rgba(243, 242, 242, 0.82);
+  color: color-mix(in srgb, var(--color-md-light) 82%, transparent);
   text-align: center;
 }
 

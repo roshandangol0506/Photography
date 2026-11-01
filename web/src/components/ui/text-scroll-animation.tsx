@@ -33,7 +33,7 @@ const CharacterV1 = ({
 
   return (
     <motion.span
-      className={cn("inline-block text-orange-500", isSpace && "w-4")}
+      className={cn("inline-block text-md-red", isSpace && "w-4")}
       style={reduced ? undefined : { x, rotateX }}
     >
       {char}
@@ -130,7 +130,7 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
       <section className="w-full">
         {/* Шапка-подсказка */}
         <div className="top-22 absolute left-1/2 z-10 grid -translate-x-1/2 content-start justify-items-center gap-6 text-center text-md-light">
-          <span className="relative max-w-[12ch] text-xs uppercase leading-tight opacity-40 after:absolute after:left-1/2 after:top-full after:h-16 after:w-px after:bg-gradient-to-b after:from-transparent after:to-md-light after:content-['']">
+          <span className="subtitle relative max-w-[12ch] text-md-600 after:absolute after:left-1/2 after:top-full after:h-16 after:w-px after:bg-gradient-to-b after:from-transparent after:to-md-500 after:content-['']">
             Scroll to see more
           </span>
         </div>
@@ -141,7 +141,7 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
           className="relative box-border flex h-[210vh] items-center justify-center gap-[2vw] overflow-hidden p-[2vw]"
         >
           <div
-            className="font-geist w-full max-w-4xl text-center text-6xl font-bold uppercase tracking-tighter text-md-light"
+            className="w-full max-w-4xl text-center font-title text-title-1 font-semibold uppercase text-md-light"
             style={{ perspective: "500px" }}
           >
             {characters.map((char, index) => (
@@ -161,9 +161,9 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
           ref={targetRef2}
           className="relative -mt-[100vh] box-border flex h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]"
         >
-          <p className="font-geist flex items-center justify-center gap-3 text-2xl font-medium tracking-tight text-md-light">
+          <p className="flex items-center justify-center gap-3 font-title text-title-3 font-medium text-md-light">
             <Bracket className="h-12" />
-            <span className="font-geist font-medium">integrate with your fav tech stack</span>
+            <span>integrate with your fav tech stack</span>
             <Bracket className="h-12 scale-x-[-1]" />
           </p>
 
@@ -185,9 +185,9 @@ const Skiper31 = ({ smooth = true }: { smooth?: boolean } = {}) => {
           ref={targetRef3}
           className="relative -mt-[95vh] box-border flex h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]"
         >
-          <p className="font-geist flex items-center justify-center gap-3 text-2xl font-medium tracking-tight text-md-light">
+          <p className="flex items-center justify-center gap-3 font-title text-title-3 font-medium text-md-light">
             <Bracket className="h-12" />
-            <span className="font-geist font-medium">integrate with your fav tech stack</span>
+            <span>integrate with your fav tech stack</span>
             <Bracket className="h-12 scale-x-[-1]" />
           </p>
 

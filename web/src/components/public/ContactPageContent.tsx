@@ -14,12 +14,11 @@ import { MdReveal } from "@/components/public/MdReveal";
 import { Accordion, type AccordionItem } from "@/components/ui/Accordion";
 
 const SECTION_CLASS = "px-9 max-[900px]:px-5";
-const KICKER_CLASS = "text-[11px] tracking-[0.2em] text-md-red uppercase";
-const H2_CLASS =
-  "mt-[14px] mb-0 font-bold tracking-[-0.025em] text-[clamp(28px,3.6vw,54px)] leading-none";
+const KICKER_CLASS = "subtitle text-md-red";
+const H2_CLASS = "mt-[14px] mb-0 text-title-2";
 const FIELD_CLASS =
-  "w-full border-2 border-md-divider bg-transparent px-4 py-3 font-[inherit] text-[14px] text-md-fg outline-none focus:border-md-red";
-const LABEL_CLASS = "text-[10px] tracking-[0.2em] text-md-600 uppercase";
+  "w-full border-2 border-md-divider bg-transparent px-4 py-3 font-[inherit] text-body text-md-fg outline-none focus:border-md-red";
+const LABEL_CLASS = "text-label font-medium text-md-600 uppercase";
 
 const STEPS = [
   {
@@ -102,19 +101,19 @@ function CategoryCard({
           )}
         </div>
 
-        <h3 className="mt-6 mb-0 text-[20px] font-bold tracking-[-0.02em]">
+        <h3 className="mt-6 mb-0 text-title-4">
           {category.name}
         </h3>
 
         {/* Two lines then an ellipsis, whatever the real length. */}
-        <p className="mt-2 mb-0 line-clamp-2 text-[13px] leading-[1.6] text-md-600">
+        <p className="mt-2 mb-0 line-clamp-2 text-small text-md-600">
           {category.description || `${category.photoCount} photographs`}
         </p>
 
         {/* Flush to the card's right edge; the arrow is part of the label. */}
         <Link
           href={`/gallery?category=${category.slug}`}
-          className="mt-6 inline-flex items-center gap-2 self-end text-[12px] font-semibold tracking-[0.14em] underline-offset-4 transition-colors duration-200 hover:text-md-red! hover:underline!"
+          className="mt-6 inline-flex items-center gap-2 self-end text-label font-semibold underline-offset-4 transition-colors duration-200 hover:text-md-red! hover:underline!"
         >
           View more <span aria-hidden="true">&rarr;</span>
         </Link>
@@ -122,7 +121,7 @@ function CategoryCard({
         <button
           type="button"
           onClick={onBook}
-          className="mt-3 w-full cursor-pointer rounded-full border-0 bg-md-red px-5 py-2.5 text-[12px] font-semibold tracking-[0.14em] text-md-light uppercase transition-opacity duration-200 hover:opacity-90"
+          className="mt-3 w-full cursor-pointer rounded-full border-0 bg-md-red-deep px-5 py-2.5 text-label font-semibold text-md-light uppercase transition-opacity duration-200 hover:opacity-90"
         >
           Book a demo
         </button>
@@ -189,7 +188,7 @@ export function ContactPageContent({
           className="pointer-events-none absolute inset-0"
           style={{ background: "rgba(20,19,18,.45)" }}
         />
-        <h1 className="relative m-0 max-w-[16em] text-center font-extrabold tracking-[-0.03em] text-[clamp(34px,5.4vw,84px)] leading-[0.94] text-md-light">
+        <h1 className="relative m-0 max-w-[16em] text-center text-title-1 text-md-light">
           Let's make something worth keeping.
         </h1>
       </section>
@@ -220,13 +219,13 @@ export function ContactPageContent({
           <div>
             <span className={KICKER_CLASS}>Book a demo</span>
             <h2 className={H2_CLASS}>Reserve a slot.</h2>
-            <p className="mt-8 mb-0 max-w-[460px] text-[15px] leading-[1.75] text-md-700">
+            <p className="mt-8 mb-0 max-w-[460px] text-lead text-md-700">
               Pick the kind of work you have in mind, or book a slot straight
               away. Commissions, prints and workshop bookings all reach the same
               inbox — and it is always me who answers.
             </p>
             {selectedName && (
-              <p className="mt-6 mb-0 text-[13px] text-md-700">
+              <p className="mt-6 mb-0 text-small text-md-700">
                 Booking for{" "}
                 <span className="font-semibold">{selectedName}</span>
               </p>
@@ -245,7 +244,7 @@ export function ContactPageContent({
                 {...form.register("firstName")}
               />
               {errors.firstName && (
-                <span className="text-[11px] text-md-red">
+                <span className="text-caption text-md-red">
                   {errors.firstName.message}
                 </span>
               )}
@@ -259,7 +258,7 @@ export function ContactPageContent({
                 {...form.register("lastName")}
               />
               {errors.lastName && (
-                <span className="text-[11px] text-md-red">
+                <span className="text-caption text-md-red">
                   {errors.lastName.message}
                 </span>
               )}
@@ -273,7 +272,7 @@ export function ContactPageContent({
                 {...form.register("phone")}
               />
               {errors.phone && (
-                <span className="text-[11px] text-md-red">
+                <span className="text-caption text-md-red">
                   {errors.phone.message}
                 </span>
               )}
@@ -288,7 +287,7 @@ export function ContactPageContent({
                 {...form.register("email")}
               />
               {errors.email && (
-                <span className="text-[11px] text-md-red">
+                <span className="text-caption text-md-red">
                   {errors.email.message}
                 </span>
               )}
@@ -302,7 +301,7 @@ export function ContactPageContent({
                 {...form.register("bookingDate")}
               />
               {errors.bookingDate && (
-                <span className="text-[11px] text-md-red">
+                <span className="text-caption text-md-red">
                   {errors.bookingDate.message}
                 </span>
               )}
@@ -343,7 +342,7 @@ export function ContactPageContent({
             <button
               type="submit"
               disabled={createLead.isPending}
-              className="col-span-2 cursor-pointer justify-self-start border-0 bg-md-ink px-6 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-light uppercase transition-colors duration-200 hover:bg-md-red disabled:opacity-60 max-[700px]:col-span-1"
+              className="col-span-2 cursor-pointer justify-self-start border-0 bg-md-ink px-6 py-4 text-label font-semibold text-md-light uppercase transition-colors duration-200 hover:bg-md-red-deep disabled:opacity-60 max-[700px]:col-span-1"
             >
               {createLead.isPending ? "Sending…" : "Book a demo"}
             </button>
@@ -359,14 +358,14 @@ export function ContactPageContent({
           {STEPS.map((step, i) => (
             <MdReveal key={step.title}>
               <div className="flex items-baseline gap-4 border-t-2 border-md-divider pt-5">
-                <span className="text-[clamp(22px,2.4vw,34px)] font-bold tracking-[-0.02em]">
+                <span className="font-title text-title-3 font-medium">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div>
-                  <h3 className="m-0 text-[15px] font-semibold">
+                  <h3 className="m-0 text-title-4">
                     {step.title}
                   </h3>
-                  <p className="mt-2 mb-0 text-[14px] leading-[1.7] text-md-700">
+                  <p className="mt-2 mb-0 text-small text-md-700">
                     {step.body}
                   </p>
                 </div>
@@ -375,7 +374,7 @@ export function ContactPageContent({
           ))}
         </div>
 
-        <p className="mt-12 mb-0 flex items-center gap-2 text-[11px] tracking-[0.16em] text-md-600 uppercase">
+        <p className="mt-12 mb-0 subtitle flex items-center gap-2 text-md-600">
           <Clock className="h-4 w-4" /> Replies within two working days
         </p>
       </section>

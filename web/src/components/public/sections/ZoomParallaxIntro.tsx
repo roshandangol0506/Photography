@@ -9,7 +9,6 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { scriptFont } from "@/lib/fonts";
 import { OVERLAP_VH, READ_VH } from "./zoomParallaxTiming";
 
 const TITLE = "Step into the frame";
@@ -63,7 +62,7 @@ export function ZoomParallaxIntro() {
   return (
     // A sticky screen pinned for PINNED_VH of scrolling.
     <div ref={wrapper} className="relative" style={{ height: `${100 + PINNED_VH}vh` }}>
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 text-center text-[#f5f5f5]">
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 text-center text-md-fg">
         {/* Radial spotlight */}
         <div
           aria-hidden="true"
@@ -89,8 +88,8 @@ function Title({
   reduced: boolean;
 }) {
   const reveal = ramp(TITLE_IN);
-  // The clip reaches past the box on every side, so the script's swashes are
-  // never trimmed once it is fully open.
+  // The clip reaches past the box on every side, so the italic's overhangs
+  // are never trimmed once it is fully open.
   const clipPath = useTransform(
     progress,
     (v) => `inset(-40% ${100 - 115 * ease(reveal(v))}% -40% -15%)`,
@@ -100,7 +99,7 @@ function Title({
   return (
     <motion.h2
       style={reduced ? { opacity } : { clipPath }}
-      className={`${scriptFont.className} relative text-[clamp(3.25rem,6.4vw,8rem)] leading-[1.2]`}
+      className="relative font-title text-display font-medium italic"
     >
       {TITLE}
     </motion.h2>
@@ -128,7 +127,7 @@ function Paragraph({
   return (
     <p
       aria-label={PARAGRAPH}
-      className={`${scriptFont.className} relative mx-auto mt-4 max-w-176 text-[clamp(1.6rem,2.4vw,2.6rem)] leading-[1.35]`}
+      className="relative mx-auto mt-4 max-w-176 font-title text-title-3 leading-[1.35] font-medium italic"
     >
       {words.map((word, w) => (
         // One clipping box per word, so words wrap whole and every letter

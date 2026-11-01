@@ -47,7 +47,7 @@ export function FeaturedPhotos({ photos }: { photos: Photo[] }) {
                 className="md-photo m-0 flex flex-col gap-[14px] max-[900px]:pt-0"
                 style={{ paddingTop: col.paddingTop }}
               >
-                <div className="flex justify-between text-[10px] tracking-[0.16em] text-md-600 uppercase">
+                <div className="subtitle flex justify-between text-md-600">
                   <span>{photo.location}</span>
                   <span>{photo.category?.name}</span>
                 </div>
@@ -72,7 +72,7 @@ export function FeaturedPhotos({ photos }: { photos: Photo[] }) {
                     className="absolute inset-0 z-[2]"
                   />
 
-                  <span className="md-cap pointer-events-none absolute bottom-3 left-3 z-[2] bg-md-red px-[10px] py-[7px] text-[10px] font-semibold tracking-[0.18em] text-md-light uppercase">
+                  <span className="md-cap pointer-events-none absolute bottom-3 left-3 z-[2] bg-md-red-deep px-[10px] py-[7px] text-label font-medium text-md-light uppercase">
                     View
                   </span>
 
@@ -81,19 +81,19 @@ export function FeaturedPhotos({ photos }: { photos: Photo[] }) {
                       photoId={photo._id}
                       likeCount={photo.likeCount}
                       size="sm"
-                      className="cursor-pointer text-[10px] font-semibold tracking-[0.18em] text-md-light uppercase"
+                      className="cursor-pointer text-label font-medium text-md-light uppercase"
                     />
                     <CommentCount
                       slug={photo.slug}
                       count={photo.commentCount}
-                      className="text-[10px] font-semibold tracking-[0.18em] text-md-light uppercase"
+                      className="text-label font-medium text-md-light uppercase"
                     />
                   </div>
                 </PhotoFrame>
 
-                <figcaption className="flex justify-between gap-4 text-[11px] leading-[1.5] tracking-[0.08em] uppercase">
+                <figcaption className="subtitle flex justify-between gap-4">
                   <span>{photo.title}</span>
-                  <span className="text-md-500">
+                  <span className="text-md-600">
                     {String(i + 1).padStart(3, "0")}
                   </span>
                 </figcaption>

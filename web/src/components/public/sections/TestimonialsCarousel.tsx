@@ -90,7 +90,7 @@ export function TestimonialsCarousel({
           </MdReveal>
 
           <MdReveal>
-            <blockquote className="m-0 font-semibold tracking-[-0.02em] text-[clamp(20px,2.3vw,34px)] leading-[1.22] text-pretty">
+            <blockquote className="m-0 font-title text-title-3 font-medium text-pretty italic">
               &ldquo;{active.message}&rdquo;
             </blockquote>
 
@@ -111,11 +111,11 @@ export function TestimonialsCarousel({
                 )}
               </div>
               <div>
-                <p className="m-0 text-[12px] font-bold tracking-[0.14em] uppercase">
+                <p className="m-0 text-label font-bold uppercase">
                   {active.name}
                 </p>
                 {active.role && (
-                  <p className="mt-1 mb-0 text-[11px] tracking-[0.12em] text-md-600 uppercase">
+                  <p className="subtitle mt-1 mb-0 text-md-600">
                     {active.role}
                   </p>
                 )}

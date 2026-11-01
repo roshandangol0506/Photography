@@ -174,7 +174,7 @@ export function HeroLoader({ assets, onReveal }: HeroLoaderProps) {
       aria-hidden
       data-hero-loader
       // Above the navbar (z-90) and the chat widget (z-100).
-      className="fixed inset-0 z-[110] overflow-hidden bg-[#0d0d0c]"
+      className="fixed inset-0 z-[110] overflow-hidden bg-md-ground"
       initial={false}
       animate={{ opacity: leaving ? 0 : 1 }}
       transition={{ duration: FADE_S, ease: FADE_EASE }}
@@ -188,12 +188,12 @@ export function HeroLoader({ assets, onReveal }: HeroLoaderProps) {
           style={{
             transform: "translateX(-100%)",
             background:
-              "linear-gradient(90deg, rgba(248,244,244,0.04), rgba(248,244,244,0.6))",
+              "linear-gradient(90deg, color-mix(in srgb, var(--md-fg) 4%, transparent), color-mix(in srgb, var(--md-fg) 60%, transparent))",
           }}
         />
         <span
           ref={numRef}
-          className="absolute bottom-4 -translate-x-full pr-1.5 font-(family-name:--font-archivo) text-xs tabular-nums tracking-wide text-md-light/60"
+          className="absolute bottom-4 -translate-x-full pr-1.5 text-caption tabular-nums text-md-600"
           style={{ left: "3rem" }}
         >
           0%

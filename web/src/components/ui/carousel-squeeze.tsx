@@ -100,25 +100,6 @@ function useReducedMotion(): boolean {
 /*                                 component                                  */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Geist, straight from Google's CDN. Declared here rather than in a stylesheet
- * so the component carries its own type wherever it is dropped. Note that an
- * `@import url(...)` would not survive: Tailwind resolves imports at build time
- * and drops the remote one, leaving the page on its fallback with no error.
- */
-const GEIST = `
-@font-face{font-family:"Geist";font-style:normal;font-weight:100 900;font-display:swap;
-src:url(https://cdn.21st.dev/assets/mirror/9b/9b6f5ff45b278c744b5f379a2c4ecbaf858a842b8eaf82ac8d21b699ca16c608.woff2) format("woff2");
-unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Geist";font-style:normal;font-weight:100 900;font-display:swap;
-src:url(https://cdn.21st.dev/assets/mirror/58/58a6b173d5ca1dec92166ea3c6cb1a84a4144556d10928ac14e8e6b40e4787bd.woff2) format("woff2");
-unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:"Geist";font-style:normal;font-weight:100 900;font-display:swap;
-src:url(https://cdn.21st.dev/assets/mirror/61/6129fc8571c3e0cb0a4c41f5160c974a843b055009dc4ad8858bd808e18a2d86.woff2) format("woff2");
-unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
-`;
-
-
 export type SqueezeCarouselProps = {
     /** The panels, in the order they are read. */
     slides: SqueezeSlide[];
@@ -371,14 +352,11 @@ export function SqueezeCarousel({
 
     return (
         <div
-            className={cn("flex w-full flex-col", className)}
-            // Sets its own face (Geist) for everything inside.
-            data-own-font=""
+            className={cn("flex w-full flex-col font-body", className)}
             // The breakpoints and widths below read the width this carousel is
             // given, not the width of the window.
             style={{
                 containerType: "inline-size",
-                fontFamily: '"Geist", ui-sans-serif, system-ui, sans-serif',
                 ...vars,
                 ...style,
             }}
@@ -391,8 +369,6 @@ export function SqueezeCarousel({
             onBlurCapture={() => setPaused(false)}
             {...props}
         >
-            <style>{GEIST}</style>
-
             {controls && count > 1 && (
                 <div className="mb-4 flex justify-end gap-2">
                     <Arrow back label="Previous" onClick={() => step(-1)} />
@@ -431,9 +407,9 @@ export function SqueezeCarousel({
                                 onMouseMove={() => hoverGrow && setHover(col)}
                                 onClick={() => col > 0 && step(col)}
                                 className={cn(
-                                    "relative isolate h-full shrink-0 cursor-pointer overflow-hidden bg-muted p-0",
+                                    "relative isolate h-full shrink-0 cursor-pointer overflow-hidden bg-md-100 p-0",
                                     "outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-                                    "focus-visible:ring-[var(--sq-fill)] focus-visible:ring-offset-background",
+                                    "focus-visible:ring-[var(--sq-fill)] focus-visible:ring-offset-md-ground",
                                     panelClassName,
                                 )}
                                 style={{
@@ -491,10 +467,10 @@ export function SqueezeCarousel({
                                 transition: `opacity var(--sq-ms) var(--sq-ease), visibility var(--sq-ms)`,
                             }}
                         >
-                            <p className="max-w-[46rem] text-[15px] leading-[1.6] text-balance @lg:text-[17px]">
-                                <span className="text-foreground">{slide.title}</span>{" "}
+                            <p className="max-w-[46rem] text-body text-balance @lg:text-lead">
+                                <span className="text-md-fg">{slide.title}</span>{" "}
                                 {slide.description && (
-                                    <span className="text-muted-foreground">{slide.description}</span>
+                                    <span className="text-md-600">{slide.description}</span>
                                 )}
                             </p>
 
@@ -564,7 +540,7 @@ function Arrow({
                 "bg-[var(--sq-fill)] text-[var(--sq-on-fill)]",
                 "transition-opacity hover:opacity-85 outline-none",
                 "focus-visible:ring-2 focus-visible:ring-[var(--sq-fill)]",
-                "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "focus-visible:ring-offset-2 focus-visible:ring-offset-md-ground",
             )}
         >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -608,10 +584,10 @@ function Action({ slide, shown }: { slide: SqueezeSlide; shown: boolean }) {
         "group/sq-action inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md",
         // `!` because the site's unlayered `.modernist a { color: inherit }`
         // otherwise outranks this utility on the link variant.
-        "bg-[var(--sq-fill)] px-4 py-2.5 text-sm font-medium text-[var(--sq-on-fill)]!",
+        "bg-[var(--sq-fill)] px-4 py-2.5 text-label font-medium uppercase text-[var(--sq-on-fill)]!",
         "transition-opacity hover:opacity-85 outline-none",
         "focus-visible:ring-2 focus-visible:ring-[var(--sq-fill)]",
-        "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "focus-visible:ring-offset-2 focus-visible:ring-offset-md-ground",
     );
 
     if (slide.href) {

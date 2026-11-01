@@ -56,29 +56,29 @@ export function AboutSection({ settings }: { settings: SiteSettings }) {
               )}
             </PhotoFrame>
             <div className="mt-[14px] border-t-2 border-md-divider pt-3">
-              <p className="m-0 text-[12px] font-bold tracking-[0.16em] uppercase">
+              <p className="m-0 text-label font-bold uppercase">
                 {settings.siteTitle}
               </p>
-              <p className="mt-[5px] mb-0 text-[11px] tracking-[0.12em] text-md-600 uppercase">
+              <p className="subtitle mt-[5px] mb-0 text-md-600">
                 Photographer &mdash; {about.experienceYears ?? 0} yrs
               </p>
             </div>
           </MdReveal>
 
           <MdReveal>
-            <h2 className="m-0 font-bold tracking-[-0.025em] text-[clamp(28px,3.6vw,54px)] leading-none">
+            <h2 className="m-0 font-title text-title-2">
               {heading.map((line) => (
                 <span key={line} className="block">
                   {line}
                 </span>
               ))}
             </h2>
-            <p className="mt-6 mb-0 max-w-[360px] text-[12px] leading-[1.85] tracking-[0.09em] text-md-700 uppercase">
+            <p className="mt-6 mb-0 max-w-[360px] text-body text-md-700">
               {about.description || DEFAULT_DESCRIPTION}
             </p>
             <Link
               href="/about"
-              className="mt-7 inline-flex items-center gap-4 bg-md-ink px-5 py-4 text-[12px] font-semibold tracking-[0.16em] text-md-light uppercase transition-colors duration-200 hover:bg-md-red"
+              className="mt-7 inline-flex items-center gap-4 bg-md-ink px-5 py-4 text-label font-medium text-md-light uppercase transition-colors duration-200 hover:bg-md-red-deep"
             >
               Learn more <span>&rarr;</span>
             </Link>

@@ -25,8 +25,8 @@
   /* Slow off the mark, fast through the middle, a long settle. */
   --cine-ease: cubic-bezier(0.76, 0, 0.24, 1);
   --cine-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --cine-light: #f8f4f4; /* md-light */
-  --cine-accent: #ec3013; /* md-red */
+  --cine-light: var(--color-md-light);
+  --cine-accent: var(--md-red);
   --dir: 1;
   --cine-mx: 0;
   --cine-my: 0;
@@ -49,10 +49,11 @@
   container-type: inline-size;
   /* The same blackBg.jpg, at rest, under the sliding layers: if the slow
      incoming layer ever trails the drifting outgoing one, what shows through
-     is the same texture, never a flat colour. #111 until it has loaded. */
-  background: var(--cine-bg) center / cover no-repeat, #111;
+     is the same texture, never a flat colour. The ground until it has
+     loaded. */
+  background: var(--cine-bg) center / cover no-repeat, var(--md-ground);
   color: var(--cine-light);
-  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body);
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
@@ -77,7 +78,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: var(--cine-bg) center / cover no-repeat, #111;
+  background: var(--cine-bg) center / cover no-repeat, var(--md-ground);
 }
 /* The incoming layer passes over the outgoing one. */
 .cine-bg-layer[data-state="leave"] {
@@ -255,10 +256,17 @@
   background: var(--cine-accent);
 }
 
+/* Heading and description sizes are shares of the frame (cqw), so they scale
+   with it; the kicker and counter are fixed subtitle steps. */
+
+/* Uppercase display in the title face, upright: the slant is for the
+   sentence-case headings elsewhere. */
 .cine-heading {
   max-width: 13ch;
+  font-family: var(--font-title);
   font-size: clamp(40px, 6.6cqw, 120px);
-  font-weight: 900;
+  font-style: normal;
+  font-weight: 500;
   line-height: 0.95;
   letter-spacing: -0.01em;
   text-transform: uppercase;
@@ -266,20 +274,17 @@
   text-shadow: 0 2px 30px rgb(0 0 0 / 0.25);
 }
 
-/* Outlined, as in the reference. */
+/* A two- or three-word kicker under the heading: the subtitle role. Solid
+   rather than outlined - a hairline stroke does not survive mono at this
+   size. */
 .cine-subtitle {
   margin-top: clamp(14px, 2cqw, 30px);
-  font-size: clamp(16px, 2cqw, 34px);
-  font-weight: 900;
-  line-height: 1.2;
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 400;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-transform: uppercase;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--cine-light);
-}
-@supports not (-webkit-text-stroke: 1px black) {
-  .cine-subtitle {
-    color: var(--cine-light);
-  }
 }
 
 .cine-desc {
@@ -287,7 +292,7 @@
   max-width: 44ch;
   font-size: clamp(14px, 1.05cqw, 18px);
   line-height: 1.65;
-  color: rgb(248 244 244 / 0.75);
+  color: color-mix(in srgb, var(--cine-light) 75%, transparent);
 }
 
 /* -------------------------------------------------- navigation and chrome */
@@ -325,9 +330,11 @@
   margin: 0;
   translate: 0 -50%;
   writing-mode: vertical-rl;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3em;
+  font-family: var(--font-subtitle);
+  font-size: var(--text-subtitle);
+  font-weight: 400;
+  line-height: var(--text-subtitle--line-height);
+  letter-spacing: var(--text-subtitle--letter-spacing);
   text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
   pointer-events: none;
 }
@@ -368,7 +375,7 @@
     place-items: center;
     width: 100%;
     height: 100%;
-    border: 1px solid rgb(248 244 244 / 0.7);
+    border: 1px solid color-mix(in srgb, var(--cine-light) 70%, transparent);
     border-radius: 50%;
     color: var(--cine-light);
     opacity: 0;
@@ -388,7 +395,7 @@
   /* Red, like the site cursor's centre dot, and large in the ring. */
   .cine-cursor svg {
     grid-area: 1 / 1;
-    color: #ec3013;
+    color: var(--cine-accent);
     transition: opacity 0.2s ease;
   }
   .cine[data-cursor="on"] .cine-cursor-ring {
@@ -633,9 +640,6 @@
   }
   .cine-heading {
     font-size: clamp(32px, 10.5cqw, 48px);
-  }
-  .cine-subtitle {
-    font-size: 15px;
   }
   .cine-desc {
     display: -webkit-box;

@@ -55,7 +55,7 @@ export function GalleryControls({
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search title, series, collection, location or tag…"
-          className="w-full border-0 bg-transparent font-[inherit] text-[14px] text-md-fg outline-none"
+          className="w-full border-0 bg-transparent font-[inherit] text-body text-md-fg outline-none"
         />
       </label>
 
@@ -65,7 +65,7 @@ export function GalleryControls({
           <select
             value={activeCategory}
             onChange={(event) => setCategory(event.target.value)}
-            className="cursor-pointer border-0 bg-transparent font-[inherit] text-[13px] font-semibold tracking-[0.1em] text-md-fg uppercase outline-none"
+            className="cursor-pointer border-0 bg-transparent font-[inherit] text-label font-semibold text-md-fg uppercase outline-none"
           >
             <option value="">All series</option>
             {categories.map((category) => (
@@ -81,7 +81,7 @@ export function GalleryControls({
         <button
           type="button"
           onClick={() => router.replace(pathname, { scroll: false })}
-          className="inline-flex cursor-pointer items-center gap-2 border-2 border-md-divider bg-transparent px-4 py-3 text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red max-[640px]:w-full max-[640px]:justify-center"
+          className="inline-flex cursor-pointer items-center gap-2 border-2 border-md-divider bg-transparent px-4 py-3 text-label font-semibold uppercase transition-colors duration-200 hover:border-md-red hover:text-md-red max-[640px]:w-full max-[640px]:justify-center"
         >
           <X className="h-3.5 w-3.5" /> Clear
         </button>

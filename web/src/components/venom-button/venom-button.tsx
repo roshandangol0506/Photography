@@ -1297,7 +1297,7 @@ export function VenomButton({
         onClick={onClick}
         whileTap={reduced ? undefined : { scale: 0.96 }}
         transition={{ type: "spring", stiffness: 420, damping: 18 }}
-        className="relative z-20 h-[64px] rounded-full border-0 px-9 text-[20px] font-bold tracking-[-0.02em] text-[#f4f4f4] outline-none focus-visible:ring-4 focus-visible:ring-black/25"
+        className="relative z-20 h-[64px] rounded-full border-0 px-9 font-body text-lead font-bold tracking-[-0.02em] text-md-light outline-none focus-visible:ring-4 focus-visible:ring-black/25"
         style={{
           background: fallback
             ? "linear-gradient(180deg,#1c1c1e 0%,#0a0a0a 42%,#020202 100%)"

@@ -115,7 +115,7 @@ export function WhatsAppWidget() {
                   className="h-11 w-11 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 text-[15px] font-semibold text-white">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 text-body font-semibold text-white">
                   {name.slice(0, 1)}
                 </span>
               )}
@@ -127,10 +127,10 @@ export function WhatsAppWidget() {
             </span>
 
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-semibold text-white">
+              <span className="block truncate text-body font-semibold text-white">
                 {name}
               </span>
-              <span className="block text-[12px] text-white/75">Online</span>
+              <span className="block text-caption text-white/75">Online</span>
             </span>
 
             <button
@@ -144,7 +144,7 @@ export function WhatsAppWidget() {
           </div>
 
           <div className="px-4 py-5" style={CHAT_SURFACE}>
-            <p className="m-0 text-center text-[11px] text-[#8a8a8a]">
+            <p className="m-0 text-center text-caption text-[#8a8a8a]">
               {openedAt}
             </p>
 
@@ -152,7 +152,7 @@ export function WhatsAppWidget() {
               {INCOMING.map((line, i) => (
                 <p
                   key={line}
-                  className={`m-0 max-w-[80%] bg-white px-3.5 py-2.5 text-[14px] leading-[1.45] text-md-ink shadow-[0_1px_1px_rgba(32,30,29,.12)] ${
+                  className={`m-0 max-w-[80%] bg-white px-3.5 py-2.5 text-small text-md-ink shadow-[0_1px_1px_rgba(32,30,29,.12)] ${
                     i === 0
                       ? "rounded-t-lg rounded-br-lg rounded-bl-sm"
                       : "rounded-b-lg rounded-tr-lg rounded-tl-sm"
@@ -166,7 +166,7 @@ export function WhatsAppWidget() {
             {/* Preview of the message the button will send. */}
             <div className="mt-3 flex justify-end">
               <p
-                className="m-0 max-w-[85%] rounded-t-lg rounded-br-sm rounded-bl-lg px-3.5 py-2.5 text-[14px] leading-[1.45] text-md-ink shadow-[0_1px_1px_rgba(32,30,29,.12)]"
+                className="m-0 max-w-[85%] rounded-t-lg rounded-br-sm rounded-bl-lg px-3.5 py-2.5 text-small text-md-ink shadow-[0_1px_1px_rgba(32,30,29,.12)]"
                 style={{ backgroundColor: OUTGOING }}
               >
                 {PREFILL}
@@ -178,7 +178,7 @@ export function WhatsAppWidget() {
               target="_blank"
               rel="noreferrer"
               onClick={() => setPanelOpen(false)}
-              className="mt-6 flex items-center justify-center gap-2.5 rounded-full px-5 py-3.5 text-[15px] font-semibold text-white transition-transform duration-200 hover:scale-[1.02]"
+              className="mt-6 flex items-center justify-center gap-2.5 rounded-full px-5 py-3.5 text-body font-semibold text-white transition-transform duration-200 hover:scale-[1.02]"
               style={{ backgroundColor: BRAND }}
             >
               <WhatsAppIcon className="h-5 w-5" />
@@ -200,7 +200,7 @@ export function WhatsAppWidget() {
             <X className="h-3.5 w-3.5" />
           </button>
 
-          <p className="m-0 pr-5 text-[14px] leading-normal text-md-ink">
+          <p className="m-0 pr-5 text-small text-md-ink">
             Namaste, How can I help you?
           </p>
 

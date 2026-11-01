@@ -17,9 +17,8 @@ const contactSchema = z.object({
 type ContactForm = z.infer<typeof contactSchema>;
 
 const FIELD_CLASS =
-  "border-0 border-b-2 bg-transparent px-0 py-2.5 font-[inherit] text-[15px] text-md-poster outline-none";
-const FIELD_BORDER = { borderBottomColor: "rgba(255,242,239,.5)" };
-const LABEL_CLASS = "text-[10px] tracking-[0.2em] uppercase opacity-85";
+  "border-0 border-b-2 border-md-poster/50 bg-transparent px-0 py-2.5 font-[inherit] text-body text-md-poster outline-none";
+const LABEL_CLASS = "text-label font-medium uppercase opacity-85";
 
 // Settings store a full profile URL; the poster shows the handle. Parsing the
 // pathname rather than splitting the raw string keeps query strings and
@@ -107,25 +106,22 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="mt-[100px] bg-md-red px-9 py-24 text-md-poster"
+      className="mt-[100px] bg-md-red-deep px-9 py-24 text-md-poster"
     >
       <div className="grid grid-cols-[1.1fr_0.9fr] items-center gap-[72px] max-[900px]:grid-cols-1">
         <div>
-          <span className="text-[11px] tracking-[0.2em] uppercase opacity-85">
+          <span className="subtitle opacity-85">
             Contact
           </span>
           <MdReveal>
-            <h2 className="mt-[18px] font-extrabold tracking-[-0.03em] text-[clamp(34px,5.4vw,84px)] leading-[0.94]">
+            <h2 className="mt-[18px] font-title text-title-1">
               <span className="block">Let's make something</span>
               <span className="block">worth keeping.</span>
             </h2>
           </MdReveal>
 
           {map && (
-            <div
-              className="mt-10 w-full max-w-[900px] border-2"
-              style={{ borderColor: "rgba(255,242,239,.45)" }}
-            >
+            <div className="mt-10 w-full max-w-[900px] border-2 border-md-poster/45">
               <iframe
                 src={map}
                 title="Studio location"
@@ -148,11 +144,10 @@ export function ContactSection() {
               <input
                 type="text"
                 className={FIELD_CLASS}
-                style={FIELD_BORDER}
                 {...form.register("name")}
               />
               {errors.name && (
-                <span className="text-[11px] opacity-85">
+                <span className="text-caption opacity-85">
                   {errors.name.message}
                 </span>
               )}
@@ -163,11 +158,10 @@ export function ContactSection() {
               <input
                 type="email"
                 className={FIELD_CLASS}
-                style={FIELD_BORDER}
                 {...form.register("email")}
               />
               {errors.email && (
-                <span className="text-[11px] opacity-85">
+                <span className="text-caption opacity-85">
                   {errors.email.message}
                 </span>
               )}
@@ -178,11 +172,10 @@ export function ContactSection() {
               <textarea
                 rows={3}
                 className={`${FIELD_CLASS} resize-y`}
-                style={FIELD_BORDER}
                 {...form.register("message")}
               />
               {errors.message && (
-                <span className="text-[11px] opacity-85">
+                <span className="text-caption opacity-85">
                   {errors.message.message}
                 </span>
               )}
@@ -191,7 +184,7 @@ export function ContactSection() {
             <button
               type="submit"
               disabled={createMessage.isPending}
-              className="cursor-pointer self-start border-0 bg-md-ink px-6 py-[17px] font-[inherit] text-[12px] font-semibold tracking-[0.18em] text-md-poster uppercase transition-colors duration-200 hover:bg-md-poster hover:text-md-red"
+              className="cursor-pointer self-start border-0 bg-md-ink px-6 py-[17px] font-[inherit] text-label font-medium text-md-poster uppercase transition-colors duration-200 hover:bg-md-poster hover:text-md-red-deep"
             >
               {createMessage.isPending ? "Sending…" : "Send enquiry"}
             </button>
@@ -199,13 +192,10 @@ export function ContactSection() {
         </MdReveal>
       </div>
       {details.length > 0 && (
-        <div
-          className="mt-10 flex flex-wrap justify-around gap-11 border-t-2 pt-[22px]"
-          style={{ borderTopColor: "rgba(255,242,239,.45)" }}
-        >
+        <div className="mt-10 flex flex-wrap justify-around gap-11 border-t-2 border-md-poster/45 pt-[22px]">
           {details.map((detail) => (
             <div key={detail.label}>
-              <p className="m-0 text-[10px] tracking-[0.2em] uppercase opacity-80">
+              <p className="subtitle m-0 opacity-80">
                 {detail.label}
               </p>
               {detail.href ? (
@@ -214,12 +204,12 @@ export function ContactSection() {
                   {...(detail.external
                     ? { target: "_blank", rel: "noreferrer" }
                     : {})}
-                  className="mt-1.5 inline-block text-[15px] font-semibold text-md-poster underline-offset-4 transition-opacity duration-200 hover:underline hover:opacity-80"
+                  className="mt-1.5 inline-block text-body font-semibold text-md-poster underline-offset-4 transition-opacity duration-200 hover:underline hover:opacity-80"
                 >
                   {detail.value}
                 </a>
               ) : (
-                <p className="mt-1.5 mb-0 text-[15px] font-semibold">
+                <p className="mt-1.5 mb-0 text-body font-semibold">
                   {detail.value}
                 </p>
               )}

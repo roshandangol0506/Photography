@@ -10,8 +10,7 @@ const PAGES = [
 
 const SERIES_COLUMN_LIMIT = 3;
 
-const HEADING_CLASS = "mb-[14px] text-[10px] tracking-[0.2em] uppercase";
-const MUTED = "rgba(248,244,244,.55)";
+const HEADING_CLASS = "subtitle mb-[14px] text-md-600";
 
 export function Footer({
   settings,
@@ -34,8 +33,7 @@ export function Footer({
   return (
     <footer className="modernist border-t-2 border-md-divider px-9 pt-16 pb-[34px] text-md-light">
       <div
-        className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-11 border-b-2 pb-11 max-[900px]:grid-cols-1"
-        style={{ borderBottomColor: "rgba(248,244,244,.2)" }}
+        className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-11 border-b-2 border-md-divider pb-11 max-[900px]:grid-cols-1"
       >
         <div>
           {settings.logo ? (
@@ -50,25 +48,22 @@ export function Footer({
               style={{ width: "auto" }}
             />
           ) : (
-            <p className="m-0 text-[15px] font-bold tracking-[0.26em] uppercase">
+            <p className="m-0 text-body font-bold tracking-[0.26em] uppercase">
               {settings.siteTitle}
             </p>
           )}
           {settings.footerText && (
-            <p
-              className="mt-[14px] mb-0 max-w-[320px] text-[13px] leading-[1.7]"
-              style={{ color: "rgba(248,244,244,.65)" }}
-            >
+            <p className="mt-[14px] mb-0 max-w-[320px] text-small text-md-700">
               {settings.footerText}
             </p>
           )}
         </div>
 
         <div>
-          <p className={HEADING_CLASS} style={{ color: MUTED }}>
+          <p className={HEADING_CLASS}>
             Pages
           </p>
-          <div className="flex flex-col gap-[9px] text-[13px]">
+          <div className="flex flex-col gap-[9px] text-small">
             {PAGES.map((page) => (
               <Link key={page.label} href={page.to} className="hover:text-md-red">
                 {page.label}
@@ -79,10 +74,10 @@ export function Footer({
 
         {series.length > 0 && (
           <div>
-            <p className={HEADING_CLASS} style={{ color: MUTED }}>
+            <p className={HEADING_CLASS}>
               Series
             </p>
-            <div className="flex flex-col gap-[9px] text-[13px]">
+            <div className="flex flex-col gap-[9px] text-small">
               {series.map((category) => (
                 <Link
                   key={category._id}
@@ -98,10 +93,10 @@ export function Footer({
 
         {socials.length > 0 && (
           <div>
-            <p className={HEADING_CLASS} style={{ color: MUTED }}>
+            <p className={HEADING_CLASS}>
               Elsewhere
             </p>
-            <div className="flex flex-col gap-[9px] text-[13px]">
+            <div className="flex flex-col gap-[9px] text-small">
               {socials.map((social) => (
                 <a
                   key={social.label}
@@ -118,10 +113,7 @@ export function Footer({
         )}
       </div>
 
-      <div
-        className="flex flex-wrap justify-between gap-6 pt-[22px] text-[11px] tracking-[0.14em] uppercase"
-        style={{ color: MUTED }}
-      >
+      <div className="subtitle flex flex-wrap justify-between gap-6 pt-[22px] text-md-600">
         <span>
           &copy; {year} {settings.siteTitle}
         </span>

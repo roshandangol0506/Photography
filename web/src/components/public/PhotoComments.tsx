@@ -14,10 +14,10 @@ import { useVisitorId } from "@/hooks/useVisitorId";
 import { cn } from "@/lib/utils";
 
 const FIELD_CLASS =
-  "w-full border-2 border-md-divider bg-transparent px-4 py-3 font-[inherit] text-[14px] text-md-fg outline-none focus:border-md-red";
+  "w-full border-2 border-md-divider bg-transparent px-4 py-3 font-[inherit] text-body text-md-fg outline-none focus:border-md-red";
 
 const ACTION_CLASS =
-  "flex cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 text-[13px] font-medium text-md-600 transition-colors duration-200 hover:text-md-red disabled:opacity-60";
+  "flex cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 text-caption font-medium text-md-600 transition-colors duration-200 hover:text-md-red disabled:opacity-60";
 
 const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["year", 31536000],
@@ -73,8 +73,8 @@ function Avatar({ name, admin }: { name: string; admin?: boolean }) {
     <span
       aria-hidden="true"
       className={cn(
-        "flex h-9 w-9 flex-none items-center justify-center rounded-full text-[12px] font-bold",
-        admin ? "bg-md-red text-md-light" : "bg-md-300 text-md-800",
+        "flex h-9 w-9 flex-none items-center justify-center rounded-full text-caption font-bold",
+        admin ? "bg-md-red-deep text-md-light" : "bg-md-300 text-md-800",
       )}
     >
       {initials(name)}
@@ -108,19 +108,19 @@ function CommentBody({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-[14px] font-semibold">{comment.name}</span>
+          <span className="text-small font-semibold">{comment.name}</span>
           {comment.isAdminReply && (
             <BadgeCheck
               className="h-4 w-4 text-md-red"
               aria-label="Photographer"
             />
           )}
-          <span className="text-[12px] text-md-600">
+          <span className="text-caption text-md-600">
             {timeAgo(comment.createdAt)}
           </span>
         </div>
 
-        <p className="mt-1 mb-0 text-[14px] leading-[1.6]">
+        <p className="mt-1 mb-0 text-small">
           {renderContent(comment.content, names)}
         </p>
 
@@ -215,14 +215,14 @@ export function PhotoComments({ photoId }: { photoId: string }) {
       className="px-9 py-[70px] max-[900px]:px-5 max-[900px]:py-10"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="m-0 flex items-center gap-3 font-bold tracking-[-0.02em] text-[clamp(22px,2.6vw,32px)] leading-none">
+        <h2 className="m-0 flex items-center gap-3 text-title-3">
           Comments
-          <span className="rounded-full bg-md-red px-2.5 py-1 text-[12px] font-semibold text-md-light">
+          <span className="rounded-full bg-md-red-deep px-2.5 py-1 font-body text-caption font-semibold text-md-light not-italic">
             {total}
           </span>
         </h2>
 
-        <label className="flex items-center gap-2 text-[13px] font-medium text-md-700">
+        <label className="flex items-center gap-2 text-caption font-medium text-md-700">
           <ArrowUpDown className="h-4 w-4" />
           <span className="sr-only">Sort comments</span>
           <select
@@ -230,7 +230,7 @@ export function PhotoComments({ photoId }: { photoId: string }) {
             onChange={(event) =>
               setSort(event.target.value as "recent" | "oldest")
             }
-            className="cursor-pointer border-0 bg-transparent font-[inherit] text-[13px] text-md-fg outline-none"
+            className="cursor-pointer border-0 bg-transparent font-[inherit] text-caption text-md-fg outline-none"
           >
             <option value="recent">Most recent</option>
             <option value="oldest">Oldest first</option>
@@ -249,7 +249,7 @@ export function PhotoComments({ photoId }: { photoId: string }) {
           )}
 
           {!isLoading && comments.length === 0 && (
-            <p className="m-0 text-[14px] text-md-600">
+            <p className="m-0 text-small text-md-600">
               No comments yet. Be the first to say something.
             </p>
           )}
@@ -319,7 +319,7 @@ export function PhotoComments({ photoId }: { photoId: string }) {
             <button
               type="submit"
               disabled={!visitorId || createComment.isPending}
-              className="cursor-pointer border-0 bg-md-ink px-5 py-3 text-[12px] font-semibold tracking-[0.16em] text-md-light uppercase transition-colors duration-200 hover:bg-md-red disabled:opacity-60"
+              className="cursor-pointer border-0 bg-md-ink px-5 py-3 text-label font-semibold text-md-light uppercase transition-colors duration-200 hover:bg-md-red-deep disabled:opacity-60"
             >
               {createComment.isPending
                 ? "Posting…"
@@ -335,14 +335,14 @@ export function PhotoComments({ photoId }: { photoId: string }) {
                   setReplyTo(null);
                   setContent("");
                 }}
-                className="cursor-pointer border-0 bg-transparent p-0 text-[13px] text-md-600 hover:text-md-red"
+                className="cursor-pointer border-0 bg-transparent p-0 text-caption text-md-600 hover:text-md-red"
               >
                 Cancel reply
               </button>
             )}
 
             {savedName && (
-              <span className="text-[13px] text-md-600">
+              <span className="text-caption text-md-600">
                 Commenting as <span className="font-semibold">{savedName}</span>
               </span>
             )}

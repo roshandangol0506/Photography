@@ -9,7 +9,7 @@ import {
 import type { ActiveCategory } from "@/types/content";
 
 const SECTION_CLASS = "px-9 max-[900px]:px-5";
-const KICKER_CLASS = "text-[11px] tracking-[0.2em] text-md-red uppercase";
+const KICKER_CLASS = "subtitle text-md-red";
 const PER_PAGE = 12;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,10 +29,10 @@ function Header({ categories }: { categories: ActiveCategory[] }) {
   return (
     <section className={`${SECTION_CLASS} pt-[70px] pb-[50px]`}>
       <span className={KICKER_CLASS}>Archive</span>
-      <h1 className="mt-[18px] mb-0 font-extrabold tracking-[-0.03em] text-[clamp(34px,5.4vw,84px)] leading-[0.94]">
+      <h1 className="mt-[18px] mb-0 text-title-1">
         The gallery.
       </h1>
-      <p className="mt-8 mb-0 max-w-[620px] text-[15px] leading-[1.75] text-md-700">
+      <p className="mt-8 mb-0 max-w-[620px] text-lead text-md-700">
         Every photograph in the archive, grouped by series. Search by title,
         series, collection, location or tag — or open any frame for its full
         story.
@@ -74,16 +74,16 @@ export default async function GalleryPage({ searchParams }: PageProps) {
 
         <section className={`${SECTION_CLASS} pb-[90px]`}>
           <div className="flex flex-wrap items-baseline justify-between gap-4 border-t-2 border-md-divider pt-6">
-            <h2 className="m-0 font-bold tracking-[-0.02em] text-[clamp(20px,2.4vw,32px)] leading-none">
+            <h2 className="m-0 text-title-3">
               {activeName || (search ? "Search results" : "All work")}
             </h2>
-            <span className="text-[11px] tracking-[0.16em] text-md-600 uppercase">
+            <span className="subtitle text-md-600">
               {result?.pagination.total ?? 0} photographs
             </span>
           </div>
 
           {photos.length === 0 ? (
-            <p className="m-0 py-16 text-center text-[14px] text-md-600">
+            <p className="m-0 py-16 text-center text-small text-md-600">
               Nothing matched that. Try a different title, series or location.
             </p>
           ) : (
@@ -143,11 +143,11 @@ export default async function GalleryPage({ searchParams }: PageProps) {
               <div className="flex flex-wrap items-end justify-between gap-6">
                 <div>
                   <span className={KICKER_CLASS}>{band.kicker}</span>
-                  <h2 className="mt-[10px] mb-0 font-bold tracking-[-0.025em] text-[clamp(24px,3.2vw,44px)] leading-none">
+                  <h2 className="mt-[10px] mb-0 text-title-2">
                     {band.title}
                   </h2>
                 </div>
-                <span className="text-[11px] tracking-[0.16em] text-md-600 uppercase">
+                <span className="subtitle text-md-600">
                   {band.result?.pagination.total ?? 0} photographs
                 </span>
               </div>

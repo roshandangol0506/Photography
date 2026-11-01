@@ -175,13 +175,13 @@ const Schedule = () => {
   return (
     <section
       id="launch-schedule"
-      className="mx-auto max-w-5xl px-4 py-48 text-white"
+      className="mx-auto max-w-5xl px-4 py-48 text-md-fg"
     >
       <motion.h2
         initial={{ y: 48, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         transition={{ ease: "easeInOut", duration: 0.75 }}
-        className="mb-20 text-4xl font-black uppercase text-zinc-50"
+        className="mb-20 font-title text-title-2 font-semibold not-italic uppercase text-md-fg"
       >
         Launch Schedule
       </motion.h2>
@@ -208,14 +208,14 @@ const ScheduleItem = ({ title, date, location }: ScheduleItemProps) => {
       initial={{ y: 48, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
       transition={{ ease: "easeInOut", duration: 0.75 }}
-      className="mb-9 flex items-center justify-between border-b border-zinc-800 px-3 pb-9"
+      className="mb-9 flex items-center justify-between border-b border-md-200 px-3 pb-9"
     >
       <div>
-        <p className="mb-1.5 text-xl text-zinc-50">{title}</p>
-        <p className="text-sm uppercase text-zinc-500">{date}</p>
+        <p className="mb-1.5 font-title text-title-4 text-md-fg">{title}</p>
+        <p className="subtitle text-md-600">{date}</p>
       </div>
-      <div className="flex items-center gap-1.5 text-end text-sm uppercase text-zinc-500">
-        <p>{location}</p>
+      <div className="flex items-center gap-1.5 text-end text-md-600">
+        <p className="subtitle">{location}</p>
         <MapPin className="size-4" />
       </div>
     </motion.div>

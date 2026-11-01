@@ -8,8 +8,8 @@ import { PhotoComments } from "@/components/public/PhotoComments";
 import { PhotoImage } from "@/components/public/PhotoImage";
 import { PhotoFrame } from "@/components/public/PhotoFrame";
 
-const LABEL_CLASS = "m-0 text-[10px] tracking-[0.2em] text-md-600 uppercase";
-const VALUE_CLASS = "mt-1.5 mb-0 text-[14px]";
+const LABEL_CLASS = "subtitle m-0 text-md-600";
+const VALUE_CLASS = "mt-1.5 mb-0 text-small";
 
 function formatDate(value?: string | null) {
   if (!value) return "";
@@ -144,16 +144,16 @@ export default async function PhotoDetailPage({ params }: PageProps) {
       <div className="grid grid-cols-[1.2fr_0.8fr] gap-16 px-9 py-[70px] max-[900px]:grid-cols-1 max-[900px]:gap-10 max-[900px]:px-5 max-[900px]:py-10">
         <div>
           {photo.category?.name && (
-            <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
+            <span className="subtitle text-md-red">
               {photo.category.name}
             </span>
           )}
-          <h1 className="mt-[14px] mb-0 font-bold tracking-[-0.025em] text-[clamp(30px,4.4vw,62px)] leading-none">
+          <h1 className="mt-[14px] mb-0 text-title-1">
             {photo.title}
           </h1>
 
           {photo.description && (
-            <p className="mt-7 mb-0 max-w-[560px] text-[15px] leading-[1.75] text-md-700">
+            <p className="mt-7 mb-0 max-w-[560px] text-lead text-md-700">
               {photo.description}
             </p>
           )}
@@ -162,12 +162,12 @@ export default async function PhotoDetailPage({ params }: PageProps) {
             <LikeButton
               photoId={photo._id}
               likeCount={photo.likeCount}
-              className="text-[13px] tracking-[0.14em] uppercase"
+              className="text-caption"
             />
-            <span className="inline-flex items-center gap-2 text-[13px] tracking-[0.14em] text-md-600 uppercase">
+            <span className="inline-flex items-center gap-2 text-caption text-md-600">
               <MessageCircle className="h-4 w-4" /> {photo.commentCount}
             </span>
-            <span className="inline-flex items-center gap-2 text-[13px] tracking-[0.14em] text-md-600 uppercase">
+            <span className="inline-flex items-center gap-2 text-caption text-md-600">
               <Eye className="h-4 w-4" /> {photo.viewCount} views
             </span>
           </div>
@@ -177,7 +177,7 @@ export default async function PhotoDetailPage({ params }: PageProps) {
               {photo.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="border-2 border-md-divider px-3 py-1.5 text-[10px] tracking-[0.16em] text-md-700 uppercase"
+                  className="border-2 border-md-divider subtitle px-3 py-1.5 text-md-700"
                 >
                   {tag}
                 </span>
@@ -207,7 +207,7 @@ export default async function PhotoDetailPage({ params }: PageProps) {
 
       {related.length > 0 && (
         <div className="px-9 py-[70px] max-[900px]:px-5 max-[900px]:py-10">
-          <span className="text-[11px] tracking-[0.2em] text-md-red uppercase">
+          <span className="subtitle text-md-red">
             More from this series
           </span>
           <div className="mt-9 grid grid-cols-4 gap-9 max-[900px]:grid-cols-2 max-[900px]:gap-4">
@@ -226,7 +226,7 @@ export default async function PhotoDetailPage({ params }: PageProps) {
                     className="object-cover"
                   />
                 </PhotoFrame>
-                <p className="mt-3 mb-0 text-[11px] tracking-[0.08em] uppercase">
+                <p className="mt-3 mb-0 text-label tracking-[0.08em] uppercase">
                   {item.title}
                 </p>
               </Link>

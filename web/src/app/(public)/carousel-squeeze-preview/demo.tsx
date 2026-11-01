@@ -17,10 +17,8 @@ export const settings = {
 
 type DemoProps = Partial<typeof settings>;
 
-/** A wordmark for the corner of the open panel. */
-const mark = (text: string) => (
-    <span className="text-sm font-medium tracking-tight text-white">{text}</span>
-);
+/** A place name for the corner of the open panel, set as a subtitle. */
+const mark = (text: string) => <span className="subtitle text-md-light">{text}</span>;
 
 const unsplash = (id: string) =>
     `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&h=675&q=80`;
@@ -113,10 +111,11 @@ export default function SqueezeCarouselDemo(props: DemoProps) {
         <SqueezeCarousel
             slides={slides}
             label="Featured series"
-            // The site's red, rather than the shadcn primary, so the arrows and
-            // the button match the rest of the public pages.
-            accent="var(--md-red)"
-            accentForeground="#f8f4f4"
+            // The site's deep red, rather than the shadcn primary, so the arrows
+            // and the button match the rest of the public pages. The deep one
+            // because they carry light text: the bright red fails contrast.
+            accent="var(--color-md-red-deep)"
+            accentForeground="var(--color-md-light)"
             {...options}
         />
     );

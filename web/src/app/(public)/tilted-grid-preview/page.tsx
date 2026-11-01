@@ -41,13 +41,13 @@ export default function TiltedGridPreviewPage() {
     >
       <div className="relative z-10 flex h-full flex-col items-center justify-between pt-32 pb-16 text-center text-md-light">
         <div className="px-6">
-          <h1 className="text-balance text-4xl font-medium tracking-tight sm:text-6xl">
+          <h1 className="text-balance font-title text-title-1">
             Every frame,
             <br />
             brought into focus.
           </h1>
         </div>
-        <p className="max-w-md text-balance px-6 text-sm text-md-light/80">
+        <p className="max-w-md text-balance px-6 text-small text-md-light/80">
           Images curve in from one edge, flatten out at the centre, then fade
           away round the other.
         </p>

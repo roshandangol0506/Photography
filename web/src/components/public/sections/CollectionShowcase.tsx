@@ -10,17 +10,17 @@ import { cn } from "@/lib/utils";
 
 const BAND_HEIGHT = "clamp(420px, 56vw, 720px)";
 
-// Sits over the photograph so the white type holds at any exposure.
+// Sits over the photograph so the light type holds at any exposure.
 const SCRIM =
   "linear-gradient(180deg,rgba(20,19,18,.30) 0%,rgba(20,19,18,.12) 40%,rgba(20,19,18,.78) 100%)";
 
-const DIVIDER = "rgba(248,244,244,.35)";
+const DIVIDER = "color-mix(in srgb, var(--color-md-light) 35%, transparent)";
 
 const TITLE_CLASS =
-  "m-0 font-bold tracking-[0.18em] text-[clamp(14px,1.4vw,20px)] uppercase";
+  "m-0 text-title-4 tracking-[0.18em] uppercase";
 
 const BUTTON_CLASS =
-  "inline-flex items-center gap-3 border border-current px-4 py-[10px] text-[11px] font-semibold tracking-[0.18em] uppercase transition-colors duration-200 hover:bg-md-light hover:text-md-ink";
+  "inline-flex items-center gap-3 border border-current px-4 py-[10px] text-label font-medium uppercase transition-colors duration-200 hover:bg-md-light hover:text-md-ink";
 
 function CollectionCopy({
   collection,
@@ -57,13 +57,12 @@ function CollectionCopy({
         <div className="pb-5">
           {collection.description && (
             <p
-              className="m-0 max-w-[360px] text-[13px] leading-[1.7]"
+              className="m-0 max-w-[360px] text-small text-md-light/85"
               style={{
                 ...base,
                 transition: animate
                   ? "opacity .45s ease, transform .45s cubic-bezier(.16,1,.3,1)"
                   : undefined,
-                color: "rgba(248,244,244,.85)",
               }}
             >
               {collection.description}
