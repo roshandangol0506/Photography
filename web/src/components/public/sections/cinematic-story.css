@@ -24,8 +24,7 @@
   /* Text over the photographs; text on the backdrop takes --md-fg. */
   --story-light: var(--color-md-light);
   --story-accent: var(--md-red);
-  /* The fixed navbar is ~70px once solid; scenes start below it. */
-  --story-top: 72px;
+  /* The gutter between panels, and round the edge of the screen. */
   --g: clamp(6px, 0.7vw, 12px);
 
   /* Direction-dependent pieces of the choreography. An incoming panel waits
@@ -64,13 +63,15 @@
 
 /* ---------------------------------------------------------------- scenes */
 
+/* The whole screen, framed by one even gutter: the navbar is transparent,
+   so the photographs run up under it rather than starting below it. */
 .story-scene {
   position: absolute;
-  inset: var(--story-top) 0 0 0;
+  inset: 0;
   z-index: 1;
   display: grid;
   gap: var(--g);
-  padding: 0 var(--g) var(--g);
+  padding: var(--g);
   visibility: hidden;
 }
 .story-scene[data-state="current"],
@@ -398,12 +399,6 @@
 }
 
 /* ------------------------------------------------------------ responsive */
-
-@media (max-width: 900px) {
-  .story {
-    --story-top: 64px;
-  }
-}
 
 @media (max-width: 700px) {
   .story-scene--pair {

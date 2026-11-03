@@ -50,7 +50,7 @@ export default async function PublicLayout({
           className="modernist dark site-backdrop flex min-h-screen flex-col text-md-fg"
           style={{ "--site-bg": BACKDROP } as CSSProperties}
         >
-          <HomeNavbar overHero />
+          <HomeNavbar />
           <main className="flex-1">{children}</main>
           <AwardBadge />
           <WhatsAppWidget />

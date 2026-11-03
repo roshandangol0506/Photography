@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { useSite } from "@/components/providers/SiteProvider";
-import { cn } from "@/lib/utils";
 
 const LINKS: { label: string; route?: string; href?: string }[] = [
   { label: "Home", route: "/" },
@@ -16,32 +15,18 @@ const LINKS: { label: string; route?: string; href?: string }[] = [
   { label: "Tours", href: "/#tours" },
 ];
 
-const SOLID_OFFSET = 90;
-
 const MOBILE_QUERY = "(max-width: 900px)";
 
 const LINK_CLASS =
   "md-navlink text-label font-medium text-inherit uppercase transition-colors duration-200 hover:text-md-red";
 
-interface HomeNavbarProps {
-  overHero?: boolean;
-}
-
-export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
+/**
+ * The site's fixed bar. Transparent all the way down the page - it never
+ * turns solid on scroll - so the photographs and sections run up under it.
+ */
+export function HomeNavbar() {
   const { settings } = useSite();
-  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (!overHero) return;
-    const onScroll = () =>
-      setScrolledPastHero(window.scrollY > window.innerHeight - SOLID_OFFSET);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [overHero]);
-
-  const solid = !overHero || scrolledPastHero;
 
   useEffect(() => {
     const query = window.matchMedia(MOBILE_QUERY);
@@ -58,13 +43,7 @@ export function HomeNavbar({ overHero = false }: HomeNavbarProps) {
 
   return (
     <header
-      className={cn(
-        "modernist fixed inset-x-0 top-0 z-[90] flex items-center justify-between gap-8 border-b-2 px-9 max-[900px]:gap-4 max-[900px]:px-5",
-        "transition-[background-color,border-color,padding,color] duration-[450ms] ease-[ease]",
-        solid
-          ? "border-md-divider bg-md-ground py-[14px] text-md-fg"
-          : "border-transparent bg-transparent py-5 text-md-light",
-      )}
+      className="modernist fixed inset-x-0 top-0 z-[90] flex items-center justify-between gap-8 bg-transparent px-9 py-5 text-md-light max-[900px]:gap-4 max-[900px]:px-5"
     >
       <a href="#top" className="flex items-center gap-3 text-inherit">
         {logo ? (
