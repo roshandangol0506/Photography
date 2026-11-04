@@ -104,6 +104,17 @@ const rise: Variants = {
   },
 };
 
+// The Venom button follows the paragraph up, a beat behind it. Its whole
+// stage moves, so the goo and the pill it measures stay together.
+const riseButton: Variants = {
+  hidden: { y: 40, opacity: 0 },
+  shown: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: DURATION, ease: EASE, delay: 0.2 },
+  },
+};
+
 /** The heading, split into masked lines of characters for the reveal. */
 function RevealHeading() {
   return (
@@ -255,18 +266,28 @@ export function StreamHero() {
               </span>
             </p>
           </motion.div>
+          {/* The venom stage covers the whole hero, so its tendrils can reach
+              over the text and the photos. Its button sits 1.5rem above the
+              paragraph: pb-16 (4rem) + the paragraph's h-24 (6rem) + 1.5rem =
+              11.5rem. It waits with the text for the corridor to break open,
+              and until then can't be pressed or darken the cursor. */}
+          <motion.div
+            data-hero-reveal
+            initial="hidden"
+            animate={textIn ? "shown" : "hidden"}
+            variants={riseButton}
+            className={`absolute inset-0 z-20 ${textIn ? "" : "pointer-events-none"}`}
+          >
+            <VenomButton
+              height="100%"
+              // With a mouse, the goo darkens the site cursor - ring and
+              // all - the way it creeps over the glove on touch screens.
+              cursor={finePointer ? "native" : "glove"}
+              onReach={finePointer && textIn ? setCursorTone : undefined}
+              className="items-end rounded-none pb-[11.5rem]"
+            />
+          </motion.div>
         </MotionConfig>
-        {/* The venom stage covers the whole hero, so its tendrils can reach over
-            the text and the photos. Its button sits 1.5rem above the paragraph:
-            pb-16 (4rem) + the paragraph's h-24 (6rem) + 1.5rem = 11.5rem. */}
-        <VenomButton
-          height="100%"
-          // With a mouse, the goo darkens the site cursor - ring and all -
-          // the way it creeps over the glove on touch screens.
-          cursor={finePointer ? "native" : "glove"}
-          onReach={finePointer ? setCursorTone : undefined}
-          className="absolute inset-0 z-20 items-end rounded-none pb-[11.5rem]"
-        />
       </ImageStreamHero>
     </>
   );
