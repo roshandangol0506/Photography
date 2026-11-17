@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDownRight, ArrowRight } from "lucide-react";
 import { useSite } from "@/components/providers/SiteProvider";
+import InkBlotCarousel, { type Slide } from "@/components/ui/ink-blot-carousel";
 import { STORY_SCENES } from "./cinematicStory";
 
 export interface StoryPanel {
@@ -27,6 +28,17 @@ export type StoryScene =
       kind: "feature";
       panels: [StoryPanel, StoryPanel];
       link?: { label: string; href: string };
+    }
+  /**
+   * One full-screen panel holding a whole series: scrolling moves to the next
+   * scene, a click inks in the series' next photograph.
+   */
+  | {
+      kind: "gallery";
+      eyebrow?: string;
+      title: string;
+      subtitle?: string;
+      slides: Slide[];
     };
 
 type Motion = "full" | "reduced" | "off";
@@ -79,7 +91,10 @@ function tweenScroll(to: number, ms: number, done?: () => void) {
 }
 
 /** Rendered widths per layout slot, for the optimizer. */
-const SIZES: Record<Exclude<StoryScene["kind"], "intro">, string[]> = {
+const SIZES: Record<
+  Exclude<StoryScene["kind"], "intro" | "gallery">,
+  string[]
+> = {
   pair: ["(max-width: 700px) 100vw, 50vw", "(max-width: 700px) 100vw, 50vw"],
   trio: ["100vw", "50vw", "50vw"],
   feature: ["(max-width: 700px) 100vw, 50vw", "50vw"],
@@ -466,6 +481,14 @@ export function CinematicStory({
                     if (!locked.current) step(1);
                   }}
                 />
+              ) : scene.kind === "gallery" ? (
+                <Gallery
+                  scene={scene}
+                  // Only the scenes next to the one on screen hold a carousel:
+                  // each one preloads its whole series on mount. A series you
+                  // come back to starts again from its first photograph.
+                  mounted={Math.abs(i - view.idx) <= 1 || state === "leave"}
+                />
               ) : (
                 <>
                   {scene.panels.map((panel, p) => (
@@ -530,6 +553,45 @@ export function CinematicStory({
         </span>
       </div>
     </section>
+  );
+}
+
+function Gallery({
+  scene,
+  mounted,
+}: {
+  scene: Extract<StoryScene, { kind: "gallery" }>;
+  mounted: boolean;
+}) {
+  return (
+    <div className="story-panel story-panel--gallery">
+      <div className="story-pic">
+        {mounted && (
+          <InkBlotCarousel
+            slides={scene.slides}
+            height="100%"
+            // Clicks move it on; nothing advances in the background.
+            autoplay={0}
+            ariaLabel={`${scene.title} photographs`}
+          />
+        )}
+      </div>
+      <div className="story-cap story-cap--top">
+        {scene.eyebrow && (
+          <span className="story-mask">
+            <span className="story-sub story-eyebrow">{scene.eyebrow}</span>
+          </span>
+        )}
+        <span className="story-mask">
+          <span className="story-title">{scene.title}</span>
+        </span>
+        {scene.subtitle && (
+          <span className="story-mask">
+            <span className="story-sub">{scene.subtitle}</span>
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 

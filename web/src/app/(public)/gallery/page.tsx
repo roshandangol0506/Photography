@@ -1,178 +1,81 @@
 import type { Metadata } from "next";
-import { getActiveCategories, getPhotos, getSettings } from "@/lib/content";
-import { GalleryControls } from "@/components/public/gallery/GalleryControls";
-import { LoadMore } from "@/components/public/gallery/LoadMore";
+import { getActiveCategories, getPhotos } from "@/lib/content";
 import {
-  GalleryFrame,
-  MASONRY_CLASS,
-} from "@/components/public/gallery/GalleryFrame";
-import type { ActiveCategory } from "@/types/content";
+  CinematicStory,
+  type StoryScene,
+} from "@/components/public/sections/CinematicStory";
+import type { Photo } from "@/types/content";
 
-const SECTION_CLASS = "px-9 max-[900px]:px-5";
-const KICKER_CLASS = "subtitle text-md-red";
-const PER_PAGE = 12;
+/**
+ * Scratch page for viewing the ink-blot carousel in isolation.
+ *
+ * The archive as the gallery page groups it - one scene per series, from the
+ * API - on the cinematic story's stage: one scroll moves to the next series
+ * with its clip-path reveal, a click inks in the series' next photograph.
+ *
+ * Not linked from anywhere and not in the sitemap (that file is an explicit
+ * list). Delete this route once the carousel has been placed on a real page.
+ */
+export const metadata: Metadata = {
+  title: "Ink blot preview",
+  robots: { index: false, follow: false },
+};
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings();
-  const site = settings?.siteTitle ?? "Photography";
-  const description = `Every photograph in the ${site} archive, grouped by series.`;
+/** Photos per series. Each mounted carousel preloads all of its own. */
+const PER_SERIES = 12;
 
+function toSlide(photo: Photo) {
+  const { large, medium, thumb } = photo.images;
   return {
-    title: "Gallery",
-    description,
-    alternates: { canonical: "/gallery" },
-    openGraph: { type: "website", title: `Gallery — ${site}`, description },
+    image: large || medium || thumb,
+    title: photo.title,
+    caption: photo.location || undefined,
+    alt: [photo.title, photo.location, photo.category?.name]
+      .filter(Boolean)
+      .join(" — "),
   };
 }
 
-function Header({ categories }: { categories: ActiveCategory[] }) {
-  return (
-    <section className={`${SECTION_CLASS} pt-[70px] pb-[50px]`}>
-      <span className={KICKER_CLASS}>Archive</span>
-      <h1 className="mt-[18px] mb-0 text-title-1">
-        The gallery.
-      </h1>
-      <p className="mt-8 mb-0 max-w-[620px] text-lead text-md-700">
-        Every photograph in the archive, grouped by series. Search by title,
-        series, collection, location or tag — or open any frame for its full
-        story.
-      </p>
-      <GalleryControls categories={categories} />
-    </section>
-  );
-}
-
-type PageProps = {
-  searchParams: Promise<{
-    category?: string;
-    collection?: string;
-    search?: string;
-  }>;
-};
-
-export default async function GalleryPage({ searchParams }: PageProps) {
-  const { category = "", collection = "", search = "" } = await searchParams;
+export default async function InkBlotPreviewPage() {
   const categories = (await getActiveCategories()) ?? [];
 
-  // Any filter or search collapses the bands into one flat result set.
-  const filtered = Boolean(category || collection || search);
-
-  if (filtered) {
-    const params = {
-      category: category || undefined,
-      collection: collection || undefined,
-      search: search || undefined,
-    };
-    const result = await getPhotos({ ...params, perpage: PER_PAGE });
-    const photos = result?.photos ?? [];
-    const activeName =
-      categories.find((item) => item.slug === category)?.name ?? "";
-
-    return (
-      <div className="modernist text-md-fg">
-        <Header categories={categories} />
-
-        <section className={`${SECTION_CLASS} pb-[90px]`}>
-          <div className="flex flex-wrap items-baseline justify-between gap-4 border-t-2 border-md-divider pt-6">
-            <h2 className="m-0 text-title-3">
-              {activeName || (search ? "Search results" : "All work")}
-            </h2>
-            <span className="subtitle text-md-600">
-              {result?.pagination.total ?? 0} photographs
-            </span>
-          </div>
-
-          {photos.length === 0 ? (
-            <p className="m-0 py-16 text-center text-small text-md-600">
-              Nothing matched that. Try a different title, series or location.
-            </p>
-          ) : (
-            <div className="mt-10">
-              <div className={MASONRY_CLASS}>
-                {photos.map((photo, i) => (
-                  <GalleryFrame
-                    key={photo._id}
-                    photo={photo}
-                    priority={i < 2}
-                  />
-                ))}
-              </div>
-              <LoadMore
-                params={params}
-                perpage={PER_PAGE}
-                totalPages={result?.pagination.totalPages ?? 1}
-              />
-            </div>
-          )}
-        </section>
-      </div>
-    );
-  }
-
-  // Resting state: one band per series, plus anything with no series assigned
-  // so the gallery holds the whole archive. Fetched in parallel.
+  // Same grouping as /gallery: one band per series, plus anything with no
+  // series so the whole archive is here. Fetched in parallel.
   const bands = await Promise.all([
     ...categories.map(async (item) => ({
+      eyebrow: item.country || "Series",
       title: item.name,
-      kicker: item.country || "Series",
-      params: { category: item.slug },
-      result: await getPhotos({ category: item.slug, perpage: PER_PAGE }),
+      result: await getPhotos({ category: item.slug, perpage: PER_SERIES }),
     })),
     (async () => ({
+      eyebrow: "Everything else",
       title: "Unsorted",
-      kicker: "Everything else",
-      params: { uncategorized: true },
-      result: await getPhotos({ uncategorized: true, perpage: PER_PAGE }),
+      result: await getPhotos({ uncategorized: true, perpage: PER_SERIES }),
     }))(),
   ]);
 
-  return (
-    <div className="modernist text-md-fg">
-      <Header categories={categories} />
+  const scenes: StoryScene[] = bands.flatMap((band) => {
+    const photos = band.result?.photos ?? [];
+    if (photos.length === 0) return [];
+    const total = band.result?.pagination.total ?? photos.length;
+    return [
+      {
+        kind: "gallery" as const,
+        eyebrow: band.eyebrow,
+        title: band.title,
+        subtitle: `${total} photograph${total === 1 ? "" : "s"}`,
+        slides: photos.map(toSlide),
+      },
+    ];
+  });
 
-      <div className="pb-[70px]">
-        {bands.map((band, bandIndex) => {
-          const photos = band.result?.photos ?? [];
-          if (photos.length === 0) return null;
+  if (scenes.length === 0) {
+    return (
+      <p className="m-0 px-9 pt-[160px] pb-[90px] text-center text-small text-md-600">
+        No photographs have been published yet.
+      </p>
+    );
+  }
 
-          return (
-            <section
-              key={band.title}
-              className={`${SECTION_CLASS} pt-[60px] pb-[60px]`}
-            >
-              <div className="flex flex-wrap items-end justify-between gap-6">
-                <div>
-                  <span className={KICKER_CLASS}>{band.kicker}</span>
-                  <h2 className="mt-[10px] mb-0 text-title-2">
-                    {band.title}
-                  </h2>
-                </div>
-                <span className="subtitle text-md-600">
-                  {band.result?.pagination.total ?? 0} photographs
-                </span>
-              </div>
-
-              <div className="mt-10">
-                <div className={MASONRY_CLASS}>
-                  {photos.map((photo, i) => (
-                    <GalleryFrame
-                      key={photo._id}
-                      photo={photo}
-                      // Only the first band's opening frames are eager.
-                      priority={bandIndex === 0 && i < 2}
-                    />
-                  ))}
-                </div>
-                <LoadMore
-                  params={band.params}
-                  perpage={PER_PAGE}
-                  totalPages={band.result?.pagination.totalPages ?? 1}
-                />
-              </div>
-            </section>
-          );
-        })}
-      </div>
-    </div>
-  );
+  return <CinematicStory scenes={scenes} />;
 }

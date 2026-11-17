@@ -206,6 +206,33 @@
   height: 22px;
 }
 
+/* --------------------------------------------------------------- gallery */
+
+/* One series per scene: a single panel filling the frame, with the ink-blot
+   carousel inside it. The carousel brings its own shade and captions. */
+.story-scene--gallery {
+  grid-template: 1fr / 1fr;
+}
+.story-panel--gallery .story-pic::after {
+  display: none;
+}
+/* The series name sits top-left, clear of the transparent navbar; clicks go
+   through it to the carousel. */
+.story-cap--top {
+  top: clamp(84px, 12svh, 124px);
+  bottom: auto;
+  pointer-events: none;
+}
+.story-cap--top .story-eyebrow {
+  margin-top: 0;
+  margin-bottom: 10px;
+  opacity: 1;
+}
+/* Clicks advance it; there is no autoplay for a progress line to time. */
+.story-panel--gallery .ib-track {
+  display: none;
+}
+
 /* ----------------------------------------------------------------- intro */
 
 .story-scene--intro {
@@ -390,10 +417,12 @@
   .story-title {
     transition: background-size 0.6s var(--story-ease) 0.1s;
   }
-  .story-panel:not(.story-panel--link):hover .story-cap {
+  .story-panel:not(.story-panel--link, .story-panel--gallery):hover
+    .story-cap {
     transform: translate3d(0, -14svh, 0);
   }
-  .story-panel:not(.story-panel--link):hover .story-title {
+  .story-panel:not(.story-panel--link, .story-panel--gallery):hover
+    .story-title {
     background-size: 100% 2px;
   }
 }
@@ -423,6 +452,15 @@
     left: 12px;
     right: 12px;
     bottom: 12px;
+  }
+  /* A series panel is full width, so its name keeps the scale's size. */
+  .story-panel--gallery .story-title {
+    font-size: var(--text-title-2);
+    line-height: 0.95;
+  }
+  .story-cap--top {
+    left: 20px;
+    right: 20px;
   }
   .story-count,
   .story-cue {
